@@ -1,0 +1,211 @@
+---
+
+---
+
+<section class="carousel">
+  <div class="carousel__header">
+    <h2>Información</h2>
+  </div>
+
+  <div class="carousel__wrapper">
+
+    <div class="carousel__viewport">
+      <div class="carousel__track" id="carouselTrack">
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 1-02.png" alt="Imagen 1" />
+          <div class="carousel__cardBody">
+            <h3>Título 1</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 2-02.png" alt="Imagen 2" />
+          <div class="carousel__cardBody">
+            <h3>Título 2</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 3-02.png" alt="Imagen 3" />
+          <div class="carousel__cardBody">
+            <h3>Título 3</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 4-02.png" alt="Imagen 4" />
+          <div class="carousel__cardBody">
+            <h3>Título 4</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 5-02.png" alt="Imagen 5" />
+          <div class="carousel__cardBody">
+            <h3>Título 5</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+        <article class="carousel__card">
+          <img src="/Imágenes/imagen 6-02.png" alt="Imagen 6" />
+          <div class="carousel__cardBody">
+            <h3>Título 6</h3>
+            <p>Descripción de la imagen.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="carousel__dots">
+      <span class="active" data-slide="0"></span>
+      <span data-slide="1"></span>
+      <span data-slide="2"></span>
+      <span data-slide="3"></span>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const track = document.getElementById("carouselTrack");
+    const dots = document.querySelectorAll(".carousel__dots span");
+
+    const moveTo = (index) => {
+      const card = document.querySelector(".carousel__card");
+
+      if (!card) return;
+
+      const gap = 20;
+      const cardWidth = card.offsetWidth + gap;
+
+      track.style.transform =
+        `translateX(-${index * cardWidth}px)`;
+
+      dots.forEach(dot => dot.classList.remove("active"));
+      dots[index].classList.add("active");
+    };
+
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        moveTo(Number(dot.dataset.slide));
+      });
+    });
+  });
+</script>
+
+<style>
+.carousel {
+  width: 100%;
+  padding: 80px 0;
+  background: #d3a159;
+}
+
+.carousel__header {
+  max-width: 1300px;
+  margin: 0 auto 40px;
+  padding: 0 40px;
+}
+
+.carousel__header h2 {
+  color: white;
+  font-size: 42px;
+  margin: 0;
+  text-align: left;
+  margin-left:80px;
+}
+
+.carousel__wrapper {
+  width: 100%;
+}
+
+.carousel__viewport {
+  max-width: 940px; /* espacio exacto para 3 cards */
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.carousel__track {
+  display: flex;
+  gap: 20px;
+  transition: transform 0.5s ease;
+}
+
+.carousel__card {
+  width: 300px;
+  flex-shrink: 0;
+
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+
+.carousel__card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel__cardBody {
+  padding: 20px;
+  min-height: 120px;
+}
+
+.carousel__cardBody h3 {
+  margin: 0 0 10px;
+  color: #222;
+}
+
+.carousel__cardBody p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.carousel__dots span {
+  width: 40px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.35);
+  cursor: pointer;
+  transition: .3s;
+}
+
+.carousel__dots span.active {
+  background: white;
+}
+
+@media (max-width: 1000px) {
+  .carousel__viewport {
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 700px) {
+  .carousel__viewport {
+    max-width: 300px;
+  }
+
+  .carousel__header h2 {
+    text-align: center;
+    font-size: 32px;
+  }
+}
+</style>

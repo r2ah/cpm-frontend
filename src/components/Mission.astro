@@ -1,0 +1,103 @@
+---
+---
+
+<section class="mission">
+  <div class="mission__inner">
+
+    <!-- IZQUIERDA: IMAGEN -->
+    <div class="mission__imageBox">
+      <img
+        src="/assets-1/Recurso gráfico 1-01.svg"
+        alt="Misión SEINA"
+        class="mission__image"
+        loading="lazy"
+      />
+    </div>
+
+    <!-- DERECHA: TEXTO -->
+    <div class="mission__content">
+      <p class="mission__eyebrow">SEINA</p>
+      <h2 class="mission__title">Nuestra Misión</h2>
+
+      <p class="mission__text">
+        Nuestra misión es preservar, documentar y gestionar el patrimonio cultural,
+        utilizando herramientas digitales que permitan un acceso claro, ordenado y eficiente
+        a la información arquitectónica.
+      </p>
+
+      <p class="mission__text">
+        Buscamos facilitar la conservación de edificios y monumentos a través de procesos modernos
+        y accesibles para instituciones y usuarios.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<style>
+
+.mission {
+  width: 100%;
+  padding: 100px 24px;
+  background: #fff;
+}
+
+/* 🔥 CAMBIO IMPORTANTE: invertido */
+.mission__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 35% 65%;
+  gap: 40px;
+  align-items: center;
+}
+
+/* IMAGEN */
+.mission__imageBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mission__image {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* TEXTO */
+.mission__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #777;
+  margin: 0 0 10px;
+}
+
+.mission__title {
+  font-size: 44px;
+  margin: 0 0 18px;
+  color: #111;
+}
+
+.mission__text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 14px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+  .mission__inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mission__image {
+    max-width: 260px;
+  }
+}
+
+</style>

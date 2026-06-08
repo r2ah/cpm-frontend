@@ -1,0 +1,105 @@
+---
+// Team Section
+---
+
+<section class="team">
+  <div class="team__inner">
+
+    <h2 class="team__title">Equipo de trabajo</h2>
+
+    <div class="team__grid">
+
+      <article class="team__card">
+        <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 1" />
+        <h3>Nombre 1</h3>
+      </article>
+
+      <article class="team__card">
+        <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 2" />
+        <h3>Nombre 2</h3>
+      </article>
+
+      <article class="team__card">
+        <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 3" />
+        <h3>Nombre 3</h3>
+      </article>
+
+      <article class="team__card">
+        <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 4" />
+        <h3>Nombre 4</h3>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+.team {
+  width: 100%;
+  padding: 100px 0px;
+  background: #fff;
+  height:450px;
+}
+
+.team__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team__title {
+  text-align: center;
+  font-size: 42px;
+  margin-bottom: 60px;
+  color: #111;
+}
+
+/* 4 columnas */
+.team__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* card */
+.team__card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  height:200px; 
+}
+
+.team__card img {
+  width: 100%;
+  max-width: 220px;
+  height: 270px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.team__card h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #222;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .team__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .team__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team__title {
+    font-size: 32px;
+  }
+}
+</style>

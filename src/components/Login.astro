@@ -2,31 +2,39 @@
 ---
 
 <section class="login">
+
   <div class="login__card">
+
+    <!-- LOGO -->
+    <a class="login__logo" href="/" aria-label="SEINA">
+      <img
+        src="/Identidad/Identidad principal en blanco.png"
+        alt="SEINA"
+        width="240"
+        height="180"
+        loading="eager"
+      />
+    </a>
+
     <h2 class="login__title">Bienvenido</h2>
 
     <form class="login__form" method="post">
+
       <div class="field">
-        <label class="field__label" for="email">Correo</label>
         <input
           class="field__input"
-          id="email"
-          name="email"
           type="email"
-          placeholder="Ingresa tu correo"
+          placeholder="Correo"
           autocomplete="email"
           required
         />
       </div>
 
       <div class="field">
-        <label class="field__label" for="password">Contraseña</label>
         <input
           class="field__input"
-          id="password"
-          name="password"
           type="password"
-          placeholder="Ingresa tu contraseña"
+          placeholder="Contraseña"
           autocomplete="current-password"
           required
         />
@@ -41,153 +49,137 @@
           Acceder
         </button>
       </div>
+
     </form>
+
   </div>
+
 </section>
 
 <style>
-  .login {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 24px;
-  }
 
-  .login__card {
-    width: min(500px, 90%);
-    margin-top: 0;
+/* 🔥 GLOBAL FIX (clave para evitar desplazamientos raros) */
+* {
+  box-sizing: border-box;
+}
 
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    padding: 28px 24px;
+/* CONTENEDOR GENERAL */
+.login {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
 
-    text-align: center;
+/* CARD */
+.login__card {
+  width: min(400px, 85%);
+  text-align: center;
+  padding-top:30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/* LOGO */
+.login__logo {
+  margin-bottom: 10px;
+  display: inline-block;
+}
 
-  .login__card * {
-    position: relative;
-    z-index: 1;
-  }
+/* TITULO */
+.login__title {
+  margin: 0 0 24px;
+  font-size: 48px;
+  font-weight: 400;
+  color: #fff;
+}
 
-  .login__title {
-    margin: 0 0 24px;
-    font-size: 32px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-  }
+/* FORM */
+.login__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 
-  .login__form {
-    width: 100%;
+  gap: 18px;
+  align-items: stretch; /* 🔥 clave para alineación perfecta */
+}
 
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
+/* FIELD */
+.field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-  .field {
-    width: 100%;
+/* INPUTS */
+.field__input {
+  width: 100%;
+  display: block;
 
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
 
-    text-align: left;
-  }
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.95);
 
-  .field__label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-  }
+  color: #111;
+  font-size: 15px;
+  outline: none;
+}
 
-  .field__input {
-    width: 100%;
+.field__input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 25px;
+  font-style: italic;
+  letter-spacing: 0.2px;
+}
 
-    padding: 16px;
-    border-radius: 12px;
+/* BOTONES */
+.login__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  width: 100%;
+}
 
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    background: rgba(252, 247, 247, 0.48);
+.login__primary,
+.login__acceder {
+  flex: 1;
+  max-width: 180px;
 
-    color: #fff;
-    outline: none;
+  padding: 14px 18px;
+  border-radius: 19px;
+  border: none;
+  cursor: pointer;
 
-    font-size: 15px;
-  }
+  font-weight: 800;
+  font-size: 15px;
+}
 
-  .field__input::placeholder {
-    color: rgba(255, 255, 255, 0.55);
-  }
+/* COLORES */
+.login__primary {
+  background: #553304;
+  color: #fff;
+}
 
-  .field__input:focus {
-    border-color: rgba(91, 124, 250, 0.85);
-    box-shadow: 0 0 0 3px rgba(91, 124, 250, 0.25);
-  }
+.login__acceder {
+  background: #f8f1e7;
+  color: #0b0f19;
+}
 
+/* RESPONSIVE */
+@media (max-width: 520px) {
   .login__actions {
-    width: 100%;
-
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-
-    margin-top: 12px;
+    flex-direction: column;
   }
 
   .login__primary,
   .login__acceder {
-    flex: 1;
-    max-width: 180px;
-
-    padding: 14px 18px;
-    border-radius: 19px;
-
-    border: none;
-    cursor: pointer;
-
-    font-weight: 800;
-    font-size: 15px;
-
-    transition:
-      transform 0.2s ease,
-      filter 0.2s ease;
+    max-width: none;
+    width: 100%;
   }
+}
 
-  .login__primary {
-    background: #553304;
-    color: #fff;
-  }
-
-  .login__acceder {
-    background: #f8f1e7;
-    color: #0b0f19;
-  }
-
-  .login__primary:hover,
-  .login__acceder:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.05);
-  }
-
-  @media (max-width: 520px) {
-    .login__title {
-      font-size: 26px;
-    }
-
-    .login__actions {
-      flex-direction: column;
-    }
-
-    .login__primary,
-    .login__acceder {
-      max-width: none;
-      width: 100%;
-    }
-  }
 </style>
