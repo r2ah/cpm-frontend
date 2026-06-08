@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Login from '../components/Login.astro';
+---
+
+<Layout title="Login">
+  <section class="hero">
+
+    <!-- Fondo -->
+    <div class="hero__bg">
+      <img
+        src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
+        alt=""
+      />
+    </div>
+
+    <!-- Header -->
+    <Header />
+
+    <!-- Contenido -->
+    <div class="hero__content">
+      <Login />
+    </div>
+
+  </section>
+</Layout>
+
+<style>
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Fondo */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Oscurecer ligeramente el fondo */
+.hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Contenedor del Login */
+.hero__content {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0px 24px 40px;
+}
+</style>

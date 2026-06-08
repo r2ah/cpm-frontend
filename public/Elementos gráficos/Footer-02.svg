@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_16" data-name="Layer 16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 841.89 260.24">
+  <defs>
+    <style>
+      .cls-1 {
+        opacity: .2;
+      }
+
+      .cls-2 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: #cea676;
+      }
+
+      .cls-5 {
+        fill: #563304;
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-3" x="0" y="-3.04" width="841.89" height="263.29"/>
+    </clipPath>
+  </defs>
+  <path class="cls-5" d="m36.97,0h767.96c20.4,0,36.97,16.56,36.97,36.97v223.14H0V36.97C0,16.56,16.56,0,36.97,0Z"/>
+  <g class="cls-1">
+    <g class="cls-2">
+      <g>
+        <g id="_Grid_Repeat_" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="-53.39" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-2" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="45.44" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-3" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="144.27" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-4" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="243.11" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-5" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="341.94" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-6" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="440.77" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-7" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="539.6" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-8" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="638.44" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-9" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="737.27" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-10" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="836.1" y="-3.04" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-11" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="-3.97" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-12" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="94.86" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-13" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="193.69" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-14" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="292.52" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-15" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="391.35" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-16" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="490.19" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-17" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="589.02" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-18" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="687.85" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-19" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="786.68" y="53.4" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-20" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="-53.39" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-21" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="45.44" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-22" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="144.27" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-23" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="243.11" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-24" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="341.94" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-25" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="440.77" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-26" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="539.6" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-27" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="638.44" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-28" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="737.27" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-29" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="836.1" y="109.85" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-30" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="-3.97" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-31" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="94.86" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-32" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="193.69" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-33" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="292.52" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-34" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="391.35" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-35" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="490.19" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-36" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="589.02" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-37" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="687.85" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-38" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="786.68" y="166.3" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-39" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="-53.39" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-40" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="45.44" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-41" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="144.27" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-42" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="243.11" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-43" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="341.94" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-44" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="440.77" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-45" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="539.6" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-46" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="638.44" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-47" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="737.27" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+        <g id="_Grid_Repeat_-48" data-name="&amp;lt;Grid Repeat&amp;gt;">
+          <g class="cls-1">
+            <rect class="cls-4" x="836.1" y="222.74" width="86.01" height="43.18" rx="6.98" ry="6.98"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

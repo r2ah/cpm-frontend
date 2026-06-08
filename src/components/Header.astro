@@ -1,0 +1,187 @@
+---
+import SideMenu from './SideMenu.astro';
+import Menu from './Menu.astro';
+import ProfileButton from './ProfileButton.astro';
+import HamburgerButton from './HamburgerButton.astro';
+---
+
+<header class="site-header">
+
+	<div class="site-header__inner">
+
+		<!-- LEFT -->
+		<div class="site-header__left">
+			<a class="site-header__brand" href="/" aria-label="SEINA">
+				<img
+					src="/Identidad/Identidad secundaria en blanco (barra superior)-01.png"
+					alt="SEINA"
+					width="160"
+					height="40"
+					decoding="async"
+					loading="eager"
+				/>
+			</a>
+		</div>
+
+		<!-- CENTER -->
+		<div class="site-header__center">
+			<nav class="site-header__nav" aria-label="Navegación">
+				<Menu />
+			</nav>
+		</div>
+
+		<!-- RIGHT -->
+		<div class="site-header__right">
+			<div class="site-header__actions">
+
+				<a class="site-header__btn site-header__btn--signup" href="#">
+					<span class="site-header__btn-text">Registrarse</span>
+				</a>
+
+				<div class="site-header__profile">
+					<ProfileButton />
+				</div>
+
+				<div class="site-header__hamburger" id="menu-toggle">
+					<HamburgerButton />
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</header>
+
+<!-- SIDEMENU -->
+<nav class="site-header__side-nav" aria-label="Navegación lateral">
+	<SideMenu />
+</nav>
+
+<style>
+	/* HEADER BASE */
+	.site-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 50;
+		padding: 18px 1px;
+		background: rgba(91, 91, 99, 0.35);
+		backdrop-filter: blur(10px);
+	}
+
+	/* 3 COLUMNAS IGUALES */
+	.site-header__inner {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		align-items: center;
+		width: 100%;
+		max-width: 90%;
+		margin: 0 auto;
+	}
+
+	/* LEFT */
+	.site-header__left {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+	}
+
+	.site-header__brand img {
+		display: block;
+		height: auto;
+		max-width: 180px;
+	}
+
+	/* CENTER */
+	.site-header__center {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.site-header__nav {
+		display: flex;
+		gap: 22px;
+	}
+
+	/* RIGHT */
+	.site-header__right {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+	}
+
+	.site-header__actions {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		min-width: 0;
+	}
+
+	/* BUTTON */
+	.site-header__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		text-decoration: none;
+		padding: 10px 22px;
+		border: 2px solid #fff;
+		border-radius: 999px;
+		color: #fff;
+		background: transparent;
+		font-weight: 700;
+		letter-spacing: 0.2px;
+	}
+
+	.site-header__btn-text {
+		color: #fff;
+		font-size: 14px;
+		white-space: nowrap;
+	}
+
+	/* PROFILE + HAMBURGER */
+	.site-header__profile,
+	.site-header__hamburger {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* SIDEMENU WRAPPER */
+	.site-header__side-nav {
+		display: flex;
+	}
+
+	/* RESPONSIVE */
+	@media (max-width: 740px) {
+
+		.site-header {
+			padding: 14px 16px;
+		}
+
+		/* ocultar menú central */
+		.site-header__center {
+			display: none;
+		}
+
+		/* ajustar grid */
+		.site-header__inner {
+			grid-template-columns: 1fr auto;
+		}
+
+		.site-header__nav {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const btn = document.getElementById('menu-toggle');
+
+		btn?.addEventListener('click', () => {
+			window.dispatchEvent(new CustomEvent('toggle-menu'));
+		});
+	});
+</script>

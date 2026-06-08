@@ -1,0 +1,31 @@
+---
+---
+
+<nav class="top-menu" aria-label="Menú" data-menu>
+	<a class="top-menu__link" href="#">Inicio</a>
+	<a class="top-menu__link" href="#">Servicios</a>
+	<a class="top-menu__link" href="#">Contacto</a>
+</nav>
+
+<style>
+.top-menu {
+  display: flex;
+ 
+  align-items: center;
+  gap: 55px;
+}
+
+.top-menu__link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+@media (max-width: 740px) {
+  .top-menu[data-menu] {
+    display: none;
+  }
+}
+</style>
+
