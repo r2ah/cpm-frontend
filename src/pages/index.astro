@@ -17,6 +17,7 @@ import Team from '../components/Team.astro';
       <img
         src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
         alt=""
+        
       />
     </div>
 
@@ -74,7 +75,7 @@ import Team from '../components/Team.astro';
 .hero {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 105vh;
   overflow: hidden;
 
   display: flex;
@@ -96,6 +97,15 @@ import Team from '../components/Team.astro';
   object-position: center;
   display: block;
 }
+.site-header__brand img {
+  width: 300px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.site-header__brand img:hover {
+  transform: scale(1.05);
+}
 
 /* DARK OVERLAY */
 .hero__overlay {
@@ -105,14 +115,7 @@ import Team from '../components/Team.astro';
   z-index: 2;
   
 }
-.hero__overlay_center {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 2;
-  margin:auto;
-  
-}
+
 
 /* CONTENT */
 .hero__content {
@@ -151,7 +154,7 @@ import Team from '../components/Team.astro';
 
 #about {
   position: relative;
-  margin-top: -10px;
+  margin-top: -30px;
   z-index: 10;
 
   background: white;

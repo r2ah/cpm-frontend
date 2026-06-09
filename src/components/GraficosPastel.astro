@@ -10,28 +10,28 @@
     <div class="pasteles__grid">
 
       <div class="pastel">
-        <div class="pastel__circle">
+        <div class="pastel__circle" style="--value: 50;">
           <span>50%</span>
         </div>
         <h3>LOREM IPSUM</h3>
       </div>
 
       <div class="pastel">
-        <div class="pastel__circle">
+        <div class="pastel__circle" style="--value: 50;">
           <span>50%</span>
         </div>
         <h3>LOREM IPSUM</h3>
       </div>
 
       <div class="pastel">
-        <div class="pastel__circle">
+        <div class="pastel__circle" style="--value: 50;">
           <span>50%</span>
         </div>
         <h3>LOREM IPSUM</h3>
       </div>
 
       <div class="pastel">
-        <div class="pastel__circle">
+        <div class="pastel__circle" style="--value: 50;">
           <span>50%</span>
         </div>
         <h3>LOREM IPSUM</h3>
@@ -71,50 +71,69 @@
   text-align:center;
 }
 
+/* =========================
+   CÍRCULO (GRÁFICO)
+========================= */
 .pastel__circle{
   width:140px;
   height:140px;
-
   margin:auto;
-
   border-radius:50%;
 
-  background:
-  conic-gradient(
-    #563304 0 50%,
-    white 50% 100%
-  );
+  /* borde blanco exterior */
+  padding:10px;
+  background:white;
 
   display:flex;
   justify-content:center;
   align-items:center;
+
+  position:relative;
 }
 
+/* gráfico real */
+.pastel__circle::before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:50%;
+
+  background: conic-gradient(
+    #563304 0 calc(var(--value) * 1%),
+    #e0b878ff calc(var(--value) * 1%) 100%
+  );
+}
+
+/* círculo interior */
 .pastel__circle span{
-  width:95px;
-  height:95px;
+  position:relative;
+  width:105px;
+  height:105px;
 
   background:white;
   border-radius:50%;
 
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
 
   font-weight:700;
+  font-size:18px;
+  color:#563304;
 }
 
-@media (max-width:860px){
+/* texto */
+.pastel h3{
+  margin-top:15px;
+  font-weight:700;
+  color:#000;
+}
 
+/* responsive */
+@media (max-width:860px){
   .pasteles__grid{
     grid-template-columns:repeat(2,1fr);
   }
-
-}
-span,h3{
-    color:black;
-    fondo-size:800 !important;
-    font-weight:700;
 }
 
 </style>
