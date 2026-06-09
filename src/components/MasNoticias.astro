@@ -1,0 +1,368 @@
+---
+---
+
+<section class="noticias">
+
+  <div class="noticias__inner">
+
+    <h2 class="noticias__title">
+      MÁS NOTICIAS
+    </h2>
+
+    <div class="noticias__destacadas">
+
+      <article class="card">
+        <img
+          src="/Imágenes/imagen 3-02.png"
+          alt=""
+        />
+
+        <h3>Lorem Ipsum</h3>
+
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        </p>
+      </article>
+
+      <article class="card">
+        <img
+          src="/Imágenes/imagen 4-02.png"
+          alt=""
+        />
+
+        <h3>Lorem Ipsum</h3>
+
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        </p>
+      </article>
+
+    </div>
+
+    <div class="carousel">
+
+  <button
+    class="carousel__arrow carousel__arrow--left"
+    aria-label="Anterior"
+  >
+    ❮
+  </button>
+
+  <div class="carousel__viewport" id="news-carousel">
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 6-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 7-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 8-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 2-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 1-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+    <article class="mini-card">
+      <img src="/Imágenes/imagen 3-02.png" alt="">
+      <h4>Lorem Ipsum</h4>
+      <p>Lorem ipsum</p>
+    </article>
+
+  </div>
+
+  <button
+    class="carousel__arrow carousel__arrow--right"
+    aria-label="Siguiente"
+  >
+    ❯
+  </button>
+
+</div>
+
+<div class="carousel__indicators">
+
+  <button class="dot active"></button>
+  <button class="dot"></button>
+  <button class="dot"></button>
+
+</div>
+
+</section>
+
+<style>
+
+.noticias{
+  background:#d9c099;
+  padding:80px 24px;
+}
+
+.noticias__inner{
+  max-width:1100px;
+  margin:auto;
+}
+
+.noticias__title{
+  color:#563304;
+  font-size:42px;
+  margin-bottom:40px;
+}
+
+.noticias__destacadas{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:12px;
+}
+
+.card img{
+  width:100%;
+  border-radius:14px;
+}
+
+.noticias__mini{
+  margin-top:40px;
+
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.mini-card{
+  background:white;
+  border-radius:16px;
+  padding:10px;
+}
+
+.mini-card img{
+  width:100%;
+  border-radius:10px;
+}
+
+@media (max-width:860px){
+
+  .noticias__destacadas{
+    grid-template-columns:1fr;
+  }
+
+  .noticias__mini{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+p,h3,h4{
+    color:black;
+}
+
+
+/* =========================
+   CARRUSEL
+========================= */
+
+.carousel {
+  position: relative;
+  margin-top: 50px;
+}
+
+.carousel__viewport {
+  display: flex;
+  gap: 20px;
+
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+
+  scrollbar-width: none;
+}
+
+.carousel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.mini-card {
+  flex: 0 0 calc((100% - 60px) / 4);
+
+  background: white;
+  border-radius: 18px;
+  padding: 10px;
+
+  box-sizing: border-box;
+}
+
+.mini-card img {
+  width: 100%;
+  height: 150px;
+
+  object-fit: cover;
+
+  border-radius: 12px;
+}
+
+.mini-card h4 {
+  margin: 12px 0 6px;
+  color: #563304;
+}
+
+.mini-card p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* FLECHAS */
+
+.carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 50px;
+  height: 50px;
+
+  border: none;
+  background: white;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  font-size: 22px;
+  z-index: 5;
+}
+
+.carousel__arrow--left {
+  left: -25px;
+}
+
+.carousel__arrow--right {
+  right: -25px;
+}
+
+/* INDICADORES */
+
+.carousel__indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  margin-top: 25px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(86, 51, 4, .25);
+
+  cursor: pointer;
+}
+
+.dot.active {
+  background: #563304;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .mini-card {
+    flex: 0 0 calc((100% - 20px) / 2);
+  }
+}
+
+@media (max-width: 600px) {
+  .mini-card {
+    flex: 0 0 100%;
+  }
+}
+</style>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const carousel =
+    document.getElementById("news-carousel");
+
+  const prev =
+    document.querySelector(".carousel__arrow--left");
+
+  const next =
+    document.querySelector(".carousel__arrow--right");
+
+  const dots =
+    document.querySelectorAll(".dot");
+
+  let currentPage = 0;
+
+  function getCardWidth() {
+    const card = carousel.querySelector(".mini-card");
+
+    return card
+      ? card.offsetWidth + 20
+      : 240;
+  }
+
+  prev?.addEventListener("click", () => {
+
+    carousel.scrollBy({
+      left: -(getCardWidth() * 2),
+      behavior: "smooth"
+    });
+
+    if(currentPage > 0){
+      currentPage--;
+      updateDots();
+    }
+
+  });
+
+  next?.addEventListener("click", () => {
+
+    carousel.scrollBy({
+      left: getCardWidth() * 2,
+      behavior: "smooth"
+    });
+
+    if(currentPage < dots.length - 1){
+      currentPage++;
+      updateDots();
+    }
+
+  });
+
+  function updateDots(){
+
+    dots.forEach(dot =>
+      dot.classList.remove("active")
+    );
+
+    dots[currentPage]
+      ?.classList.add("active");
+  }
+
+});
+</script>

@@ -5,82 +5,75 @@ import Footer from '../components/footer_prueba.astro';
 import AboutUs from '../components/AboutUs.astro';
 import Mission from '../components/Mission.astro';
 import Vision from '../components/Vision.astro';
-import GalleryCarousel from '../components/Informacion.astro';
-import Team from '../components/Team.astro';
 ---
 
-<Layout title="Home">
+<Layout title="About">
 
-  <section class="hero">
-    
-    <!-- BACKGROUND -->
-    <div class="hero__bg">
-      <img
-        src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
-        alt=""
-      />
-    </div>
+  <main class="page">
 
-    <!-- OVERLAY -->
-    <div class="hero__overlay">
-     <a class="login__logo" href="/" aria-label="SEINA">
-      <img
-        src="/Identidad/Identidad principal en blanco.png"
-        alt="SEINA"
-        width="240"
-        height="180"
-        loading="eager"
-      />
-    </a>
-    </div>
-    <!-- HEADER -->
-    <Header />
+    <!-- HERO -->
+    <section class="hero">
 
-<a class="login__logo" href="/" aria-label="SEINA">
-      <img
-        src="/Identidad/Identidad principal en blanco.png"
-        alt="SEINA"
-        width="240"
-        height="180"
-        loading="eager"
-      />
-    </a>
-    
+      <!-- BACKGROUND -->
+      <div class="hero__bg">
+        <img
+          src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
+          alt=""
+        />
+      </div>
 
-  </section>
+      <!-- OVERLAY -->
+      <div class="hero__overlay"></div>
 
-  <!-- ABOUT US -->
-  <div id="about">
-    <AboutUs />
-  </div>
+      <!-- HEADER -->
+      <Header />
 
-  <div id="mission">
-    <Mission />
-  </div>
- 
-  <div id="vision">
-    <Vision />
-  </div>
+    </section>
 
-  <!-- FOOTER -->
-  <Footer />
+    <!-- ABOUT -->
+    <section id="about">
+      <AboutUs />
+    </section>
+
+    <!-- MISSION -->
+    <section id="mission">
+      <Mission />
+    </section>
+
+    <!-- VISION -->
+    <section id="vision">
+      <Vision />
+    </section>
+
+    <!-- FOOTER -->
+    <Footer />
+
+  </main>
+
+</Layout>
 
 <style>
+
 /* =========================
-   HERO SECTION
+   PAGE
+========================= */
+
+.page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================
+   HERO
 ========================= */
 
 .hero {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 50vh;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  
 }
 
-/* BACKGROUND IMAGE */
 .hero__bg {
   position: absolute;
   inset: 0;
@@ -95,48 +88,51 @@ import Team from '../components/Team.astro';
   display: block;
 }
 
-/* DARK OVERLAY */
 .hero__overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: 2;
-  
+  pointer-events: none;
 }
 
-
-/* CONTENT */
-.hero__content {
+.hero :global(header) {
   position: relative;
   z-index: 3;
-  text-align: center;
-  color: white;
-  max-width: 900px;
-  
-  padding: 1rem;
-  margin-top:80px;
 }
 
-.hero__content h1 {
-  font-size: clamp(3rem, 8vw, 7rem);
-  margin-bottom: 0;
-  font-weight: 700;
-  margin-top:0px;
-  
+/* =========================
+   ABOUT SUPERPUESTO
+========================= */
+
+#about {
+  position: relative;
+  margin-top: -120px;
+  z-index: 10;
+
+  background: white;
+  border-radius: 30px 30px 0 0;
 }
 
-.hero__content p {
-  font-size: clamp(1.2rem, 2vw, 2rem);
-  line-height: 1.4;
-  margin-top:0px;
-  max-width:70%;
-  margin: auto;
+/* =========================
+   RESTO DE SECCIONES
+========================= */
+
+#mission,
+#vision {
+  width: 100%;
 }
 
-/* RESPONSIVE */
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media (max-width: 768px) {
-  .hero__content {
-    padding: 1rem;
+
+  #about {
+    margin-top: -80px;
   }
+
 }
+
 </style>

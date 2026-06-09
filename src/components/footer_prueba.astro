@@ -5,14 +5,24 @@
 
   <div class="site-footer__inner">
 
-    <!-- LEFT -->
+    <!-- LEFT (FAQS) -->
+    <div class="site-footer__col">
+      <h4 class="site-footer__title">FAQs</h4>
+
+      <a href="/faq#que-es" class="site-footer__link">¿Qué es SEINA?</a>
+      <a href="/faq#servicios" class="site-footer__link">¿Qué servicios ofrecen?</a>
+      <a href="/faq#tiempos" class="site-footer__link">Tiempos de entrega</a>
+      <a href="/faq#contacto" class="site-footer__link">Soporte y contacto</a>
+    </div>
+
+    <!-- CENTER (LOGO) -->
     <div class="site-footer__col site-footer__col--brand">
       <a href="/" class="site-footer__logo" aria-label="SEINA">
         <img
-          src="/Identidad/Identidad secundaria en blanco (barra superior)-01.png"
+          src="/Identidad/Identidad principal (footer)-01.png"
           alt="SEINA"
           width="140"
-          height="36"
+          height="196"
           loading="lazy"
         />
       </a>
@@ -22,21 +32,16 @@
       </p>
     </div>
 
-    <!-- CENTER -->
+    <!-- RIGHT (REDES EN FILA) -->
     <div class="site-footer__col">
-      <h4 class="site-footer__title">Navegación</h4>
-      <a href="/" class="site-footer__link">Inicio</a>
-      <a href="/about" class="site-footer__link">Sobre nosotros</a>
-      <a href="/services" class="site-footer__link">Servicios</a>
-      <a href="/contact" class="site-footer__link">Contacto</a>
-    </div>
+      <h4 class="site-footer__title">Redes sociales</h4>
 
-    <!-- RIGHT -->
-    <div class="site-footer__col">
-      <h4 class="site-footer__title">Redes</h4>
-      <a href="#" class="site-footer__link">Instagram</a>
-      <a href="#" class="site-footer__link">Twitter</a>
-      <a href="#" class="site-footer__link">LinkedIn</a>
+      <div class="site-footer__socials">
+        <a href="#" class="site-footer__link">Instagram</a>
+        <a href="#" class="site-footer__link">Twitter</a>
+        <a href="#" class="site-footer__link">LinkedIn</a>
+        <a href="#" class="site-footer__link">GitHub</a>
+      </div>
     </div>
 
   </div>
@@ -55,13 +60,15 @@
 		backdrop-filter: blur(10px);
 	}
 
-	/* GRID PRINCIPAL */
+	/* 3 COLUMNAS */
 	.site-footer__inner {
 		display: grid;
-		grid-template-columns: 2fr 1fr 1fr;
-		gap: 40px;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 60px;
 		max-width: 1100px;
 		margin: 0 auto;
+		align-items: start;
+		text-align: center;
 	}
 
 	/* COLUMNAS */
@@ -69,6 +76,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+		align-items: center;
 	}
 
 	/* LOGO */
@@ -107,7 +115,15 @@
 		transform: translateX(2px);
 	}
 
-	/* BOTTOM BAR */
+	/* REDES EN FILA */
+	.site-footer__socials {
+		display: flex;
+		gap: 15px;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	/* FOOTER BOTTOM */
 	.site-footer__bottom {
 		margin-top: 40px;
 		padding-top: 20px;
@@ -121,15 +137,7 @@
 	@media (max-width: 768px) {
 		.site-footer__inner {
 			grid-template-columns: 1fr;
-			text-align: center;
-		}
-
-		.site-footer__text {
-			margin: 0 auto;
-		}
-
-		.site-footer__col {
-			align-items: center;
+			gap: 40px;
 		}
 	}
 </style>

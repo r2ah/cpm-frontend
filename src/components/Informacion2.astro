@@ -1,0 +1,85 @@
+---
+---
+
+<section class="informacion">
+
+  <div class="informacion__inner">
+
+    <h2 class="informacion__title">
+      INFORMACIÓN
+    </h2>
+
+    <div class="informacion__grid">
+
+      <div class="informacion__image">
+        <img
+          src="/Imágenes/imagen-02.png"
+          alt="Información"
+        />
+      </div>
+
+      <div class="informacion__text">
+
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec non magna sed sapien pulvinar volutpat.
+        </p>
+
+        <p>
+          Ut enim ad minim veniam quis nostrud exercitation ullamco laboris
+          nisi ut aliquip ex ea commodo consequat.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+
+.informacion{
+  background:white;
+  border-radius:30px 30px 0 0;
+  padding:60px 24px;
+}
+
+.informacion__inner{
+  max-width:1100px;
+  margin:auto;
+}
+
+.informacion__title{
+  font-size:clamp(42px,5vw,72px);
+  color:#563304;
+  margin-bottom:40px;
+}
+
+.informacion__grid{
+  display:grid;
+  grid-template-columns:45% 55%;
+  gap:40px;
+  align-items:center;
+}
+
+.informacion__image img{
+  width:100%;
+  border-radius:20px;
+}
+
+.informacion__text{
+  line-height:1.8;
+  color:#333;
+}
+
+@media (max-width:860px){
+
+  .informacion__grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+</style>

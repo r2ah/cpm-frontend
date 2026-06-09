@@ -1,0 +1,182 @@
+---
+const values = [30,45,70,50,80,70,60,85,75,50];
+---
+
+<section class="barras">
+
+  <div class="barras__inner">
+
+    <h2>LOREM IPSUM</h2>
+
+    <div class="chart-wrapper">
+
+  <!-- EJE Y -->
+  <div class="axis-y"></div>
+
+  <!-- EJE X -->
+  <div class="axis-x"></div>
+
+  <div class="chart">
+
+    {
+      values.map((value) => (
+        <div
+          class="bar"
+          style={`height:${value}%`}
+        />
+      ))
+    }
+
+  </div>
+
+</div>
+
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    </p>
+
+  </div>
+
+</section>
+
+<style>
+
+.barras{
+  background:white;
+  padding:80px 24px;
+}
+
+.barras__inner{
+  max-width:1100px;
+  margin:auto;
+}
+
+.barras h2{
+  text-align:center;
+  color:#563304;
+  margin-bottom:50px;
+}
+
+.chart{
+  height:350px;
+
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:18px;
+
+  margin-bottom:40px;
+}
+
+.bar{
+  width:50px;
+
+  background:#563304;
+
+  border-radius:8px 8px 0 0;
+}
+
+.bar:nth-child(even){
+  background:#d9c099;
+}
+
+.barras p{
+  line-height:1.8;
+  color:#333;
+}
+.chart-wrapper{
+  position:relative;
+
+  width:100%;
+  max-width:850px;
+
+  height:420px;
+
+  margin:0 auto 40px;
+}
+
+/* EJE VERTICAL */
+
+.axis-y{
+  position:absolute;
+
+  left:20px;
+  bottom:0;
+
+  width:4px;
+  height:100%;
+
+  background:#563304;
+}
+
+.axis-y::before{
+  content:"";
+
+  position:absolute;
+
+  top:-12px;
+  left:-6px;
+
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-bottom:14px solid #563304;
+}
+
+/* EJE HORIZONTAL */
+
+.axis-x{
+  position:absolute;
+
+  left:20px;
+  bottom:0;
+
+  width:calc(100% - 20px);
+  height:4px;
+
+  background:#563304;
+}
+
+.axis-x::after{
+  content:"";
+
+  position:absolute;
+
+  right:-12px;
+  top:-6px;
+
+  border-top:8px solid transparent;
+  border-bottom:8px solid transparent;
+  border-left:14px solid #563304;
+}
+
+/* BARRAS */
+
+.chart{
+  position:absolute;
+
+  left:50px;
+  right:20px;
+  bottom:4px;
+
+  height:90%;
+
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+
+  gap:18px;
+}
+
+.bar{
+  width:50px;
+
+  background:#563304;
+
+  border-radius:8px 8px 0 0;
+}
+
+.bar:nth-child(even){
+  background:#d9c099;
+}
+</style>

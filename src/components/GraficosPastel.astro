@@ -1,0 +1,120 @@
+---
+---
+
+<section class="pasteles">
+
+  <div class="pasteles__inner">
+
+    <h2>LOREM IPSUM</h2>
+
+    <div class="pasteles__grid">
+
+      <div class="pastel">
+        <div class="pastel__circle">
+          <span>50%</span>
+        </div>
+        <h3>LOREM IPSUM</h3>
+      </div>
+
+      <div class="pastel">
+        <div class="pastel__circle">
+          <span>50%</span>
+        </div>
+        <h3>LOREM IPSUM</h3>
+      </div>
+
+      <div class="pastel">
+        <div class="pastel__circle">
+          <span>50%</span>
+        </div>
+        <h3>LOREM IPSUM</h3>
+      </div>
+
+      <div class="pastel">
+        <div class="pastel__circle">
+          <span>50%</span>
+        </div>
+        <h3>LOREM IPSUM</h3>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+
+.pasteles{
+  background:#d9c099;
+  padding:80px 24px;
+}
+
+.pasteles__inner{
+  max-width:1100px;
+  margin:auto;
+}
+
+.pasteles h2{
+  text-align:center;
+  color:#563304;
+  margin-bottom:50px;
+}
+
+.pasteles__grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:30px;
+}
+
+.pastel{
+  text-align:center;
+}
+
+.pastel__circle{
+  width:140px;
+  height:140px;
+
+  margin:auto;
+
+  border-radius:50%;
+
+  background:
+  conic-gradient(
+    #563304 0 50%,
+    white 50% 100%
+  );
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.pastel__circle span{
+  width:95px;
+  height:95px;
+
+  background:white;
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:700;
+}
+
+@media (max-width:860px){
+
+  .pasteles__grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+span,h3{
+    color:black;
+    fondo-size:800 !important;
+    font-weight:700;
+}
+
+</style>
