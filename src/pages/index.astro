@@ -98,7 +98,7 @@ import Team from '../components/Team.astro';
   display: block;
 }
 .site-header__brand img {
-  width: 300px;
+  width: clamp(300px, 20vw, 500px);
   height: auto;
   transition: transform 0.3s ease;
 }
@@ -123,14 +123,16 @@ import Team from '../components/Team.astro';
   z-index: 3;
   text-align: center;
   color: white;
-  max-width: 900px;
-  
+
+  width: 90%;
+  max-width: 1600px;
+
   padding: 1rem;
-  margin-top:80px;
+  margin-top: 80px;
 }
 
 .hero__content h1 {
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: clamp(3rem, 8vw, 10rem);
   margin-bottom: 0;
   font-weight: 700;
   margin-top:0px;
@@ -138,7 +140,7 @@ import Team from '../components/Team.astro';
 }
 
 .hero__content p {
-  font-size: clamp(1.2rem, 2vw, 2rem);
+  font-size: clamp(1.2rem, 2vw, 2.5rem);
   line-height: 1.4;
   margin-top:0px;
   max-width:70%;

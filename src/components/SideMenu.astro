@@ -224,6 +224,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const menu = document.getElementById('side-menu');
   const closeBtn = document.getElementById('menu-close');
+  const hamburgerBtn = document.getElementById('menu-toggle');
 
   function toggleMenu() {
     menu?.classList.toggle('active');
@@ -236,5 +237,19 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('toggle-menu', toggleMenu);
 
   closeBtn?.addEventListener('click', closeMenu);
+
+  // Cerrar al hacer click fuera
+  document.addEventListener('click', (event) => {
+    if (!menu) return;
+
+    const target = event.target;
+
+    const clickDentroMenu = menu.contains(target);
+    const clickHamburguesa = hamburgerBtn?.contains(target);
+
+    if (!clickDentroMenu && !clickHamburguesa) {
+      closeMenu();
+    }
+  });
 });
 </script>
