@@ -11,23 +11,33 @@
 
       <article class="team__card">
         <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 1" />
-        <h3>Nombre 1</h3>
+         <p class="team__role">Presidenta</p>
+        <h3 class="team__name">Dra. Arq. Vilma Rodríguez Tápanes</h3>
+        
       </article>
 
       <article class="team__card">
         <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 2" />
-        <h3>Nombre 2</h3>
+       <p class="team__role">Secretaria Ejecutiva</p> 
+       <h3 class="team__name">Arq. Adriana Galup Martínez</h3>
+        
       </article>
 
       <article class="team__card">
         <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 3" />
-        <h3>Nombre 3</h3>
+       <p class="team__role">Especialista de la Comisión</p> 
+       <h3 class="team__name">Arq. Elisa Rodríguez Castillo</h3>
+        
       </article>
 
+      <!--
       <article class="team__card">
         <img src="/Elementos gráficos/Ícono de perfil 3-01.svg" alt="Miembro 4" />
-        <h3>Nombre 4</h3>
+         <p class="team__role">Cargo</p>
+        <h3 class="team__name">Nombre 4</h3>
+       
       </article>
+      -->
 
     </div>
 
@@ -54,23 +64,27 @@
   color: #111;
 }
 
+/* GRID CENTRADO DINÁMICO */
 .team__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, 280px);
   gap: 40px;
+  justify-content: center;
 }
 
 .team__card {
+  width: 100%;
+  max-width: 320px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .team__card img {
   width: 100%;
-  max-width: clamp(220px, 14vw, 320px);
+  max-width: 280px;
   height: auto;
   aspect-ratio: 220 / 270;
   object-fit: cover;
@@ -78,25 +92,37 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-.team__card h3 {
+.team__name {
   margin: 0;
-  font-size: clamp(18px, 1.2vw, 28px);
-  color: #222;
+  font-size: clamp(18px, 1.2vw, 26px);
+  font-weight: 600;
+  color: #111;
+}
+
+.team__role {
+  margin: 0;
+  font-size: clamp(14px, 1vw, 18px);
+  color: #666;
+}
+
+/* Hover suave opcional */
+.team__card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team__card:hover {
+  transform: translateY(-6px);
 }
 
 /* Tablet */
 @media (max-width: 900px) {
-  .team__grid {
-    grid-template-columns: repeat(2, 1fr);
+  .team__title {
+    font-size: 36px;
   }
 }
 
 /* Móvil */
 @media (max-width: 500px) {
-  .team__grid {
-    grid-template-columns: 1fr;
-  }
-
   .team__title {
     font-size: 32px;
   }

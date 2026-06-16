@@ -1,10 +1,16 @@
 ---
 export type Props = {
-	title?: string;
+  title?: string;
+  bodyClass?: string;
 };
 
-const { title = 'SEINA' } = Astro.props;
+const {
+  title = 'SEINA',
+  bodyClass = ''
+} = Astro.props;
 ---
+
+
 
 <!doctype html>
 <html lang="es">
@@ -114,6 +120,8 @@ const { title = 'SEINA' } = Astro.props;
 				}
 			}
 
+
+            
 
           
 

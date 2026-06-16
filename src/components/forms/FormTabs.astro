@@ -1,0 +1,61 @@
+---
+const tabs = [
+  { label: "Personas", href: "/formularios/personas" },
+  { label: "Dictamenes", href: "/formularios/dictamenes" },
+  { label: "Autoridades", href: "/formularios/autoridades" },
+  { label: "Usuarios", href: "/formularios/usuarios" },
+  { label: "Intervenciones", href: "/formularios/intervenciones" }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="form-tabs">
+
+
+  {tabs.map((tab) => (
+    <a
+      class={`form-tabs__item ${currentPath === tab.href ? "is-active" : ""}`}
+      href={tab.href}
+    >
+      {tab.label}
+    </a>
+  ))}
+  
+</nav>
+
+<style>
+.form-tabs {
+  display: flex;
+  gap: 10px;
+
+  padding: 10px;
+  margin:auto;
+  margin-top:100px;
+  width: fit-content;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.form-tabs__item {
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a3506;
+
+  transition: 0.2s ease;
+}
+
+.form-tabs__item:hover {
+  background: rgba(90, 53, 6, 0.1);
+}
+
+.form-tabs__item.is-active {
+  background: #553304;
+  color: #fff;
+}
+</style>

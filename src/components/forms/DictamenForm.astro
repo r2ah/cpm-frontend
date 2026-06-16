@@ -1,0 +1,181 @@
+---
+---
+
+<section class="dictamen">
+
+  <!-- Primera fila -->
+  <div class="card card--dictamen">
+    <h2>Dictamen</h2>
+
+    <input type="text" placeholder="Dirección" />
+    <input type="text" placeholder="Localización" />
+
+    <select>
+      <option>Proyectista</option>
+    </select>
+
+    <button class="tag">Persona</button>
+
+    <input type="date" />
+  </div>
+
+  <!-- Segunda fila -->
+  <div class="card card--estado">
+
+    <select>
+      <option>Inversionista</option>
+    </select>
+
+    <button class="tag">Persona</button>
+
+    <select>
+      <option>Contratista</option>
+    </select>
+
+    <button class="tag">Persona</button>
+
+    <select>
+      <option>Estado</option>
+    </select>
+
+    <div class="estados">
+      <button class="tag">Elaborado</button>
+      <button class="tag">Revisado</button>
+      <button class="tag">Aprobado</button>
+      <button class="tag">Denegado</button>
+    </div>
+  </div>
+
+  <!-- Medios -->
+  <div class="card card--medios">
+    <h2>Medios Asociados</h2>
+
+    <input type="text" placeholder="Emisor" />
+    <input type="text" placeholder="Localización" />
+    <input type="text" placeholder="DUS/Micro" />
+
+    <select>
+      <option>Intervenciones</option>
+    </select>
+
+    <button class="tag tag--right">
+      Intervención
+    </button>
+  </div>
+
+  <!-- Usuarios -->
+  <div class="card card--usuarios">
+    <h3>Elaborado por..</h3>
+    <input type="text" placeholder="usuario" />
+
+    <h3>Aprobado por..</h3>
+    <input type="text" placeholder="usuario" />
+
+    <h3>Revisado por..</h3>
+    <input type="text" placeholder="usuario" />
+  </div>
+
+  <!-- Observaciones -->
+  <div class="card card--observaciones">
+    <h3>Características Generales</h3>
+    <textarea class="auto-grow" placeholder="área de texto..."></textarea>
+
+    <h3>Observaciones</h3>
+    <textarea class="auto-grow" placeholder="área de texto..."></textarea>
+  </div>
+
+</section>
+
+<style>
+.dictamen {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+  margin-top:0px; 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.card {
+  border: 2px solid #d2a157;
+  border-radius: 45px;
+  padding: 1.75rem;
+  background: #f7f7f7;
+}
+
+.card h2,
+.card h3 {
+  color: #5b3200;
+  margin-bottom: 1.5rem;
+}
+
+.card input,
+.card select,
+.card textarea {
+  width: 90%;
+  border: 2px solid #d7d7d7;
+  border-radius: 14px;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+  background: white;
+  font-size: 1rem;
+}
+
+.card select {
+  width: 95%;
+}
+
+/* 🔥 AUTO-GROW FIX */
+.card textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 50px;
+  transition: height 0.1s ease;
+}
+
+.tag {
+  border: none;
+  background: #d8b47a;
+  color: white;
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.tag--right {
+  margin-left: auto;
+}
+
+.estados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.card--usuarios {
+  min-height: 380px;
+}
+
+.card--observaciones {
+  min-height: 500px;
+}
+
+@media (max-width: 1100px) {
+  .dictamen {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script is:inline>
+  document.querySelectorAll("textarea.auto-grow").forEach((textarea) => {
+    const resize = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    };
+
+    textarea.addEventListener("input", resize);
+    resize(); // inicial
+  });
+</script>

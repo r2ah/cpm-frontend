@@ -1,5 +1,14 @@
 ---
+const tabs = [
+  { label: "Personas", href: "/formularios/personas" },
+  { label: "Dictamenes", href: "/formularios/dictamenes" },
+  { label: "Autoridades", href: "/formularios/autoridades" },
+  { label: "Usuarios", href: "/formularios/usuarios" },
+  { label: "Intervenciones", href: "/formularios/intervenciones" }
+];
 ---
+
+
 
 <aside id="side-menu" class="side-menu">
   <div class="side-menu__header">
@@ -28,10 +37,20 @@
       <span>Estadísticas</span>
     </a>
 
-    <a href="#">
-      <span>📝</span>
-      <span>Formulario</span>
-    </a>
+    <div class="menu-group">
+  <button class="menu-toggle" id="form-toggle">
+    <span>📝</span>
+    <span>Formulario</span>
+  </button>
+
+  <div class="submenu" id="form-submenu">
+    {tabs.map((tab) => (
+      <a href={tab.href} class="submenu__item">
+        {tab.label}
+      </a>
+    ))}
+  </div>
+</div>
 
     <a href="/informacion">
       <span>ℹ️</span>
@@ -207,6 +226,53 @@
   opacity: 0.7;
 }
 
+.menu-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  width: 100%;
+  padding: 6px 0;
+
+  background: transparent;
+  border: none;
+  color: white;
+
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+
+  margin-top: 4px;
+  padding-left: 20px;
+}
+
+.submenu a {
+  padding: 5px 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.submenu a:hover {
+  opacity: 0.7;
+}
+
+.submenu.active {
+  display: flex;
+}
+
+
 @media (max-width: 768px) {
   .side-menu {
     width: 100%;
@@ -251,5 +317,13 @@ document.addEventListener('DOMContentLoaded', () => {
       closeMenu();
     }
   });
+});
+
+const formToggle = document.getElementById("form-toggle");
+const formSubmenu = document.getElementById("form-submenu");
+
+formToggle?.addEventListener("click", (e) => {
+  e.stopPropagation(); // evita cerrar el menú principal
+  formSubmenu?.classList.toggle("active");
 });
 </script>

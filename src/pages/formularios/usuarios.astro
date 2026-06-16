@@ -1,0 +1,43 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/footer_prueba.astro';
+import UsuarioForm from '../../components/forms/UsuarioForm.astro';
+import FormTabs from "../../components/forms/FormTabs.astro";
+---
+
+<Layout
+  title="Form Persona"
+  bodyClass="body--light"
+>
+
+  <Header />
+  <FormTabs/>
+  <main class="auth-page">
+
+    <UsuarioForm />
+
+  </main>
+
+  <Footer/>
+
+</Layout>
+
+<style>
+
+/* 🔥 MISMO CONCEPTO QUE LOGIN */
+.auth-page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px 24px;
+}
+
+  body {
+    background: white;
+    color: #111;
+  }
+
+</style>
