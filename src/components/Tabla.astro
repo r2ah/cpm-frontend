@@ -28,9 +28,25 @@ const { columns, rows } = Astro.props;
       {rows?.length ? (
         rows.map((row, idx) => (
           <tr class="tabla__tr" key={idx}>
-            {columns.map((col) => (
-              <td class="tabla__td">{row?.[col.key] ?? ''}</td>
-            ))}
+            {columns.map((col) => {
+              if (col.key === 'acciones') {
+                return (
+                  <td class="tabla__td tabla__td--actions">
+                    <div class="tabla__actions">
+                      <button class="tabla__action tabla__action--edit" type="button">Editar</button>
+                      <button
+                        class="tabla__action tabla__action--delete"
+                        type="button"
+                        data-delete
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                );
+              }
+              return <td class="tabla__td">{row?.[col.key] ?? ''}</td>;
+            })}
           </tr>
         ))
       ) : (
@@ -78,5 +94,106 @@ const { columns, rows } = Astro.props;
     text-align: center;
     opacity: 0.7;
   }
+
+  .tabla__td--actions {
+    width: 220px;
+  }
+
+
+  .tabla__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  .tabla__action {
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 13px;
+    color: #fff;
+  }
+
+  .tabla__action--edit {
+    background: #1e5504;
+  }
+
+  .tabla__action--delete {
+    background: #b42318;
+  }
+
+</style>
+
+<script>
+  (function () {
+    if (typeof document === 'undefined') return;
+
+    const deleteBtns = document.querySelectorAll('[data-delete]');
+    deleteBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // Modal propio (sin window.confirm)
+        const modalId = 'tabla-delete-modal';
+        const existing = document.getElementById(modalId);
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = modalId;
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0,0,0,0.45)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '100000';
+
+        const dialog = document.createElement('div');
+        dialog.style.width = 'min(520px, 92vw)';
+        dialog.style.background = '#fff';
+        dialog.style.borderRadius = '16px';
+        dialog.style.boxShadow = '0 20px 50px rgba(0,0,0,0.25)';
+        dialog.style.padding = '20px';
+
+        dialog.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h3 style="margin:0; font-size:18px; color:#5a3506;">Confirmar eliminación</h3>
+            <button type="button" aria-label="Cerrar" style="border:none; background:transparent; font-size:20px; cursor:pointer;">×</button>
+          </div>
+
+          <p style="margin:12px 0 0; color:#111; font-size:14px; line-height:1.4;">
+            ¿Seguro que deseas eliminar este registro?
+          </p>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+            <button type="button" id="tabla-delete-cancel" style="padding:10px 14px; border-radius:12px; border:1px solid rgba(0,0,0,0.15); background:#fff; cursor:pointer; font-weight:800;">Cancelar</button>
+            <button type="button" id="tabla-delete-ok" style="padding:10px 14px; border-radius:12px; border:none; background:#b42318; color:#fff; cursor:pointer; font-weight:800;">Eliminar</button>
+          </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        const close = () => overlay.remove();
+        const closeBtn = dialog.querySelector('button[aria-label="Cerrar"]');
+        const cancelBtn = document.getElementById('tabla-delete-cancel');
+        const okBtn = document.getElementById('tabla-delete-ok');
+
+        closeBtn?.addEventListener('click', close);
+        cancelBtn?.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) close();
+        });
+
+        okBtn?.addEventListener('click', () => {
+          close();
+          // TODO: aquí se conectará la acción real (API / backend)
+          console.log('Eliminar confirmado');
+        });
+      });
+    });
+  })();
+</script>
+
 </style>
 

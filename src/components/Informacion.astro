@@ -77,17 +77,24 @@
   document.addEventListener("DOMContentLoaded", () => {
     const track = document.getElementById("carouselTrack");
     const dots = document.querySelectorAll(".carousel__dots span");
+    const cards = document.querySelectorAll(".carousel__card");
 
     const moveTo = (index) => {
-      const card = document.querySelector(".carousel__card");
-
+      const card = cards[0];
       if (!card) return;
 
-      const gap = 20;
-      const cardWidth = card.offsetWidth + gap;
+      const cardRect = card.getBoundingClientRect();
+      const nextCardRect = cards[1]?.getBoundingClientRect();
 
-      track.style.transform =
-        `translateX(-${index * cardWidth}px)`;
+      // calcula gap real si existe segunda card
+      let gap = 0;
+      if (nextCardRect) {
+        gap = nextCardRect.left - cardRect.right;
+      }
+
+      const cardWidth = cardRect.width + gap;
+
+      track.style.transform = `translateX(-${index * cardWidth}px)`;
 
       dots.forEach(dot => dot.classList.remove("active"));
       dots[index].classList.add("active");
@@ -110,7 +117,7 @@
 
 .carousel__header {
   width: 90%;
-  max-width: 1800px;
+ 
   margin: 0 auto 40px;
 }
 
@@ -126,19 +133,20 @@
 ========================= */
 
 .carousel__wrapper {
-  width: 100%;
+  width: 90%;
+  margin:auto;
 }
 
 .carousel__viewport {
   width: 90%;
-  max-width: 1800px;
+  
   margin: 0 auto;
   overflow: hidden;
 }
 
 .carousel__track {
   display: flex;
-  gap: 20px;
+  gap:4%;
   transition: transform 0.5s ease;
 }
 
@@ -147,7 +155,7 @@
 ========================= */
 
 .carousel__card {
-  width: clamp(300px, 22vw, 420px);
+  width: 22%;
   flex-shrink: 0;
 
   background: white;
@@ -189,13 +197,13 @@
 .carousel__dots {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 22px;
   margin-top: 30px;
 }
 
 .carousel__dots span {
-  width: 40px;
-  height: 5px;
+  width: 70px;
+  height: 15px;
   border-radius: 999px;
   background: rgba(255, 255, 255, .35);
   cursor: pointer;
