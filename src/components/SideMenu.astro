@@ -40,7 +40,7 @@ const tabs = [
 
       <button class="menu-toggle" id="form-toggle">
         <span>📝</span>
-        <span>Formulario</span>
+        <span>Entidades</span>
       </button>
 
       <div class="submenu" id="form-submenu">
@@ -97,7 +97,7 @@ const tabs = [
 
 .side-menu {
   position: fixed;
-  top: 82px;
+  top: 10%;
   right: -300px;
 
   width: 300px;
@@ -212,9 +212,9 @@ const tabs = [
 .side-menu__settings a,
 .menu-toggle {
   width: 100%;
-
+  margin-left:60%;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
 
   gap: 10px;
@@ -262,7 +262,9 @@ const tabs = [
 .submenu {
   display: none;
   flex-direction: column;
+  
   width: 100%;
+  align-items: center;
 }
 
 .submenu.active {
@@ -270,14 +272,22 @@ const tabs = [
 }
 
 .submenu__item {
+  width: 100%;          /* igual que los otros botones */
   text-align: center;
-  padding: 8px 0;
+
+  padding: 10px 0;
   font-size: 13px;
-  opacity: 0.9;
+
+  color: white;
+  text-decoration: none;
+
+  display: flex;
+  justify-content: center;
 }
 
 .submenu__item:hover {
   opacity: 0.7;
+  
 }
 
 /* ========================= */
@@ -310,7 +320,7 @@ const tabs = [
 
 .side-menu {
   position: fixed;
-  top: 82px;
+  top: 10%;
   right: -300px;
 
   width: 300px;

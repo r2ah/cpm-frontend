@@ -10,41 +10,41 @@ import Team from '../components/Team.astro';
 
 <Layout title="Home">
 
+  <!-- HEADER -->
+  <Header />
+
   <section class="hero">
-    
+
     <!-- BACKGROUND -->
     <div class="hero__bg">
       <img
         src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
         alt=""
-        
       />
     </div>
 
     <!-- OVERLAY -->
     <div class="hero__overlay"></div>
 
-    <!-- HEADER -->
-    <Header />
-
     <!-- CONTENT -->
     <div class="hero__content">
-    <a class="site-header__brand" href="/" aria-label="SEINA">
-				<img
-					src="/Identidad/Identidad principal en blanco.png"
-					alt="SEINA"
-					width="160"
-					height="120"
-					decoding="async"
-					loading="eager"
-				/>
-			</a>
+
+      <a class="site-header__brand" href="/" aria-label="SEINA">
+        <img
+          src="/Identidad/Identidad principal en blanco.png"
+          alt="SEINA"
+          decoding="async"
+          loading="eager"
+        />
+      </a>
 
       <h1>Bienvenido</h1>
+
       <p>
         Gestión y preservación de edificios,
         monumentos y patrimonio cultural.
       </p>
+
     </div>
 
   </section>
@@ -53,21 +53,17 @@ import Team from '../components/Team.astro';
   <div id="about">
     <AboutUs />
   </div>
- 
 
+  <GalleryCarousel />
 
+  <Team />
 
-<GalleryCarousel />
-
-
-
-
-<Team />
-  
-  <!-- FOOTER -->
   <Footer />
 
+</Layout>
+
 <style>
+
 /* =========================
    HERO SECTION
 ========================= */
@@ -75,12 +71,13 @@ import Team from '../components/Team.astro';
 .hero {
   position: relative;
   width: 100%;
-  min-height: 105vh;
+  min-height: 100vh;
   overflow: hidden;
 
   display: flex;
-  justify-content: center;
-  
+  align-items: center;      /* CENTRADO VERTICAL */
+  justify-content: center;  /* CENTRADO HORIZONTAL */
+  text-align: center;
 }
 
 /* BACKGROUND IMAGE */
@@ -97,8 +94,34 @@ import Team from '../components/Team.astro';
   object-position: center;
   display: block;
 }
+
+/* OVERLAY */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+/* CONTENT */
+.hero__content {
+  position: relative;
+  z-index: 3;
+
+  width: 90%;
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  color: white;
+}
+
+/* LOGO */
 .site-header__brand img {
-  width: clamp(300px, 20vw, 500px);
+  width: clamp(200px, 20vw, 450px);
   height: auto;
   transition: transform 0.3s ease;
 }
@@ -107,53 +130,22 @@ import Team from '../components/Team.astro';
   transform: scale(1.05);
 }
 
-/* DARK OVERLAY */
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 2;
-  
-}
-
-
-/* CONTENT */
-.hero__content {
-  position: relative;
-  z-index: 3;
-  text-align: center;
-  color: white;
-
-  width: 90%;
-  max-width: 1600px;
-
-  padding: 1rem;
-  margin-top: 80px;
-}
-
+/* TITLE */
 .hero__content h1 {
   font-size: clamp(3rem, 8vw, 10rem);
-  margin-bottom: 0;
+  margin: 0;
   font-weight: 700;
-  margin-top:0px;
-  
 }
 
+/* TEXT */
 .hero__content p {
   font-size: clamp(1.2rem, 2vw, 2.5rem);
   line-height: 1.4;
-  margin-top:0px;
-  max-width:70%;
-  margin: auto;
+  max-width: 70%;
+  margin: 0 auto;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .hero__content {
-    padding: 1rem;
-  }
-}
-
+/* ABOUT SECTION */
 #about {
   position: relative;
   margin-top: -30px;
@@ -161,6 +153,13 @@ import Team from '../components/Team.astro';
 
   background: white;
   border-radius: 30px 30px 0 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero__content p {
+    max-width: 90%;
+  }
 }
 
 </style>
