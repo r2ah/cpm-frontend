@@ -1,172 +1,148 @@
 ---
 ---
 
-<section class="dictamen">
+<section class="dictamen-page">
 
-  <!-- Primera fila -->
-  <div class="card card--dictamen">
-    <h2>Dictamen</h2>
+  <form class="dictamen-form">
 
-    <input type="text" placeholder="Dirección" />
-    <input type="text" placeholder="Localización" />
+    <!-- DICTAMEN -->
+    <div class="form-card">
+      <h2 class="form-card__title">Dictamen</h2>
 
-    <select>
-      <option>Proyectista</option>
-    </select>
+      <div class="form">
 
-    <button class="tag">Persona</button>
+        <div class="form__group">
+          <label class="form__label">Dirección</label>
+          <input class="form__input" type="text" placeholder="Dirección" />
+        </div>
 
-    <input type="date" />
-  </div>
+        <div class="form__group">
+          <label class="form__label">Localización</label>
+          <input class="form__input" type="text" placeholder="Localización" />
+        </div>
 
-  <!-- Segunda fila -->
-  <div class="card card--estado">
+        <div class="form__group">
+          <label class="form__label">Proyectista</label>
+          <select class="form__input">
+            <option>Seleccione...</option>
+          </select>
+        </div>
 
-    <select>
-      <option>Inversionista</option>
-    </select>
+        <div class="form__group">
+          <label class="form__label">Fecha</label>
+          <input class="form__input" type="date" />
+        </div>
 
-    <button class="tag">Persona</button>
-
-    <select>
-      <option>Contratista</option>
-    </select>
-
-    <button class="tag">Persona</button>
-
-    <select>
-      <option>Estado</option>
-    </select>
-
-    <div class="estados">
-      <button class="tag">Elaborado</button>
-      <button class="tag">Revisado</button>
-      <button class="tag">Aprobado</button>
-      <button class="tag">Denegado</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Medios -->
-  <div class="card card--medios">
-    <h2>Medios Asociados</h2>
+    <!-- ESTADOS -->
+    <div class="form-card">
+      <h2 class="form-card__title">Estado del Proyecto</h2>
 
-    <input type="text" placeholder="Emisor" />
-    <input type="text" placeholder="Localización" />
-    <input type="text" placeholder="DUS/Micro" />
+      <div class="form">
 
-    <select>
-      <option>Intervenciones</option>
-    </select>
+        <div class="form__group">
+          <label class="form__label">Inversionista</label>
+          <select class="form__input">
+            <option>Seleccione...</option>
+          </select>
+        </div>
 
-    <button class="tag tag--right">
-      Intervención
-    </button>
-  </div>
+        <div class="form__group">
+          <label class="form__label">Contratista</label>
+          <select class="form__input">
+            <option>Seleccione...</option>
+          </select>
+        </div>
 
-  <!-- Usuarios -->
-  <div class="card card--usuarios">
-    <h3>Elaborado por..</h3>
-    <input type="text" placeholder="usuario" />
+        <div class="form__group">
+          <label class="form__label">Estado</label>
+          <select class="form__input">
+            <option>Elaborado</option>
+            <option>Revisado</option>
+            <option>Aprobado</option>
+            <option>Denegado</option>
+          </select>
+        </div>
 
-    <h3>Aprobado por..</h3>
-    <input type="text" placeholder="usuario" />
+      </div>
+    </div>
 
-    <h3>Revisado por..</h3>
-    <input type="text" placeholder="usuario" />
-  </div>
+    <!-- MEDIOS -->
+    <div class="form-card">
+      <h2 class="form-card__title">Medios Asociados</h2>
 
-  <!-- Observaciones -->
-  <div class="card card--observaciones">
-    <h3>Características Generales</h3>
-    <textarea class="auto-grow" placeholder="área de texto..."></textarea>
+      <div class="form">
 
-    <h3>Observaciones</h3>
-    <textarea class="auto-grow" placeholder="área de texto..."></textarea>
-  </div>
+        <div class="form__group">
+          <input class="form__input" type="text" placeholder="Emisor" />
+        </div>
+
+        <div class="form__group">
+          <input class="form__input" type="text" placeholder="Localización" />
+        </div>
+
+        <div class="form__group">
+          <input class="form__input" type="text" placeholder="DUS / Micro" />
+        </div>
+
+        <div class="form__group">
+          <select class="form__input">
+            <option>Intervenciones</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- USUARIOS -->
+    <div class="form-card">
+      <h2 class="form-card__title">Usuarios</h2>
+
+      <div class="form">
+
+        <div class="form__group">
+          <label class="form__label">Elaborado por</label>
+          <input class="form__input" type="text" />
+        </div>
+
+        <div class="form__group">
+          <label class="form__label">Aprobado por</label>
+          <input class="form__input" type="text" />
+        </div>
+
+        <div class="form__group">
+          <label class="form__label">Revisado por</label>
+          <input class="form__input" type="text" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- OBSERVACIONES -->
+    <div class="form-card">
+      <h2 class="form-card__title">Observaciones</h2>
+
+      <div class="form__group">
+        <textarea class="form__input textarea auto-grow"></textarea>
+      </div>
+
+      <div class="form__group">
+        <textarea class="form__input textarea auto-grow"></textarea>
+      </div>
+    </div>
+
+    <!-- BOTÓN -->
+    <div class="form-card submit-card">
+      <button class="btn btn--primary" type="submit">
+        Guardar Dictamen
+      </button>
+    </div>
+
+  </form>
 
 </section>
-
-<style>
-.dictamen {
-  width: min(1200px, 92%);
-  margin: 0 auto;
-  margin-top:0px; 
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.card {
-  border: 2px solid #d2a157;
-  border-radius: 45px;
-  padding: 1.75rem;
-  background: #f7f7f7;
-}
-
-.card h2,
-.card h3 {
-  color: #5b3200;
-  margin-bottom: 1.5rem;
-}
-
-.card input,
-.card select,
-.card textarea {
-  width: 90%;
-  border: 2px solid #d7d7d7;
-  border-radius: 14px;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
-  background: white;
-  font-size: 1rem;
-}
-
-.card select {
-  width: 95%;
-}
-
-/* 🔥 AUTO-GROW FIX */
-.card textarea {
-  resize: none;
-  overflow: hidden;
-  min-height: 50px;
-  transition: height 0.1s ease;
-}
-
-.tag {
-  border: none;
-  background: #d8b47a;
-  color: white;
-  border-radius: 10px;
-  padding: .8rem 1rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-}
-
-.tag--right {
-  margin-left: auto;
-}
-
-.estados {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .75rem;
-}
-
-.card--usuarios {
-  min-height: 380px;
-}
-
-.card--observaciones {
-  min-height: 500px;
-}
-
-@media (max-width: 1100px) {
-  .dictamen {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
 
 <script is:inline>
   document.querySelectorAll("textarea.auto-grow").forEach((textarea) => {
@@ -176,6 +152,148 @@
     };
 
     textarea.addEventListener("input", resize);
-    resize(); // inicial
+    resize();
   });
 </script>
+
+<style>
+/* ========================= */
+/* 🔥 CENTRADO FORZADO REAL */
+/* ========================= */
+
+.dictamen-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0px 15px;
+  box-sizing: border-box;
+}
+
+/* FORM CONTENEDOR */
+.dictamen-form {
+  width: calc(100% - 30px);
+  max-width: 480px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ========================= */
+/* CARD (MISMO SISTEMA LOGIN) */
+/* ========================= */
+
+.form-card {
+  width: 100%;
+  padding: 30px;
+  border-radius: 20px;
+
+  background: #fff;
+  box-shadow: 0 4px 20px #5a3506;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+.form-card__title {
+  font-size: 28px;
+  font-weight: 400;
+  color: #5a3506;
+  margin: 0;
+}
+
+/* ========================= */
+/* FORM SYSTEM */
+/* ========================= */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form__label {
+  font-size: 13px;
+  color: #444;
+}
+
+/* INPUTS */
+.form__input {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* TEXTAREA */
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ========================= */
+/* BUTTONS */
+/* ========================= */
+
+.btn {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.btn--primary {
+  background: #553304;
+  color: #fff;
+}
+
+.submit-card .btn {
+  width: 100%;
+}
+
+/* ========================= */
+/* RESPONSIVE REAL */
+/* ========================= */
+
+@media (max-width: 600px) {
+  .dictamen-page {
+    padding: 20px 10px;
+  }
+
+  .form-card {
+    padding: 20px;
+  }
+
+  .form-card__title {
+    font-size: 22px;
+  }
+
+  .form__input {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .dictamen-form {
+    width: 460px;
+  }
+}
+
+
+</style>

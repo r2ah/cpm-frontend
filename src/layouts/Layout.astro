@@ -37,34 +37,12 @@ const {
 			(function () {
 				if (typeof document === 'undefined') return;
 
-				const toggleBtn = document.querySelector('[data-menu-toggle]');
-				const menu = document.querySelector('[data-menu]');
-				if (!toggleBtn || !menu) return;
-
-				if (toggleBtn.dataset.menuToggled === '1') return;
-				toggleBtn.dataset.menuToggled = '1';
-
-				toggleBtn.addEventListener('click', (e) => {
-					e.preventDefault();
-					e.stopPropagation();
-					menu.classList.toggle('is-open');
-				});
-
-				document.addEventListener('click', (e) => {
-					const target = e.target;
-					if (!target) return;
-
-					if (!menu.contains(target) && !toggleBtn.contains(target)) {
-						menu.classList.remove('is-open');
-					}
-				});
-
-				document.addEventListener('keydown', (e) => {
-					if (e.key === 'Escape') {
-						menu.classList.remove('is-open');
-					}
-				});
-			})();
+				// NOTE:
+				// El menú lateral real del proyecto se controla desde Header.astro/SideMenu.astro
+				// con un CustomEvent('toggle-menu') y la clase `active` en #side-menu.
+				// Por compatibilidad, este bloque (data-menu-toggle/data-menu) se desactiva
+				// para evitar listeners duplicados y comportamientos inconsistentes.
+				})();
 		</script>
 
 		<style>

@@ -4,14 +4,14 @@ const tabs = [
   { label: "Dictamenes", href: "/formularios/dictamenes" },
   { label: "Autoridades", href: "/formularios/autoridades" },
   { label: "Usuarios", href: "/formularios/usuarios" },
-  { label: "Intervenciones", href: "/formularios/intervenciones" }
+  { label: "Intervenciones", href: "/formularios/intervenciones" },
+  { label: "Actas", href: "/formularios/actas" }
 ];
 
 const currentPath = Astro.url.pathname;
 ---
 
 <nav class="form-tabs">
-
 
   {tabs.map((tab) => (
     <a
@@ -21,23 +21,36 @@ const currentPath = Astro.url.pathname;
       {tab.label}
     </a>
   ))}
-  
+
 </nav>
 
 <style>
+/* =========================
+   BASE (DESKTOP)
+========================= */
+
 .form-tabs {
   display: flex;
   gap: 10px;
 
   padding: 10px;
+
+  /* Acercar más la tabla hacia FormTabs */
   margin:auto;
   margin-top:100px;
+  margin-bottom:0px;
+
+
   width: fit-content;
+
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+  max-width: 95%;
 }
 
+/* ITEM */
 .form-tabs__item {
   text-decoration: none;
   padding: 10px 18px;
@@ -48,6 +61,8 @@ const currentPath = Astro.url.pathname;
   color: #5a3506;
 
   transition: 0.2s ease;
+
+  white-space: nowrap;
 }
 
 .form-tabs__item:hover {
@@ -57,5 +72,60 @@ const currentPath = Astro.url.pathname;
 .form-tabs__item.is-active {
   background: #553304;
   color: #fff;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .form-tabs {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap; /* 👈 evita overflow */
+    gap: 8px;
+  }
+
+  .form-tabs__item {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}
+
+/* =========================
+   MOBILE (MEJOR UX)
+========================= */
+
+@media (max-width: 600px) {
+  .form-tabs {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+
+    overflow-x: auto;   /* 👈 scroll horizontal */
+    -webkit-overflow-scrolling: touch;
+
+    padding: 10px 12px;
+    margin-top: 80px;
+  }
+
+  .form-tabs::-webkit-scrollbar {
+    display: none; /* limpia UX móvil */
+  }
+
+  .form-tabs__item {
+    flex: 0 0 auto;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* =========================
+   ULTRA WIDE
+========================= */
+
+@media (min-width: 1600px) {
+  .form-tabs {
+    transform: scale(1.05);
+  }
 }
 </style>

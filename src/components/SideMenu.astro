@@ -4,53 +4,54 @@ const tabs = [
   { label: "Dictamenes", href: "/formularios/dictamenes" },
   { label: "Autoridades", href: "/formularios/autoridades" },
   { label: "Usuarios", href: "/formularios/usuarios" },
-  { label: "Intervenciones", href: "/formularios/intervenciones" }
+  { label: "Intervenciones", href: "/formularios/intervenciones" },
+  { label: "Actas", href: "/formularios/actas" }
 ];
 ---
 
-
-
 <aside id="side-menu" class="side-menu">
-  <div class="side-menu__header">
-    <button id="menu-close" class="side-menu__back">
-      ←
-    </button>
 
+  <!-- HEADER -->
+  <div class="side-menu__header">
+    <button id="menu-close" class="side-menu__back">←</button>
     <h2>MENÚ</h2>
   </div>
 
+  <!-- PROFILE -->
   <div class="side-menu__profile">
     <div class="side-menu__avatar">
-        <img
-        src="/Identidad/Identidad principal.png"
-        alt="Perfil"
-      />
+      <img src="/Identidad/Identidad principal.png" alt="Perfil" />
     </div>
 
     <h3>Nombre Usuario</h3>
     <p>usuario@email.com</p>
   </div>
 
+  <!-- NAV -->
   <nav class="side-menu__nav">
+
     <a href="/estadisticas">
       <span>📊</span>
       <span>Estadísticas</span>
     </a>
 
+    <!-- FORM GROUP -->
     <div class="menu-group">
-  <button class="menu-toggle" id="form-toggle">
-    <span>📝</span>
-    <span>Formulario</span>
-  </button>
 
-  <div class="submenu" id="form-submenu">
-    {tabs.map((tab) => (
-      <a href={tab.href} class="submenu__item">
-        {tab.label}
-      </a>
-    ))}
-  </div>
-</div>
+      <button class="menu-toggle" id="form-toggle">
+        <span>📝</span>
+        <span>Formulario</span>
+      </button>
+
+      <div class="submenu" id="form-submenu">
+        {tabs.map((tab) => (
+          <a href={tab.href} class="submenu__item">
+            {tab.label}
+          </a>
+        ))}
+      </div>
+
+    </div>
 
     <a href="/informacion">
       <span>ℹ️</span>
@@ -61,10 +62,13 @@ const tabs = [
       <span>🏛️</span>
       <span>Acerca de...</span>
     </a>
+
   </nav>
 
+  <!-- DIVIDER -->
   <div class="side-menu__divider"></div>
 
+  <!-- SETTINGS -->
   <div class="side-menu__settings">
     <h4>AJUSTES</h4>
 
@@ -77,66 +81,83 @@ const tabs = [
       <span>⚙️</span>
       <span>Configuración</span>
     </a>
+
   </div>
+
 </aside>
 
 <style>
+/* ========================= */
+/* BASE FIX */
+/* ========================= */
+
+* {
+  box-sizing: border-box;
+}
+
 .side-menu {
   position: fixed;
   top: 82px;
   right: -300px;
 
   width: 300px;
+  max-width: 100vw;
   height: 70vh;
 
   background: #6b3a00;
   color: white;
-
-  z-index: 45;
 
   display: flex;
   flex-direction: column;
 
   transition: right 0.3s ease;
 
-  box-shadow: -8px 0 20px rgba(0, 0, 0, 0.25);
-
+  box-shadow: -8px 0 20px rgba(0,0,0,0.25);
   border-bottom-left-radius: 12px;
 
+  overflow-x: hidden;
   overflow-y: auto;
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
 .side-menu.active {
   right: 0;
 }
 
-.side-menu__header {
-  height: 45px;
+/* ========================= */
+/* HEADER */
+/* ========================= */
 
+.side-menu__header {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 10px;
 
-  padding: 0 14px;
+  height: 48px;
 
-  background: rgba(0, 0, 0, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
+  font-size: 14px;
+  font-weight: 600;
 
-.side-menu__header h2 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  background: rgba(0,0,0,0.08);
 }
 
 .side-menu__back {
+  position: absolute;
+  left: 12px;
+
   background: transparent;
   border: none;
   color: white;
-  font-size: 1.2rem;
+
+  font-size: 16px;
   cursor: pointer;
 }
+
+/* ========================= */
+/* PROFILE (CENTRADO PERFECTO) */
+/* ========================= */
 
 .side-menu__profile {
   display: flex;
@@ -145,19 +166,15 @@ const tabs = [
 
   text-align: center;
 
-  padding: 12px 12px 10px;
+  padding: 14px 10px;
+  gap: 4px;
 }
 
 .side-menu__avatar {
-  width: 60px;
-  height: 60px;
-
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   overflow: hidden;
-
-  margin-bottom: 8px;
-
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .side-menu__avatar img {
@@ -167,111 +184,117 @@ const tabs = [
 }
 
 .side-menu__profile h3 {
-  margin: 0;
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 600;
+  margin: 0;
 }
 
 .side-menu__profile p {
-  margin-top: 3px;
-  font-size: 0.75rem;
+  font-size: 12px;
+  margin: 0;
   opacity: 0.8;
 }
+
+/* ========================= */
+/* NAV CENTER FIX */
+/* ========================= */
 
 .side-menu__nav,
 .side-menu__settings {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
+/* LINKS UNIFORMES */
 .side-menu__nav a,
-.side-menu__settings a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
+.side-menu__settings a,
+.menu-toggle {
   width: 100%;
 
-  padding: 6px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px 0;
+
+  font-size: 14px;
+  font-weight: 500;
 
   color: white;
   text-decoration: none;
 
-  transition: opacity 0.2s;
+  background: transparent;
+  border: none;
 }
 
+/* hover uniforme */
 .side-menu__nav a:hover,
-.side-menu__settings a:hover {
-  opacity: 0.8;
+.side-menu__settings a:hover,
+.menu-toggle:hover {
+  background: rgba(255,255,255,0.08);
 }
+
+/* ========================= */
+/* DIVIDER */
+/* ========================= */
 
 .side-menu__divider {
   width: 70%;
   margin: 12px auto;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255,255,255,0.12);
 }
 
-.side-menu__settings h4 {
-  margin: 0 0 6px;
-
-  text-align: center;
-
-  font-size: 0.7rem;
-  letter-spacing: 1px;
-
-  opacity: 0.7;
-}
+/* ========================= */
+/* SUBMENU CENTRADO */
+/* ========================= */
 
 .menu-group {
   width: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.menu-toggle {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  width: 100%;
-  padding: 6px 0;
-
-  background: transparent;
-  border: none;
-  color: white;
-
-  cursor: pointer;
-  font-size: inherit;
 }
 
 .submenu {
   display: none;
   flex-direction: column;
   width: 100%;
-
-  margin-top: 4px;
-  padding-left: 20px;
-}
-
-.submenu a {
-  padding: 5px 0;
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-.submenu a:hover {
-  opacity: 0.7;
 }
 
 .submenu.active {
   display: flex;
 }
 
+.submenu__item {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.submenu__item:hover {
+  opacity: 0.7;
+}
+
+/* ========================= */
+/* SETTINGS TITLE */
+/* ========================= */
+
+.side-menu__settings h4 {
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin: 8px 0;
+  text-align: center;
+}
+
+/* ========================= */
+/* MOBILE */
+/* ========================= */
 
 @media (max-width: 768px) {
   .side-menu {
@@ -284,46 +307,66 @@ const tabs = [
     right: 0;
   }
 }
+
+.side-menu {
+  position: fixed;
+  top: 82px;
+  right: -300px;
+
+  width: 300px;
+  max-width: 100vw;
+  height: 70vh;
+
+  background: #6b3a00;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+
+  transition: right 0.3s ease;
+
+  box-shadow: -8px 0 20px rgba(0,0,0,0.25);
+  border-bottom-left-radius: 12px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  z-index: 9999; /* 🔥 CLAVE */
+}
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const menu = document.getElementById('side-menu');
-  const closeBtn = document.getElementById('menu-close');
-  const hamburgerBtn = document.getElementById('menu-toggle');
+document.addEventListener("DOMContentLoaded", () => {
+  const menu = document.getElementById("side-menu");
+  const closeBtn = document.getElementById("menu-close");
 
   function toggleMenu() {
-    menu?.classList.toggle('active');
+    menu?.classList.toggle("active");
   }
 
   function closeMenu() {
-    menu?.classList.remove('active');
+    menu?.classList.remove("active");
   }
 
-  window.addEventListener('toggle-menu', toggleMenu);
+  window.addEventListener("toggle-menu", toggleMenu);
+  closeBtn?.addEventListener("click", closeMenu);
 
-  closeBtn?.addEventListener('click', closeMenu);
-
-  // Cerrar al hacer click fuera
-  document.addEventListener('click', (event) => {
+  document.addEventListener("click", (event) => {
     if (!menu) return;
 
     const target = event.target;
+    const inside = menu.contains(target);
+    const hamburger = document.getElementById("menu-toggle")?.contains(target);
 
-    const clickDentroMenu = menu.contains(target);
-    const clickHamburguesa = hamburgerBtn?.contains(target);
-
-    if (!clickDentroMenu && !clickHamburguesa) {
-      closeMenu();
-    }
+    if (!inside && !hamburger) closeMenu();
   });
-});
 
-const formToggle = document.getElementById("form-toggle");
-const formSubmenu = document.getElementById("form-submenu");
+  const formToggle = document.getElementById("form-toggle");
+  const formSubmenu = document.getElementById("form-submenu");
 
-formToggle?.addEventListener("click", (e) => {
-  e.stopPropagation(); // evita cerrar el menú principal
-  formSubmenu?.classList.toggle("active");
+  formToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    formSubmenu?.classList.toggle("active");
+  });
 });
 </script>

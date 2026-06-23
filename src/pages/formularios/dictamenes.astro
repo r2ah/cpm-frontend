@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/footer_prueba.astro';
 import DictamenForm from '../../components/forms/DictamenForm.astro';
 import FormTabs from "../../components/forms/FormTabs.astro";
+import TablaConVistas from '../../components/TablaConVistas.astro';
 ---
 
 <Layout
@@ -13,24 +14,37 @@ import FormTabs from "../../components/forms/FormTabs.astro";
 
   <Header />
   <FormTabs/>
-  <main class="auth-page">
+  <main class="page">
 
-    <DictamenForm />
+    <TablaConVistas
+      columns={[
+        { key: 'col1', header: 'Columna 1' },
+        { key: 'col2', header: 'Columna 2' },
+        { key: 'col3', header: 'Columna 3' }
+      ]}
+      rows={[
+        { col1: 'Dictamen 1', col2: 'Fecha 1', col3: 'Estado 1' },
+        { col1: 'Dictamen 2', col2: 'Fecha 2', col3: 'Estado 2' },
+        { col1: 'Dictamen 3', col2: 'Fecha 3', col3: 'Estado 3' }
+      ]}
+    >
+      <DictamenForm />
+    </TablaConVistas>
 
   </main>
 
-  <Footer/>
+ 
 
 </Layout>
 
 <style>
 
-/* 🔥 MISMO CONCEPTO QUE LOGIN */
-.auth-page {
+
+.page {
   min-height: calc(100vh - 120px);
   display: flex;
   justify-content: center;
-  align-items: center;
+ 
 
   padding: 40px 24px;
 }

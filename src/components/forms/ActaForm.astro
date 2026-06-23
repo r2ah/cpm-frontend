@@ -1,0 +1,317 @@
+---
+---
+
+<section class="acta-page">
+
+  <form class="global-form">
+
+    <!-- ACTA -->
+    <div class="form-card">
+      <h2 class="form-card__title">Acta</h2>
+
+      <div class="form">
+
+        <div class="form__group">
+          <label class="form__label">Fecha</label>
+          <input class="form__input" type="date" />
+        </div>
+
+        <div class="form__group">
+          <label class="form__label">Dirección</label>
+          <input class="form__input" type="text" />
+        </div>
+
+        <div class="form__group">
+          <label class="form__label">Localización</label>
+          <input class="form__input" type="text" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ORDEN DEL DÍA -->
+    <div class="form-card">
+      <h2 class="form-card__title">Orden del Día</h2>
+
+      <textarea class="form__input textarea auto-grow"></textarea>
+    </div>
+
+    <!-- INTERVENCIONES -->
+    <div class="form-card">
+      <h2 class="form-card__title">Intervenciones</h2>
+
+      <textarea class="form__input textarea auto-grow"></textarea>
+    </div>
+
+    <!-- ACUERDOS -->
+    <div class="form-card">
+      <h2 class="form-card__title">Acuerdos</h2>
+
+      <textarea class="form__input textarea auto-grow"></textarea>
+    </div>
+
+    <!-- DOCUMENTO -->
+    <div class="form-card">
+      <h2 class="form-card__title">Documento Firmado</h2>
+
+      <div class="form__group">
+        <input type="file" id="documento" hidden />
+
+        <label class="form__input file" for="documento">
+          Seleccionar documento firmado
+        </label>
+
+        <span id="file-name">
+          Ningún archivo seleccionado
+        </span>
+      </div>
+    </div>
+
+    <!-- PARTICIPANTES -->
+    <div class="form-card">
+      <h2 class="form-card__title">Participantes</h2>
+
+      <div class="form__group form-row">
+
+        <select class="form__input">
+          <option>Seleccione...</option>
+        </select>
+
+        <button
+          class="btn btn--secondary"
+          type="button"
+        >
+          Agregar
+        </button>
+
+      </div>
+    </div>
+
+    <!-- GUARDAR -->
+    <div class="form-card submit-card">
+      <button
+        class="btn btn--primary"
+        type="submit"
+      >
+        Guardar Acta
+      </button>
+    </div>
+
+  </form>
+
+</section>
+
+<style>
+/* ========================= */
+/* CENTRADO FORZADO */
+/* ========================= */
+
+.acta-page {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  
+  box-sizing: border-box;
+}
+
+/* FORMULARIO */
+.global-form {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* CARD */
+.form-card {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 30px;
+  border-radius: 20px;
+
+  background: #fff;
+  box-shadow: 0 4px 20px #5a3506;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-card__title {
+  font-size: 28px;
+  font-weight: 400;
+  color: #5a3506;
+  margin: 0;
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form__label {
+  font-size: 13px;
+  color: #444;
+}
+
+/* INPUTS */
+.form__input,
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+/* TEXTAREA */
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* FILE */
+.file {
+  cursor: pointer;
+}
+
+/* FILE NAME */
+#file-name {
+  font-size: 12px;
+  color: #5a3506;
+}
+
+/* PARTICIPANTES */
+.form-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-row select {
+  flex: 1;
+}
+
+.form-row .btn {
+  width: auto;
+  white-space: nowrap;
+}
+
+/* BOTONES */
+.btn {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.btn--primary {
+  background: #553304;
+  color: #fff;
+}
+
+.btn--secondary {
+  background: #e1c595;
+  color: #5a3506;
+}
+
+.btn--primary:hover,
+.btn--secondary:hover {
+  opacity: 0.9;
+}
+
+/* SUBMIT */
+.submit-card .btn {
+  width: 100%;
+}
+
+/* TABLET */
+@media (max-width: 900px) {
+  .form-card {
+    padding: 22px;
+  }
+
+  .form-card__title {
+    font-size: 24px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .acta-page {
+    padding: 15px 10px;
+  }
+
+  .global-form {
+    width: 100%;
+  }
+
+  .form-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .form-card__title {
+    font-size: 20px;
+  }
+
+  .form__input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .textarea {
+    min-height: 100px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-row .btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+  const input = document.getElementById('documento');
+  const fileName = document.getElementById('file-name');
+
+  input?.addEventListener('change', () => {
+    fileName.textContent =
+      input.files && input.files.length > 0
+        ? input.files[0].name
+        : 'Ningún archivo seleccionado';
+  });
+
+  document.querySelectorAll("textarea.auto-grow").forEach((textarea) => {
+    const resize = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    };
+
+    textarea.addEventListener("input", resize);
+    resize();
+  });
+</script>

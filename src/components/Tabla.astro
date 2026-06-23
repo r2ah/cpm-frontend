@@ -1,0 +1,82 @@
+---
+export type Column = {
+  key: string;
+  header: string;
+};
+
+export type Row = Record<string, any>;
+
+export type Props = {
+  columns: Column[];
+  rows: Row[];
+};
+
+const { columns, rows } = Astro.props;
+---
+
+<div class="tabla">
+  <table class="tabla__table" role="table">
+    <thead>
+      <tr>
+        {columns.map((col) => (
+          <th class="tabla__th" scope="col">{col.header}</th>
+        ))}
+      </tr>
+    </thead>
+
+    <tbody>
+      {rows?.length ? (
+        rows.map((row, idx) => (
+          <tr class="tabla__tr" key={idx}>
+            {columns.map((col) => (
+              <td class="tabla__td">{row?.[col.key] ?? ''}</td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        <tr class="tabla__tr">
+          <td class="tabla__td tabla__td--empty" colspan={columns.length}>
+            No hay datos para mostrar.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .tabla {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .tabla__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+  }
+
+  .tabla__th,
+  .tabla__td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .tabla__th {
+    font-weight: 800;
+    color: #111;
+  }
+
+  .tabla__td {
+    color: #222;
+  }
+
+  .tabla__td--empty {
+    text-align: center;
+    opacity: 0.7;
+  }
+</style>
+

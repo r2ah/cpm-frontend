@@ -1,0 +1,176 @@
+---
+import Tabla, { type Column, type Row } from './Tabla.astro';
+
+export type Props = {
+  columns: Column[];
+  rows: Row[];
+  addButtonLabel?: string;
+};
+
+const {
+  columns,
+  rows,
+  addButtonLabel = 'Agregar'
+} = Astro.props;
+---
+
+<div class="tabla-vistas">
+  <div class="tabla-vistas__tabla" id="tabla-vista" aria-hidden="false">
+    <div class="tabla-vistas__toolbar">
+      <button class="tabla-vistas__add" type="button" data-add>
+        {addButtonLabel}
+      </button>
+    </div>
+    <Tabla columns={columns} rows={rows} />
+  </div>
+
+  <div class="tabla-vistas__form" id="form-vista">
+    <button class="tabla-vistas__back" type="button" data-back>
+      ← Volver a la tabla
+    </button>
+
+    <div class="tabla-vistas__form-wrap">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    if (typeof document === 'undefined') return;
+
+    const addBtn = document.querySelector('[data-add]');
+    const backBtn = document.querySelector('[data-back]');
+    const tabla = document.getElementById('tabla-vista');
+    const form = document.getElementById('form-vista');
+
+    if (!addBtn || !backBtn || !tabla || !form) return;
+
+    addBtn.addEventListener('click', () => {
+      tabla.classList.add('is-blur');
+
+      // Contenedor (para empujar footer)
+      const root = tabla.closest('.tabla-vistas');
+      root?.classList.add('is-showing-form');
+
+      form.classList.add('is-show');
+      // asegurar que el formulario sea visible
+      form.style.display = 'block';
+      tabla.setAttribute('aria-hidden', 'true');
+    });
+
+
+    backBtn.addEventListener('click', () => {
+      tabla.classList.remove('is-blur');
+      form.classList.remove('is-show');
+
+      const root = tabla.closest('.tabla-vistas');
+      root?.classList.remove('is-showing-form');
+
+      tabla.removeAttribute('aria-hidden');
+      form.style.display = 'none';
+    });
+
+  })();
+</script>
+
+<style>
+  .tabla-vistas {
+    width: 90%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    
+    
+  }
+
+
+  .tabla-vistas__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    /* subir la tabla (menos separación con FormTabs/encabezado visual) */
+    margin-bottom: 4px;
+  }
+
+
+  .tabla-vistas__add,
+  .tabla-vistas__back {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .tabla-vistas__add {
+    background: #553304;
+    color: #fff;
+  }
+
+  .tabla-vistas__back {
+    background: transparent;
+    color: inherit;
+    border: 1px solid rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+  }
+
+  .tabla-vistas__form {
+    display: none;
+    /* Superpone el formulario sobre la tabla */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    background: transparent;
+    overflow: visible;
+  }
+
+
+
+
+  /* Para superponer el formulario sobre la tabla
+     y a la vez que el footer quede empujado hacia abajo:
+     - el overlay mantiene el stacking
+     - agregamos “espacio” usando padding/margen en el contenedor flex */
+  .tabla-vistas.is-showing-form {
+    padding-bottom: 260px;
+  }
+
+
+
+
+
+  .tabla-vistas__form-wrap {
+    width: 100%;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+
+
+
+  .tabla-vistas__form.is-show {
+    display: block;
+    margin-top: 0;
+  }
+
+  .tabla-vistas__tabla {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tabla-vistas__tabla.is-blur {
+    filter: blur(3px);
+    opacity: 0.35;
+    pointer-events: none;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+  }
+
+  .tabla-vistas__form-wrap {
+    width: 100%;
+  }
+</style>
+
