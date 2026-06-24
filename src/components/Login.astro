@@ -18,11 +18,12 @@
 
     <h2 class="login__title">Bienvenido</h2>
 
-    <form class="login__form" method="post">
+    <form class="login__form" id="login-form">
 
       <div class="field">
         <input
           class="field__input"
+          name="email"
           type="email"
           placeholder="Correo"
           autocomplete="email"
@@ -33,6 +34,7 @@
       <div class="field">
         <input
           class="field__input"
+          name="password"
           type="password"
           placeholder="Contraseña"
           autocomplete="current-password"
@@ -41,14 +43,16 @@
       </div>
 
       <div class="login__actions">
-        <button class="login__primary" type="submit">
+       <!-- <button class="login__primary" type="button">
           Registrarse
-        </button>
+        </button>-->
 
         <button class="login__acceder" type="submit">
           Acceder
         </button>
       </div>
+
+      <p class="login__error" id="login-error" role="alert" aria-live="polite"></p>
 
     </form>
 
@@ -183,3 +187,72 @@
 }
 
 </style>
+
+<script type="module">
+
+function getBackendBase() {
+  // Asume que el backend corre en el mismo host del front, pero en el puerto 8000
+  // Ej: front http://10.10.10.11:4321/ -> backend http://10.10.10.11:8000
+  const { hostname, protocol } = window.location;
+  return `${protocol}//${hostname}:8000`;
+}
+
+const BACKEND_BASE = getBackendBase();
+
+
+
+  function $(sel) {
+    return document.querySelector(sel);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = $('#login-form');
+    const btnPrimary = form?.querySelector('.login__primary');
+    const btnSubmit = form?.querySelector('button[type="submit"]');
+    const errorEl = $('#login-error');
+
+    btnPrimary?.addEventListener('click', () => {
+      // Aún no hay registro en la UI: dejamos placeholder
+      window.location.href = '/register';
+    });
+
+    btnSubmit?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!form) return;
+
+      const fd = new FormData(form);
+      const email = String(fd.get('email') || '').trim();
+      const password = String(fd.get('password') || '');
+
+      errorEl && (errorEl.textContent = '');
+
+      try {
+        console.log('LOGIN_PAYLOAD', { email, passwordLen: password?.length });
+
+        const res = await fetch(`${BACKEND_BASE}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const msg = data?.email?.[0] || data?.message || 'Login falló';
+          if (errorEl) errorEl.textContent = msg;
+          return;
+        }
+
+        window.localStorage.setItem('auth_token', data.access_token);
+        window.localStorage.setItem('auth_user', JSON.stringify(data.user || {}));
+
+
+        // redirige a una ruta protegida (ajusta si tienes otra)
+        window.location.href = '/';
+      } catch (err) {
+        if (errorEl) errorEl.textContent = String(err?.message || err);
+      }
+    });
+  });
+</script>
+

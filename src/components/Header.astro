@@ -34,12 +34,17 @@ import HamburgerButton from './HamburgerButton.astro';
     <div class="site-header__right">
       <div class="site-header__actions">
 
-        <a class="site-header__btn site-header__btn--signup" href="/login">
-          <span class="site-header__btn-text">Registrarse</span>
+        <a
+          class="site-header__btn site-header__btn--signup"
+          id="header-auth-link"
+          href="/login"
+        >
+          <span class="site-header__btn-text" id="header-auth-link-text">Acceder</span>
         </a>
 
-        <div class="site-header__profile">
+        <div class="site-header__profile" id="site-header-profile" style="display:none; flex-direction:column; align-items:center; gap:4px;">
           <ProfileButton />
+          <span id="site-header-user-email" style="font-size:12px; opacity:0.85; margin-top:-2px;"></span>
         </div>
 
         <div class="site-header__hamburger" id="menu-toggle">
@@ -252,5 +257,51 @@ document.addEventListener('DOMContentLoaded', () => {
   btn?.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('toggle-menu'));
   });
+
+  const authLink = document.getElementById('header-auth-link');
+  const authText = document.getElementById('header-auth-link-text');
+
+  const authToken = window.localStorage.getItem('auth_token');
+  const authUserRaw = window.localStorage.getItem('auth_user');
+  const authUser = authUserRaw ? (() => { try { return JSON.parse(authUserRaw); } catch { return null; } })() : null;
+
+  const emailEl = document.getElementById('site-header-user-email');
+
+  if (authToken && authText && authLink) {
+    if (emailEl && authUser?.email) {
+      emailEl.textContent = authUser.email;
+    } else if (emailEl) {
+      emailEl.textContent = '';
+    }
+
+    const profileWrap = document.getElementById('site-header-profile');
+    if (profileWrap) profileWrap.style.display = 'flex';
+    if (emailEl && authUser?.email) {
+      emailEl.textContent = authUser.email;
+    }
+    authLink.href = '#';
+    authText.textContent = 'Cerrar Sesión';
+
+    authLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/v1/logout`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+          });
+        // logout exitoso
+        window.localStorage.removeItem('auth_token');
+        window.localStorage.removeItem('auth_user');
+        window.location.href = '/';
+      } catch (err) {
+        window.location.href = '/';
+      }
+    }, { once: true });
+  }
 });
 </script>

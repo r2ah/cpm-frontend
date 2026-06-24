@@ -23,8 +23,8 @@ const tabs = [
       <img src="/Identidad/Identidad principal.png" alt="Perfil" />
     </div>
 
-    <h3>Nombre Usuario</h3>
-    <p>usuario@email.com</p>
+    <h3 id="side-menu-user-name">Nombre Usuario</h3>
+    <p id="side-menu-user-email">usuario@email.com</p>
   </div>
 
   <!-- NAV -->
@@ -358,6 +358,18 @@ const tabs = [
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const nameEl = document.getElementById('side-menu-user-name');
+  const emailEl = document.getElementById('side-menu-user-email');
+
+  const stored = window.localStorage.getItem('auth_user');
+  if (stored) {
+    try {
+      const user = JSON.parse(stored);
+      if (user?.name) nameEl && (nameEl.textContent = user.name);
+      if (user?.email) emailEl && (emailEl.textContent = user.email);
+    } catch {}
+  }
+
   const menu = document.getElementById("side-menu");
   const closeBtn = document.getElementById("menu-close");
 

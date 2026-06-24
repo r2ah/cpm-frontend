@@ -2,46 +2,89 @@
 
   <h2 class="form-card__title">Registrar Persona</h2>
 
-  <form class="form">
+  <form class="form" id="persona-form">
 
     <div class="form__group">
       <label class="form__label">Nombre</label>
-      <input class="form__input" type="text" placeholder="Nombre completo" required />
+      <input name="name" class="form__input" type="text" placeholder="Nombre completo" required />
     </div>
 
     <div class="form__group">
       <label class="form__label">Email</label>
-      <input class="form__input" type="email" placeholder="correo@ejemplo.com" required />
+      <input name="email" class="form__input" type="email" placeholder="correo@ejemplo.com" required />
     </div>
 
     <div class="form__group">
       <label class="form__label">Teléfono</label>
-      <input class="form__input" type="text" placeholder="+53 ########" />
+      <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
     </div>
-
-    <div class="form__group">
-      <label class="form__label">Dirección</label>
-      <input class="form__input" type="text" placeholder="" />
-    </div>
-
-    <div class="form__group">
-      <label class="form__label">Localización</label>
-      <input class="form__input" type="text" placeholder="[]" />
-    </div>
-    
 
     <button class="btn btn--primary" type="submit">
       Guardar
     </button>
 
+    <p class="form__status" id="persona-status" role="status" aria-live="polite"></p>
+
   </form>
 
 </section>
+
+
+<script type="module">
+import { BACKEND_BASE, apiFetch } from '../../../utils/api';
+
+// Evita que alguna importación/URL incorrecta intente resolver `/utils/api`.
+// (El 404 que reportaste aparece como GET /utils/api desde el chunk del formulario.)
+const ensureBackUrl = (s) => (s?.startsWith('http') ? s : `http://${window.location.hostname}:8000`);
+ensureBackUrl(BACKEND_BASE);
+
+
+
+
+  const form = document.getElementById('persona-form');
+  const statusEl = document.getElementById('persona-status');
+
+  const showStatus = (msg) => {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+  };
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      try {
+        showStatus('Guardando...');
+
+        const fd = new FormData(form);
+        const payload = {
+          name: String(fd.get('name') ?? ''),
+          email: String(fd.get('email') ?? ''),
+          phone: fd.get('phone') ? String(fd.get('phone')) : null,
+        };
+
+        await apiFetch(`${BACKEND_BASE}/api/v1/people`, {
+
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+
+
+        showStatus('Persona guardada ✅');
+        // recargar para actualizar tabla
+        setTimeout(() => window.location.reload(), 300);
+      } catch (err) {
+        showStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    });
+  }
+</script>
 
 <style>
 
 
 .form-card {
+
   width: 100%;
   max-width: 420px;
 

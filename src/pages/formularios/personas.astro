@@ -14,43 +14,37 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
 
   <Header />
   <FormTabs/>
-  <main class="page">
 
+  <main class="page">
     <TablaConVistas
       columns={[
-        { key: 'col1', header: 'Columna 1' },
-        { key: 'col2', header: 'Columna 2' },
-        { key: 'col3', header: 'Columna 3' },
+        { key: 'col1', header: 'Nombre' },
+        { key: 'col2', header: 'Email' },
+        { key: 'col3', header: 'Teléfono' },
         { key: 'acciones', header: 'Acciones' }
       ]}
-      rows={[
-        { col1: 'Persona 1', col2: 'Correo 1', col3: 'Telefono 1' },
-        { col1: 'Persona 2', col2: 'Correo 2', col3: 'Telefono 2' },
-        { col1: 'Persona 3', col2: 'Correo 3', col3: 'Telefono 3' }
-      ]}
+      rows={[]}
     >
       <PersonaForm />
+      <pre style="display:none" data-debug>debug</pre>
     </TablaConVistas>
-
   </main>
 
 </Layout>
 
+
+
 <style>
-
-
 .page {
   min-height: calc(100vh - 120px);
   display: flex;
   justify-content: center;
- 
   padding: 40px 24px;
 }
 
-  body {
-    
-    background: white;
-    color: #111;
-  }
-
+body {
+  background: white;
+  color: #111;
+}
 </style>
+
