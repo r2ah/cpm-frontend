@@ -48,17 +48,22 @@ const {
     if (!addBtn || !backBtn || !tabla || !form) return;
 
     addBtn.addEventListener('click', () => {
-      tabla.classList.add('is-blur');
+  // Limpiar edición anterior
+  localStorage.removeItem('persona_edit_id');
 
-      // Contenedor (para empujar footer)
-      const root = tabla.closest('.tabla-vistas');
-      root?.classList.add('is-showing-form');
+  // Avisar al formulario que es un registro nuevo
+  window.dispatchEvent(new Event('persona-new'));
 
-      form.classList.add('is-show');
-      // asegurar que el formulario sea visible
-      form.style.display = 'block';
-      tabla.setAttribute('aria-hidden', 'true');
-    });
+  tabla.classList.add('is-blur');
+
+  const root = tabla.closest('.tabla-vistas');
+  root?.classList.add('is-showing-form');
+
+  form.classList.add('is-show');
+  form.style.display = 'block';
+
+  tabla.setAttribute('aria-hidden', 'true');
+});
 
 
     backBtn.addEventListener('click', () => {
