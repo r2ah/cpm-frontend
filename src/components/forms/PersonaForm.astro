@@ -31,12 +31,35 @@
 
 
 <script type="module">
-import { BACKEND_BASE, apiFetch } from '../../../utils/api';
+function getBackendBase() {
+  if (typeof window === 'undefined') return 'http://127.0.0.1:8000';
+  // Debe coincidir con Login.astro
+  return `${window.location.protocol}//${window.location.hostname}:8000`;
+}
+const BACKEND_BASE = getBackendBase();
+
+const apiFetch = async (url, options = {}) => {
+  const token = window.localStorage.getItem('auth_token');
+  const headers = {
+    ...(options.headers || {}),
+  };
+  if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(url, { ...options, headers });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = data?.message || data?.error || data?.email?.[0] || `Request failed: ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
+};
 
 // Evita que alguna importación/URL incorrecta intente resolver `/utils/api`.
 // (El 404 que reportaste aparece como GET /utils/api desde el chunk del formulario.)
-const ensureBackUrl = (s) => (s?.startsWith('http') ? s : `http://${window.location.hostname}:8000`);
-ensureBackUrl(BACKEND_BASE);
+// ensureBackUrl ya no es necesario; BACKEND_BASE viene del mismo host que el login.
+console.debug('BACKEND_BASE', BACKEND_BASE);
+
 
 
 
@@ -44,12 +67,57 @@ ensureBackUrl(BACKEND_BASE);
   const form = document.getElementById('persona-form');
   const statusEl = document.getElementById('persona-status');
 
+  const getEditId = () => window.localStorage.getItem('persona_edit_id');
+  const setEditId = (id) => {
+    if (id) window.localStorage.setItem('persona_edit_id', String(id));
+    else window.localStorage.removeItem('persona_edit_id');
+  };
+
+  const prefill = async (id) => {
+    if (!id) return;
+
+    showStatus('Cargando persona...');
+    const res = await apiFetch(`${BACKEND_BASE}/api/people/${id}`);
+    const p = res?.data ?? res;
+
+    const nameInput = form?.querySelector('input[name="name"]');
+    const emailInput = form?.querySelector('input[name="email"]');
+    const phoneInput = form?.querySelector('input[name="phone"]');
+
+    if (nameInput) nameInput.value = p?.name ?? '';
+    if (emailInput) emailInput.value = p?.email ?? '';
+    if (phoneInput) phoneInput.value = p?.phone ?? '';
+
+    const btn = form?.querySelector('button[type="submit"]');
+    if (btn) btn.textContent = 'Actualizar';
+
+    showStatus('Listo ✅');
+  };
+
+  const resetForm = () => {
+    if (!form) return;
+    form.reset();
+    const btn = form?.querySelector('button[type="submit"]');
+    if (btn) btn.textContent = 'Guardar';
+  };
+
   const showStatus = (msg) => {
     if (!statusEl) return;
     statusEl.textContent = msg;
   };
 
   if (form) {
+    const existingId = getEditId();
+    if (existingId) {
+      prefill(existingId);
+    }
+
+    window.addEventListener('persona-edit', (ev) => {
+      const id = ev?.detail?.id;
+      setEditId(id);
+      prefill(id);
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -63,14 +131,24 @@ ensureBackUrl(BACKEND_BASE);
           phone: fd.get('phone') ? String(fd.get('phone')) : null,
         };
 
-        await apiFetch(`${BACKEND_BASE}/api/v1/people`, {
+        const editId = getEditId();
 
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
+        if (editId) {
+          await apiFetch(`${BACKEND_BASE}/api/people/${editId}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
 
+          showStatus('Persona actualizada ✅');
+          setEditId(null);
+        } else {
+          await apiFetch(`${BACKEND_BASE}/api/people`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+          showStatus('Persona guardada ✅');
+        }
 
-        showStatus('Persona guardada ✅');
         // recargar para actualizar tabla
         setTimeout(() => window.location.reload(), 300);
       } catch (err) {

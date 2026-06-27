@@ -33,14 +33,17 @@ const { columns, rows } = Astro.props;
                 return (
                   <td class="tabla__td tabla__td--actions">
                     <div class="tabla__actions">
-                      <button class="tabla__action tabla__action--edit" type="button">Editar</button>
+                      <button
+                        class="tabla__action tabla__action--edit"
+                        type="button"
+                        data-edit
+                      >Editar</button>
+
                       <button
                         class="tabla__action tabla__action--delete"
                         type="button"
                         data-delete
-                      >
-                        Eliminar
-                      </button>
+                      >Eliminar</button>
                     </div>
                   </td>
                 );

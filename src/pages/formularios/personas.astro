@@ -7,15 +7,13 @@ import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
 ---
 
-<Layout
-  title="Form Persona"
-  bodyClass="body--light"
->
+<Layout title="Form Persona" bodyClass="body--light">
 
   <Header />
   <FormTabs/>
 
   <main class="page">
+
     <TablaConVistas
       columns={[
         { key: 'col1', header: 'Nombre' },
@@ -25,16 +23,92 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
       ]}
       rows={[]}
     >
+
       <PersonaForm />
-      <pre style="display:none" data-debug>debug</pre>
+
     </TablaConVistas>
+
   </main>
 
 </Layout>
 
+<script type="module">
+const API = "http://localhost:8000/api/people";
 
+async function loadPeople() {
+  const res = await fetch(API);
+  const json = await res.json();
 
-<style>
+  const items = json?.data ?? [];
+
+  const tbody = document.querySelector(".tabla__table tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = items.map(p => `
+    <tr class="tabla__tr">
+
+      <td class="tabla__td">${p.name ?? ""}</td>
+      <td class="tabla__td">${p.email ?? ""}</td>
+      <td class="tabla__td">${p.phone ?? "-"}</td>
+
+      <td class="tabla__td tabla__td--actions">
+        <div class="tabla__actions">
+
+          <button
+            class="tabla__action tabla__action--edit"
+            data-edit="${p.id}">
+            Editar
+          </button>
+
+          <button
+            class="tabla__action tabla__action--delete"
+            data-delete="${p.id}">
+            Eliminar
+          </button>
+
+        </div>
+      </td>
+
+    </tr>
+  `).join("");
+
+  // EDITAR
+  document.querySelectorAll("[data-edit]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.edit;
+
+      localStorage.setItem("persona_edit_id", id);
+
+      window.dispatchEvent(
+        new CustomEvent("persona-edit", { detail: { id } })
+      );
+    });
+  });
+
+  // ELIMINAR
+  document.querySelectorAll("[data-delete]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.delete;
+
+      if (!confirm("¿Eliminar este registro?")) return;
+
+      await fetch(`${API}/${id}`, {
+        method: "DELETE"
+      });
+
+      loadPeople();
+    });
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", loadPeople);
+} else {
+  loadPeople();
+}
+</script>
+
+<style is:global>
 .page {
   min-height: calc(100vh - 120px);
   display: flex;
@@ -46,5 +120,75 @@ body {
   background: white;
   color: #111;
 }
-</style>
 
+.tabla {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+
+.tabla__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.tabla__tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.tabla__th,
+.tabla__td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  font-size: 14px;
+}
+
+.tabla__th {
+  font-weight: 800;
+  color: #111;
+}
+
+.tabla__td {
+  color: #222;
+}
+
+.tabla__td--empty {
+  text-align: center;
+  opacity: 0.7;
+}
+
+.tabla__td--actions {
+  width: 220px;
+}
+
+.tabla__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.tabla__action {
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+  transition: opacity .2s ease;
+}
+
+.tabla__action:hover {
+  opacity: .9;
+}
+
+.tabla__action--edit {
+  background: #1e5504;
+}
+
+.tabla__action--delete {
+  background: #b42318;
+}
+</style>
