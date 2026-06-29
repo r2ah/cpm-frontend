@@ -1,55 +1,282 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import Footer from '../../components/footer_prueba.astro';
 import AutoridadForm from '../../components/forms/AutoridadForm.astro';
-import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
+import FormTabs from "../../components/forms/FormTabs.astro";
 ---
 
-<Layout
-  title="Autoridades"
-  bodyClass="body--light"
->
+<Layout title="Autoridades" bodyClass="body--light">
 
   <Header />
-  <FormTabs/>
+  <FormTabs />
+
   <main class="page">
 
     <TablaConVistas
       columns={[
-        { key: 'col1', header: 'Columna 1' },
-        { key: 'col2', header: 'Columna 2' },
-        { key: 'col3', header: 'Columna 3' },
+        { key: 'col1', header: 'Nombre' },
+        { key: 'col2', header: 'Email' },
+        { key: 'col3', header: 'Teléfono' },
         { key: 'acciones', header: 'Acciones' }
       ]}
-      rows={[
-        { col1: 'Autoridad 1', col2: 'Cargo 1', col3: 'Periodo 1' },
-        { col1: 'Autoridad 2', col2: 'Cargo 2', col3: 'Periodo 2' },
-        { col1: 'Autoridad 3', col2: 'Cargo 3', col3: 'Periodo 3' }
-      ]}
+      rows={[]}
     >
+
       <AutoridadForm />
+
     </TablaConVistas>
+
+
+ <div id="confirm-modal" class="modal hidden">
+  <div class="modal__content">
+    <h3>¿Eliminar registro?</h3>
+    <p>Esta acción no se puede deshacer.</p>
+
+    <div class="modal__actions">
+      <button id="cancel-delete" class="btn btn--secondary">
+        Cancelar
+      </button>
+
+      <button id="confirm-delete" class="btn btn--danger">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
   </main>
 
 </Layout>
 
-<style>
+<script type="module">
+const API = "http://localhost:8000/api/authorities";
 
+async function loadAuthorities() {
+  const res = await fetch(API, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+    }
+  });
 
+  const json = await res.json();
+  const items = json?.data ?? [];
+
+  const tbody = document.querySelector(".tabla__table tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = items.map(a => `
+    <tr class="tabla__tr">
+
+      <td class="tabla__td">${a.name ?? ""}</td>
+      <td class="tabla__td">${a.email ?? ""}</td>
+      <td class="tabla__td">${a.phone ?? "-"}</td>
+
+      <td class="tabla__td tabla__td--actions">
+
+        <button class="tabla__action tabla__action--edit"
+          data-edit="${a.id}">
+          Editar
+        </button>
+
+        <button class="tabla__action tabla__action--delete"
+          data-delete="${a.id}">
+          Eliminar
+        </button>
+
+      </td>
+
+    </tr>
+  `).join("");
+
+  // EDITAR (IGUAL PERSONAS)
+  document.querySelectorAll("[data-edit]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.edit;
+
+    // guardar id de edición
+    localStorage.setItem("authority_edit_id", id);
+
+    // abrir formulario (igual que personas)
+    document.querySelector("[data-add]")?.click();
+
+    // disparar evento
+    window.dispatchEvent(
+      new CustomEvent("authority-edit", {
+        detail: { id }
+      })
+    );
+  });
+});
+
+  // DELETE
+  let deleteId = null;
+
+const modal = document.getElementById("confirm-modal");
+const cancelBtn = document.getElementById("cancel-delete");
+const confirmBtn = document.getElementById("confirm-delete");
+
+// abrir modal
+document.querySelectorAll("[data-delete]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    deleteId = btn.dataset.delete;
+    modal.classList.remove("hidden");
+  });
+});
+
+// cancelar
+cancelBtn.addEventListener("click", () => {
+  deleteId = null;
+  modal.classList.add("hidden");
+});
+
+// confirmar eliminación
+confirmBtn.addEventListener("click", async () => {
+  if (!deleteId) return;
+
+  await fetch(`${API}/${deleteId}`, {
+    method: "DELETE"
+  });
+
+  deleteId = null;
+  modal.classList.add("hidden");
+
+  loadAuthorities(); // refresca tabla
+});
+
+}
+
+loadAuthorities();
+</script>
+
+<style is:global>
 .page {
   min-height: calc(100vh - 120px);
   display: flex;
   justify-content: center;
-  
   padding: 40px 24px;
 }
 
-  body {
-    background: white;
-    color: #111;
-  }
+body {
+  background: white;
+  color: #111;
+}
 
+.tabla {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+
+.tabla__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.tabla__tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.tabla__th,
+.tabla__td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  font-size: 14px;
+}
+
+.tabla__th {
+  font-weight: 800;
+  color: #111;
+}
+
+.tabla__td {
+  color: #222;
+}
+
+.tabla__td--empty {
+  text-align: center;
+  opacity: 0.7;
+}
+
+.tabla__td--actions {
+  width: 220px;
+}
+
+.tabla__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.tabla__action {
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+  transition: opacity .2s ease;
+}
+
+.tabla__action:hover {
+  opacity: .9;
+}
+
+.tabla__action--edit {
+  background: #1e5504;
+}
+
+.tabla__action--delete {
+  background: #b42318;
+}
+</style>
+<style>
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal__content {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  width: 320px;
+  text-align: center;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.btn--secondary {
+  background: #ccc;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.btn--danger {
+  background: #b42318;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+}
 </style>

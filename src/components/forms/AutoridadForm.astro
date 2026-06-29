@@ -2,30 +2,115 @@
 
   <h2 class="form-card__title">Registrar Autoridad</h2>
 
-  <form class="form">
+  <form class="form" id="autoridad-form">
 
     <div class="form__group">
       <label class="form__label">Nombre</label>
-      <input class="form__input" type="text" placeholder="Nombre completo" required />
+      <input name="name" class="form__input" type="text" placeholder="Nombre completo" required />
     </div>
 
     <div class="form__group">
       <label class="form__label">Email</label>
-      <input class="form__input" type="email" placeholder="correo@ejemplo.com" required />
+      <input name="email" class="form__input" type="email" placeholder="correo@ejemplo.com" required />
     </div>
 
     <div class="form__group">
       <label class="form__label">Teléfono</label>
-      <input class="form__input" type="text" placeholder="+53 ########" />
+      <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
     </div>
 
     <button class="btn btn--primary" type="submit">
       Guardar
     </button>
 
+    <p id="autoridad-status"></p>
+
   </form>
 
 </section>
+
+<script type="module">
+const API = "http://localhost:8000/api/authorities";
+
+function getEditId() {
+  return localStorage.getItem("authority_edit_id");
+}
+
+function setEditId(id) {
+  if (id) localStorage.setItem("authority_edit_id", id);
+  else localStorage.removeItem("authority_edit_id");
+}
+
+const form = document.getElementById("autoridad-form");
+const statusEl = document.getElementById("autoridad-status");
+
+// 🔥 CARGAR DATOS EN EDIT
+async function prefill(id) {
+  if (!id) return;
+
+  const res = await fetch(`${API}/${id}`);
+  const json = await res.json();
+  const a = json?.data;
+
+  form.querySelector("input[name='name']").value = a?.name ?? "";
+  form.querySelector("input[name='email']").value = a?.email ?? "";
+  form.querySelector("input[name='phone']").value = a?.phone ?? "";
+
+  const btn = form.querySelector("button[type='submit']");
+  btn.textContent = "Actualizar";
+}
+
+// escuchar evento edit
+window.addEventListener("authority-edit", (ev) => {
+  const id = ev.detail.id;
+  setEditId(id);
+  prefill(id);
+});
+
+// SUBMIT (CREATE / UPDATE)
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const fd = new FormData(form);
+
+  const payload = {
+    name: fd.get("name"),
+    email: fd.get("email"),
+    phone: fd.get("phone"),
+  };
+
+  const editId = getEditId();
+
+  const url = editId
+    ? `${API}/${editId}`
+    : API;
+
+  const method = editId ? "PUT" : "POST";
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    statusEl.textContent = data?.message || "Error";
+    return;
+  }
+
+  statusEl.textContent = editId ? "Actualizado ✅" : "Creado ✅";
+
+  setEditId(null);
+  form.reset();
+
+  setTimeout(() => window.location.reload(), 300);
+});
+</script>
 
 <style>
 
