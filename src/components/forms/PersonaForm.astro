@@ -106,11 +106,11 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
     statusEl.textContent = msg;
   };
 
-  if (form) {
-    const existingId = getEditId();
-    if (existingId) {
-      prefill(existingId);
-    }
+  window.addEventListener("persona-new", () => {
+  setEditId(null);
+  resetForm();
+  showStatus("");
+});
 
     window.addEventListener('persona-edit', (ev) => {
       const id = ev?.detail?.id;
@@ -155,7 +155,7 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         showStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
       }
     });
-  }
+  
 </script>
 
 <style>

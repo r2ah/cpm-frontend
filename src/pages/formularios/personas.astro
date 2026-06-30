@@ -5,6 +5,7 @@ import Footer from '../../components/footer_prueba.astro';
 import PersonaForm from '../../components/forms/PersonaForm.astro';
 import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
+import Confirm from '../../components/Delete-confirm.astro';
 ---
 
 <Layout title="Form Persona" bodyClass="body--light">
@@ -27,6 +28,23 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
       <PersonaForm />
 
     </TablaConVistas>
+
+   <div id="confirm-modal" class="modal hidden">
+  <div class="modal__content">
+    <h3>¿Eliminar registro?</h3>
+    <p>Esta acción no se puede deshacer.</p>
+
+    <div class="modal__actions">
+      <button id="cancel-delete" class="btn btn--secondary">
+        Cancelar
+      </button>
+
+      <button id="confirm-delete" class="btn btn--danger">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
 
   </main>
 
@@ -79,26 +97,54 @@ async function loadPeople() {
 
       localStorage.setItem("persona_edit_id", id);
 
-      window.dispatchEvent(
-        new CustomEvent("persona-edit", { detail: { id } })
-      );
+      // abrir formulario primero
+      document.querySelector("[data-add]")?.click();
+
+      // esperar a que el form exista en DOM
+      setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent("persona-edit", {
+            detail: { id }
+          })
+        );
+      }, 50);
     });
   });
 
   // ELIMINAR
-  document.querySelectorAll("[data-delete]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.dataset.delete;
+  let deleteId = null;
 
-      if (!confirm("¿Eliminar este registro?")) return;
+const modal = document.getElementById("confirm-modal");
+const cancelBtn = document.getElementById("cancel-delete");
+const confirmBtn = document.getElementById("confirm-delete");
 
-      await fetch(`${API}/${id}`, {
-        method: "DELETE"
-      });
-
-      loadPeople();
-    });
+// abrir modal
+document.querySelectorAll("[data-delete]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    deleteId = btn.dataset.delete;
+    modal.classList.remove("hidden");
   });
+});
+
+// cancelar
+cancelBtn.addEventListener("click", () => {
+  deleteId = null;
+  modal.classList.add("hidden");
+});
+
+// confirmar eliminación
+confirmBtn.addEventListener("click", async () => {
+  if (!deleteId) return;
+
+  await fetch(`${API}/${deleteId}`, {
+    method: "DELETE"
+  });
+
+  deleteId = null;
+  modal.classList.add("hidden");
+
+  loadPeople(); // refresca tabla
+});
 }
 
 if (document.readyState === "loading") {
@@ -190,5 +236,53 @@ body {
 
 .tabla__action--delete {
   background: #b42318;
+}
+
+
+
+</style>
+<style>
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal__content {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  width: 320px;
+  text-align: center;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.btn--secondary {
+  background: #ccc;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.btn--danger {
+  background: #b42318;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
 }
 </style>
