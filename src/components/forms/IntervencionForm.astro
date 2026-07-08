@@ -2,57 +2,91 @@
 
   <h2 class="form-card__title">Intervenciones</h2>
 
-  <form class="form" id="intervention-form">
+  <form id="intervention-form" class="form">
 
-  <div class="form__group">
-    <label class="form__label">Nombre</label>
-    <input name="name" class="form__input" type="text" required />
-  </div>
+    <input name="name" class="form__input" placeholder="Nombre" required />
 
-  <div class="form__group">
-    <label class="form__label">Intervención Superior</label>
     <select name="parent_id" class="form__input">
-      <option value="">Ninguna</option>
+      <option value="">Sin superior</option>
     </select>
-  </div>
 
-  <button class="btn btn--primary" type="submit">
-    Guardar
-  </button>
+    <button class="btn btn--primary" type="submit">
+      Guardar
+    </button>
 
-  <p id="status"></p>
+    <p id="status"></p>
 
-</form>
+  </form>
 
 </section>
 
-
 <script type="module">
-const BASE = "http://localhost:8000";
+const API = "http://localhost:8000/api/interventions";
 
 const form = document.getElementById("intervention-form");
 const status = document.getElementById("status");
-const select = form.querySelector("select[name='parent_id']");
+const select = form.querySelector("[name='parent_id']");
 
-// cargar intervenciones para el select
+let editId = null;
+
+/* ======================
+   CARGAR PARENTS
+====================== */
 async function loadParents() {
-  const res = await fetch(`${BASE}/api/v1/interventions`);
-  const json = await res.json();
+  try {
+    const res = await fetch(`${BASE}/api/interventions?all=1`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+      }
+    });
 
-  const data = json.data || [];
+    const json = await res.json();
 
-  select.innerHTML = `<option value="">Ninguna</option>`;
+    console.log("INTERVENTIONS API:", json); // 🔥 DEBUG
 
-  data.forEach(item => {
-    const opt = document.createElement("option");
-    opt.value = item.id;
-    opt.textContent = item.name;
-    select.appendChild(opt);
-  });
+    const data = json.data || [];
+
+    select.innerHTML = `<option value="">Ninguna</option>`;
+
+    data.forEach((item) => {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.name;
+      select.appendChild(opt);
+    });
+
+  } catch (error) {
+    console.error("Error loading interventions:", error);
+  }
 }
 
 loadParents();
 
+/* ======================
+   NUEVO
+====================== */
+window.addEventListener("intervention-new", () => {
+  editId = null;
+  form.reset();
+});
+
+/* ======================
+   EDITAR
+====================== */
+window.addEventListener("intervention-edit", async (e) => {
+  editId = e.detail.id;
+
+  const res = await fetch(`${API}/${editId}`);
+  const json = await res.json();
+  const i = json.data;
+
+  form.name.value = i.name;
+  form.parent_id.value = i.parent_id ?? "";
+});
+
+/* ======================
+   SUBMIT
+====================== */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -63,29 +97,41 @@ form.addEventListener("submit", async (e) => {
     parent_id: fd.get("parent_id") || null
   };
 
-  try {
-    status.textContent = "Guardando...";
+  console.log("PAYLOAD:", payload);
 
-    const res = await fetch(`${BASE}/api/interventions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+  const url = editId
+    ? `${API}/${editId}`
+    : API;
 
-    const data = await res.json();
+  const method = editId ? "PUT" : "POST";
 
-    if (!res.ok) throw new Error(data.message || "Error");
+  const res = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+    },
+    body: JSON.stringify(payload)
+  });
 
-    status.textContent = "Guardado ✔️";
+  const data = await res.json();
 
-    form.reset();
-    loadParents();
+  console.log("RESPONSE:", data);
 
-  } catch (err) {
-    status.textContent = err.message;
+  if (!res.ok) {
+    status.textContent =
+      data.message ||
+      JSON.stringify(data.errors || data);
+
+    return;
   }
+
+  status.textContent = "Guardado ✔";
+
+  editId = null;
+  form.reset();
+
+  window.loadInterventions?.();
 });
 </script>
 

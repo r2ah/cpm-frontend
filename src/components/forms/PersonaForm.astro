@@ -19,6 +19,13 @@
       <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
     </div>
 
+    <div class="form__group">
+      <label class="form__label">
+      <input type="checkbox" name="is_natural_person" value="1">
+       Persona natural
+     </label>
+    </div>
+
     <button class="btn btn--primary" type="submit">
       Guardar
     </button>
@@ -80,6 +87,9 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
     const res = await apiFetch(`${BACKEND_BASE}/api/people/${id}`);
     const p = res?.data ?? res;
 
+    const checkbox = form.querySelector('[name="is_natural_person"]');
+    checkbox.checked = Boolean(p?.is_natural_person);
+
     const nameInput = form?.querySelector('input[name="name"]');
     const emailInput = form?.querySelector('input[name="email"]');
     const phoneInput = form?.querySelector('input[name="phone"]');
@@ -125,11 +135,13 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         showStatus('Guardando...');
 
         const fd = new FormData(form);
-        const payload = {
-          name: String(fd.get('name') ?? ''),
-          email: String(fd.get('email') ?? ''),
-          phone: fd.get('phone') ? String(fd.get('phone')) : null,
-        };
+
+         const payload = {
+  name: form.elements.name.value,
+  email: form.elements.email.value,
+  phone: form.elements.phone.value,
+  is_natural_person: form.elements.is_natural_person.checked
+};
 
         const editId = getEditId();
 

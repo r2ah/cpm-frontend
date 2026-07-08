@@ -1,57 +1,257 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import Footer from '../../components/footer_prueba.astro';
 import UsuarioForm from '../../components/forms/UsuarioForm.astro';
 import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
 ---
 
-<Layout
-  title="Form Persona"
-  bodyClass="body--light"
->
+<Layout title="Usuarios" bodyClass="body--light">
 
   <Header />
-  <FormTabs/>
+  <FormTabs />
+
   <main class="page">
 
     <TablaConVistas
       columns={[
-        { key: 'col1', header: 'Columna 1' },
-        { key: 'col2', header: 'Columna 2' },
-        { key: 'col3', header: 'Columna 3' },
+        { key: 'col1', header: 'Nombre' },
+        { key: 'col2', header: 'Email' },
+        { key: 'col3', header: 'Teléfono' },
+        
+        { key: 'col5', header: 'Rol' },
         { key: 'acciones', header: 'Acciones' }
       ]}
-      rows={[
-        { col1: 'Usuario 1', col2: 'Correo 1', col3: 'Rol 1' },
-        { col1: 'Usuario 2', col2: 'Correo 2', col3: 'Rol 2' },
-        { col1: 'Usuario 3', col2: 'Correo 3', col3: 'Rol 3' }
-      ]}
+      rows={[]}
     >
+
       <UsuarioForm />
+
     </TablaConVistas>
 
   </main>
 
- 
-
 </Layout>
 
-<style>
+<script type="module">
+const API = "http://localhost:8000/api/v1/users";
 
+window.loadUsers = async function () {
+  const res = await fetch(API, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+    }
+  });
+
+  const json = await res.json();
+  const items = json?.data ?? [];
+
+  const tbody = document.querySelector(".tabla__table tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = items.map(u => `
+  <tr class="tabla__tr">
+    <td class="tabla__td">${u.name}</td>
+    <td class="tabla__td">${u.email}</td>
+    <td class="tabla__td">${u.phone ?? ""}</td>
+    
+    <td class="tabla__td">
+      ${(u.roles || []).map(r => `
+        <span class="role-badge role-${r}">
+          ${r}
+        </span>
+      `).join('')}
+    </td>
+
+    <td class="tabla__td">
+      <button class="tabla__action tabla__action--edit" data-edit="${u.id}">
+        Editar
+      </button>
+
+      <button class="tabla__action tabla__action--delete" data-delete="${u.id}">
+        Eliminar
+      </button>
+    </td>
+  </tr>
+`).join("");
+
+  // EDITAR
+  document.querySelectorAll("[data-edit]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.edit;
+
+      localStorage.setItem("user_edit_id", id);
+
+      window.dispatchEvent(new CustomEvent("user-edit", {
+        detail: { id }
+      }));
+
+      // abrir form (tu UI)
+      document.querySelector("[data-add]")?.click();
+    });
+  });
+
+  // DELETE
+  document.querySelectorAll("[data-delete]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("¿Eliminar usuario?")) return;
+
+      await fetch(`${API}/${btn.dataset.delete}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+        }
+      });
+
+      window.loadUsers();
+    });
+  });
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", window.loadUsers);
+} else {
+  window.loadUsers();
+}
+</script>
+
+<style is:global>
+/* =========================
+   PAGE LAYOUT
+========================= */
 .page {
   min-height: calc(100vh - 120px);
   display: flex;
   justify-content: center;
-
-
   padding: 40px 24px;
 }
 
-  body {
-    background: white;
-    color: #111;
+/* =========================
+   GLOBAL BODY
+========================= */
+body {
+  background: #fff;
+  color: #111;
+  font-family: system-ui, sans-serif;
+}
+
+/* =========================
+   TABLA (TU COMPONENTE REAL)
+========================= */
+.tabla-vistas {
+  width: 100%;
+}
+
+/* fallback por si tu Tabla.astro usa tabla clásica */
+.tabla {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+
+.tabla__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.tabla__tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.tabla__th,
+.tabla__td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  font-size: 14px;
+}
+
+.tabla__th {
+  font-weight: 800;
+  color: #111;
+}
+
+.tabla__td {
+  color: #222;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+.tabla__action {
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+  transition: opacity .2s ease;
+}
+
+.tabla__action:hover {
+  opacity: .9;
+}
+
+.tabla__action--edit {
+  background: #1e5504;
+}
+
+.tabla__action--delete {
+  background: #b42318;
+}
+
+/* =========================
+   ROLE BADGES (SPATIE)
+========================= */
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-right: 5px;
+  color: #fff;
+}
+
+.role-admin {
+  background: #b42318;
+}
+
+.role-editor {
+  background: #1e5504;
+}
+
+.role-usuario {
+  background: #1f4ed8;
+}
+
+/* fallback si llega un rol nuevo */
+.role-default {
+  background: #555;
+}
+
+/* =========================
+   FORM CARD
+========================= */
+.form-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(90, 53, 6, 0.25);
+}
+
+/* =========================
+   RESPONSIVE FIX
+========================= */
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 10px;
   }
 
+  .tabla__th,
+  .tabla__td {
+    font-size: 13px;
+  }
+}
 </style>
