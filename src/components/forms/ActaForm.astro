@@ -63,7 +63,7 @@
       <h2 class="form-card__title">Documento Firmado</h2>
 
       <div class="form__group">
-        <input type="file" id="documento" required/>
+        <input type="file" id="documento"/>
 
         <!--<label class="form__input file" for="documento">
           Seleccionar documento firmado
@@ -94,7 +94,7 @@
   id="participants"
   class="form__input"
   multiple
- required>
+ >
 </select>
 
   </div>
@@ -312,33 +312,42 @@ textarea {
 <script>
   const input = document.getElementById('documento');
   const fileName = document.getElementById('file-name');
-  
-  input?.addEventListener('change', () => {
-    fileName.textContent =
-      input.files && input.files.length > 0
-        ? input.files[0].name
-        : 'Ningún archivo seleccionado';
-  });
 
-  document.querySelectorAll("textarea.auto-grow").forEach((textarea) => {
+  input?.addEventListener('change', () => {
+
+  if(!fileName) return;
+
+
+  fileName.textContent =
+    input.files && input.files.length > 0
+      ? input.files[0].name
+      : 'Ningún archivo seleccionado';
+
+});
+
+  document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
     const resize = () => {
-      textarea.style.height = "auto";
-      textarea.style.height = textarea.scrollHeight + "px";
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
     };
 
-    textarea.addEventListener("input", resize);
+    textarea.addEventListener('input', resize);
     resize();
   });
 
   const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
-  
+
   const apiFetch = async (url, options = {}) => {
     const token = window.localStorage.getItem('auth_token');
     const headers = {
       ...(options.headers || {}),
     };
 
-    if (options.body && !(headers['Content-Type'] || headers['content-type']) && !(options.body instanceof FormData)) {
+    if (
+      options.body &&
+      !(headers['Content-Type'] || headers['content-type']) &&
+      !(options.body instanceof FormData)
+    ) {
       headers['Content-Type'] = 'application/json';
     }
 
@@ -348,74 +357,177 @@ textarea {
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      const msg = data?.message || data?.error || (typeof data === 'string' ? data : null) || `Request failed: ${res.status}`;
+      const msg =
+        data?.message ||
+        data?.error ||
+        (typeof data === 'string' ? data : null) ||
+        `Request failed: ${res.status}`;
       throw new Error(msg);
     }
 
     return data;
   };
-  
+
   const form = document.getElementById('acta-form');
+  let currentParticipants = [];
+  const documentoInput = document.getElementById('documento');
+  let currentSignedDocument = null;
   const getEditId = () => window.localStorage.getItem('acta_edit_id');
+
   const setEditId = (id) => {
     if (id) window.localStorage.setItem('acta_edit_id', String(id));
     else window.localStorage.removeItem('acta_edit_id');
   };
 
   const prefill = async (id) => {
-    if (!id) return;
-    const res = await apiFetch(`${BACKEND_BASE}/api/v1/proceedings/${id}`);
-    
-    const p = res?.data ?? res;
 
-    const dateEl = document.getElementById('acta-date');
-    const addressEl = document.getElementById('acta-address');
-    const agendaEl = document.getElementById('acta-agenda');
-    const approachesEl = document.getElementById('acta-approaches');
-    const agreementsEl = document.getElementById('acta-aggreements');
-    const commissionIdHidden = document.getElementById('acta-commission-id');
+    console.log("PREFILL ID:", id);
 
-    if (dateEl) dateEl.value = p?.date ?? '';
-    if (addressEl) addressEl.value = p?.address ?? '';
-    if (agendaEl) agendaEl.value = p?.agenda ?? '';
-    if (approachesEl) approachesEl.value = p?.approaches ?? '';
-    if (agreementsEl) agreementsEl.value = p?.aggreements ?? '';
-    if (commissionIdHidden) commissionIdHidden.value = p?.commission_id ?? '';
-
-    const btn = form?.querySelector('button[type="submit"]');
-    if (btn) btn.textContent = 'Actualizar Acta';
-  };
-
-  const resetForm = () => {
-
-    localStorage.removeItem('acta_edit_id');
-
-
-    if (!form) return;
-
-
-    form.reset();
-
-
-    const btn = form.querySelector(
-        'button[type="submit"]'
-    );
-
-
-    if (btn) {
-        btn.textContent = 'Guardar Acta';
+    if (!id) {
+        console.log("No existe id");
+        return;
     }
 
 
-    const commissionIdHidden =
-        document.getElementById('acta-commission-id');
+    try {
+
+        const res = await apiFetch(
+            `${BACKEND_BASE}/api/v1/proceedings/${id}`
+        );
 
 
-    if (commissionIdHidden) {
-        commissionIdHidden.value = '1';
+        console.log("RESPUESTA API:", res);
+
+
+        const p = res?.data ?? res;
+
+
+        console.log("DATOS ACTA:", p);
+
+
+
+        const dateEl =
+            document.getElementById('acta-date');
+
+        const addressEl =
+            document.getElementById('acta-address');
+
+        const agendaEl =
+            document.getElementById('acta-agenda');
+
+        const approachesEl =
+            document.getElementById('acta-approaches');
+
+        const agreementsEl =
+            document.getElementById('acta-aggreements');
+
+
+        console.log({
+            dateEl,
+            addressEl,
+            agendaEl,
+            approachesEl,
+            agreementsEl
+        });
+
+
+
+        if (dateEl)
+            dateEl.value = 
+                p.date?.split(" ")[0] ?? "";
+
+
+        if (addressEl)
+            addressEl.value =
+                p.address ?? "";
+
+
+        if (agendaEl)
+            agendaEl.value =
+                p.agenda ?? "";
+
+
+        if (approachesEl)
+            approachesEl.value =
+                p.approaches ?? "";
+
+
+        if (agreementsEl)
+            agreementsEl.value =
+                p.aggreements ?? "";
+
+
+
+        const commissionIdHidden =
+            document.getElementById(
+                'acta-commission-id'
+            );
+
+
+        if (commissionIdHidden)
+            commissionIdHidden.value =
+                p.commission_id ?? "";
+        currentSignedDocument = p?.signed_document ?? null;
+        if (documentoInput) {
+        documentoInput.required = false;
+        }
+       currentParticipants = Array.isArray(p?.participants)
+    ? p.participants.map(user => Number(user.id))
+    : [];
+
+
+console.log(
+    "PARTICIPANTES DEL ACTA:",
+    currentParticipants
+);
+
+        console.log(
+               "DOCUMENTO ACTUAL:",
+                currentSignedDocument
+                   );
+
+
+        const btn =
+            form?.querySelector(
+                'button[type="submit"]'
+            );
+
+
+        if(btn)
+            btn.textContent =
+                "Actualizar Acta";
+
+
+    }
+    catch(error){
+
+        console.error(
+            "ERROR PREFILL:",
+            error
+        );
+
     }
 
 };
+
+  const resetForm = () => {
+    currentSignedDocument = null;
+    if (documentoInput) {
+    documentoInput.required = true;
+    }
+    localStorage.removeItem('acta_edit_id');
+    if (!form) return;
+
+    form.reset();
+
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.textContent = 'Guardar Acta';
+
+    const commissionIdHidden = document.getElementById('acta-commission-id');
+    if (commissionIdHidden) {
+      commissionIdHidden.value = '1';
+    }
+  };
 
   window.addEventListener('acta-new', () => {
     setEditId(null);
@@ -423,12 +535,24 @@ textarea {
   });
 
   window.addEventListener('acta-edit', (ev) => {
+
     const id = ev?.detail?.id;
+
+    console.log("EDIT EVENT ID:", id);
+
     setEditId(id);
+
+    console.log(
+        "LOCAL STORAGE DESPUES:",
+        localStorage.getItem('acta_edit_id')
+    );
+
     prefill(id);
-  });
+
+});
 
   form?.addEventListener('submit', async (e) => {
+    console.log("SUBMIT EJECUTADO");
     e.preventDefault();
 
     const date = form.elements['date'].value;
@@ -436,83 +560,93 @@ textarea {
     const agenda = form.elements['agenda'].value;
     const approaches = form.elements['approaches'].value;
     const aggreements = form.elements['aggreements'].value;
-    const commission_id = form.elements['commission_id']?.value || document.getElementById('acta-commission-id')?.value;
+    const commission_id =
+      form.elements['commission_id']?.value ||
+      document.getElementById('acta-commission-id')?.value;
 
-    // Si no existe en el formulario (no hay input visible), usamos un valor por defecto
-    // para que el submit realmente haga la llamada y podamos depurar el backend.
     if (!commission_id) {
       console.warn('commission_id faltante; usando valor por defecto 1');
-      commission_id = 1;
+      // eslint-disable-next-line no-param-reassign
+      form.elements['commission_id']?.setAttribute('value', '1');
     }
 
+    let signed_document = currentSignedDocument;
 
-    // default payload value; may be overwritten after upload
-    let signed_document = null;
-
-
-
-    // Upload del archivo (si el usuario seleccionó uno)
     const fileInput = document.getElementById('documento');
     if (fileInput?.files?.length) {
       const file = fileInput.files[0];
 
       const fd = new FormData();
-fd.append('file', file);
+      fd.append('file', file);
 
-const uploadRes = await apiFetch(
-    `${BACKEND_BASE}/api/v1/images/upload`,
-    {
-        method: 'POST',
-        body: fd,
-    }
-);
+      const uploadRes = await apiFetch(
+        `${BACKEND_BASE}/api/v1/images/upload`,
+        {
+          method: 'POST',
+          body: fd,
+        }
+      );
 
-signed_document = uploadRes.data.id;
-      // y luego usa $value['path'] como path.
-      // No está claro que retorne id; por eso usamos path si existe.
-      // Si más adelante ProceedingRequest exige media_files.id, habrá que ajustar backend/frontend.
       signed_document = uploadRes.data.id;
-
-      // Si hay campo path pero no id, dejamos null para no romper el payload.
-
-
-      // Si el backend no retorna id, dejamos signed_document en null para que el resto del acta se guarde.
+      
     }
+
     const participantsSelect = document.getElementById('participants');
-
-
-const participants = Array.from(
-  participantsSelect.selectedOptions
-).map(option => Number(option.value));
+    const participants = Array.from(participantsSelect.selectedOptions).map(
+      (option) => Number(option.value)
+    );
 
     const payload = {
-  date,
-  address,
-  agenda,
-  approaches,
-  aggreements,
-  commission_id,
-  signed_document,
-  participants
-};
+      date,
+      address,
+      agenda,
+      approaches,
+      aggreements,
+      commission_id,
+      signed_document,
+      participants,
+    };
+    if (!signed_document) {
+    delete payload.signed_document;
+}
 
     try {
       const editId = getEditId();
 
+console.log("ID AL HACER SUBMIT:", editId);
 
-      console.log(
-       "ACTA MODE:",
-       editId ? `EDIT ${editId}` : "NEW"
-      );
+console.log(
+    "STORAGE AL HACER SUBMIT:",
+    localStorage.getItem("acta_edit_id")
+);
+      
+      console.log('ACTA MODE:', editId ? `EDIT ${editId}` : 'NEW');
+      
+      console.log("SUBMIT EDIT ID:", editId);
 
-
+console.log(
+  "LOCAL STORAGE AL ENVIAR:",
+  localStorage.getItem("acta_edit_id")
+);
       if (editId) {
-        await apiFetch(`${BACKEND_BASE}/api/v1/proceedings/${editId}`, {
-          method: 'PUT',
-          body: JSON.stringify(payload),
-        });
-      } else {
+
+    const response = await apiFetch(
+        `${BACKEND_BASE}/api/v1/proceedings/${editId}`,
+        {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+        }
+    );
+
+
+    console.log(
+        "RESPUESTA UPDATE:",
+        response
+    );
+
+} else {
         localStorage.removeItem('acta_edit_id');
+        console.log("ENTRANDO EN CREATE");
         await apiFetch(`${BACKEND_BASE}/api/v1/proceedings`, {
           method: 'POST',
           body: JSON.stringify(payload),
@@ -527,65 +661,97 @@ const participants = Array.from(
     }
   });
 
+  const loadUsers = async () => {
 
-const loadUsers = async () => {
+    const select = document.getElementById('participants');
 
-  const select = document.getElementById('participants');
-
-  if (!select) {
-    console.error("No existe el select participants");
-    return;
-  }
-
-
-  try {
-
-    const response = await apiFetch(
-      `${BACKEND_BASE}/api/v1/users?all=true`
-    );
+    if (!select) {
+        console.error(
+            "No existe el select participants"
+        );
+        return;
+    }
 
 
-    const users = response.data ?? response;
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/users?all=true`
+        );
 
 
-    select.innerHTML = "";
+        const users = response.data ?? response;
 
 
-    users.forEach(user => {
+        select.innerHTML = "";
 
 
-      const option = document.createElement('option');
+        users.forEach(user => {
 
 
-      option.value = user.id;
+            const option =
+                document.createElement('option');
 
 
-      option.textContent = user.name;
+            option.value = user.id;
 
 
-      select.appendChild(option);
+            option.textContent = user.name;
 
 
-    });
+            select.appendChild(option);
 
 
-  } catch(error) {
+        });
 
-    console.error(
-      "Error cargando usuarios:",
-      error
-    );
 
-  }
+
+        // Esperamos a que existan las opciones
+        // y aplicamos los seleccionados
+
+        if(currentParticipants.length > 0){
+
+
+            currentParticipants.forEach(id => {
+
+
+                const option =
+                    select.querySelector(
+                        `option[value="${id}"]`
+                    );
+
+
+                if(option){
+
+                    option.selected = true;
+
+                }
+
+
+            });
+
+
+        }
+
+
+
+    } catch(error){
+
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
+    }
 
 };
 
+  window.addEventListener(
+    'acta-edit',
+    async () => {
 
-// IMPORTANTE: aquí abajo
+        await loadUsers();
 
-loadUsers();
-
-
-
-
+    }
+);
 </script>
