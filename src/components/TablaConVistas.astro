@@ -49,10 +49,13 @@ const {
 
     addBtn.addEventListener('click', () => {
   // Limpiar edición anterior
+  localStorage.removeItem('acta_edit_id');
   localStorage.removeItem('persona_edit_id');
-
+  
   // Avisar al formulario que es un registro nuevo
   window.dispatchEvent(new Event('persona-new'));
+  window.dispatchEvent(new Event('acta-new'));
+
 
   tabla.classList.add('is-blur');
 

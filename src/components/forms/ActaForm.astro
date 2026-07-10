@@ -14,13 +14,13 @@
 
         <div class="form__group">
           <label class="form__label">Fecha</label>
-          <input class="form__input" type="date" name="date" id="acta-date" />
+          <input class="form__input" type="date" name="date" id="acta-date" required />
 
         </div>
 
         <div class="form__group">
           <label class="form__label">Dirección</label>
-          <input class="form__input" type="text" name="address" id="acta-address" />
+          <input class="form__input" type="text" name="address" id="acta-address" required />
         </div>
 
         <div class="form__group">
@@ -36,7 +36,7 @@
     <div class="form-card">
       <h2 class="form-card__title">Orden del Día</h2>
 
-      <textarea class="form__input textarea auto-grow" name="agenda" id="acta-agenda"></textarea>
+      <textarea class="form__input textarea auto-grow" name="agenda" id="acta-agenda" required></textarea>
     </div>
 
 
@@ -44,14 +44,14 @@
     <div class="form-card">
       <h2 class="form-card__title">Intervenciones</h2>
 
-      <textarea class="form__input textarea auto-grow" name="approaches" id="acta-approaches"></textarea>
+      <textarea class="form__input textarea auto-grow" name="approaches" id="acta-approaches" required></textarea>
     </div>
 
     <!-- ACUERDOS -->
     <div class="form-card">
       <h2 class="form-card__title">Acuerdos</h2>
 
-      <textarea class="form__input textarea auto-grow" name="aggreements" id="acta-aggreements"></textarea>
+      <textarea class="form__input textarea auto-grow" name="aggreements" id="acta-aggreements" required></textarea>
     </div>
 
 
@@ -63,15 +63,15 @@
       <h2 class="form-card__title">Documento Firmado</h2>
 
       <div class="form__group">
-        <input type="file" id="documento" hidden />
+        <input type="file" id="documento" required/>
 
-        <label class="form__input file" for="documento">
+        <!--<label class="form__input file" for="documento">
           Seleccionar documento firmado
         </label>
 
         <span id="file-name">
           Ningún archivo seleccionado
-        </span>
+        </span>-->
       </div>
     </div>
 
@@ -94,7 +94,7 @@
   id="participants"
   class="form__input"
   multiple
->
+ required>
 </select>
 
   </div>
@@ -306,6 +306,7 @@ textarea {
     width: 100%;
   }
 }
+
 </style>
 
 <script>
@@ -386,14 +387,35 @@ textarea {
   };
 
   const resetForm = () => {
-    if (!form) return;
-    form.reset();
-    const btn = form?.querySelector('button[type="submit"]');
-    if (btn) btn.textContent = 'Guardar Acta';
 
-    const commissionIdHidden = document.getElementById('acta-commission-id');
-    if (commissionIdHidden) commissionIdHidden.value = '';
-  };
+    localStorage.removeItem('acta_edit_id');
+
+
+    if (!form) return;
+
+
+    form.reset();
+
+
+    const btn = form.querySelector(
+        'button[type="submit"]'
+    );
+
+
+    if (btn) {
+        btn.textContent = 'Guardar Acta';
+    }
+
+
+    const commissionIdHidden =
+        document.getElementById('acta-commission-id');
+
+
+    if (commissionIdHidden) {
+        commissionIdHidden.value = '1';
+    }
+
+};
 
   window.addEventListener('acta-new', () => {
     setEditId(null);
@@ -477,12 +499,20 @@ const participants = Array.from(
     try {
       const editId = getEditId();
 
+
+      console.log(
+       "ACTA MODE:",
+       editId ? `EDIT ${editId}` : "NEW"
+      );
+
+
       if (editId) {
         await apiFetch(`${BACKEND_BASE}/api/v1/proceedings/${editId}`, {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
       } else {
+        localStorage.removeItem('acta_edit_id');
         await apiFetch(`${BACKEND_BASE}/api/v1/proceedings`, {
           method: 'POST',
           body: JSON.stringify(payload),
@@ -552,7 +582,10 @@ const loadUsers = async () => {
 
 
 // IMPORTANTE: aquí abajo
+
 loadUsers();
+
+
 
 
 </script>
