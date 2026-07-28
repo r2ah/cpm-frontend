@@ -3,144 +3,529 @@
 
 <section class="dictamen-page">
 
-  <form class="dictamen-form">
+  <form class="dictamen-form" id="opinionForm">
 
-    <!-- DICTAMEN -->
-    <div class="form-card">
-      <h2 class="form-card__title">Dictamen</h2>
 
-      <div class="form">
+<!-- DICTAMEN -->
+<div class="form-card">
 
-        <div class="form__group">
-          <label class="form__label">Dirección</label>
-          <input class="form__input" type="text" placeholder="Dirección" />
-        </div>
+<h2 class="form-card__title">
+Dictamen
+</h2>
 
-        <div class="form__group">
-          <label class="form__label">Localización</label>
-          <input class="form__input" type="text" placeholder="Localización" />
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Proyectista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
+<div class="form">
 
-        <div class="form__group">
-          <label class="form__label">Fecha</label>
-          <input class="form__input" type="date" />
-        </div>
 
-      </div>
-    </div>
+<div class="form__group">
+<label class="form__label">
+Dirección
+</label>
 
-    <!-- ESTADOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Estado del Proyecto</h2>
+<input
+id="address"
+name="address"
+class="form__input"
+type="text"
+placeholder="Dirección"
+/>
 
-      <div class="form">
+</div>
 
-        <div class="form__group">
-          <label class="form__label">Inversionista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Contratista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Estado</label>
-          <select class="form__input">
-            <option>Elaborado</option>
-            <option>Revisado</option>
-            <option>Aprobado</option>
-            <option>Denegado</option>
-          </select>
-        </div>
+<div class="form__group">
 
-      </div>
-    </div>
+<label class="form__label">
+Entidad
+</label>
 
-    <!-- MEDIOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Medios Asociados</h2>
+<input
+id="entity"
+name="entity"
+class="form__input"
+type="number"
+/>
 
-      <div class="form">
+</div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="Emisor" />
-        </div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="Localización" />
-        </div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="DUS / Micro" />
-        </div>
 
-        <div class="form__group">
-          <select class="form__input">
-            <option>Intervenciones</option>
-          </select>
-        </div>
+<div class="form__group">
 
-      </div>
-    </div>
+<label class="form__label">
+Proyectista
+</label>
 
-    <!-- USUARIOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Usuarios</h2>
+<select
+id="designer_id"
+name="designer_id"
+class="form__input">
 
-      <div class="form">
+<option value="">
+Seleccione...
+</option>
 
-        <div class="form__group">
-          <label class="form__label">Elaborado por</label>
-          <input class="form__input" type="text" />
-        </div>
+</select>
 
-        <div class="form__group">
-          <label class="form__label">Aprobado por</label>
-          <input class="form__input" type="text" />
-        </div>
+</div>
 
-        <div class="form__group">
-          <label class="form__label">Revisado por</label>
-          <input class="form__input" type="text" />
-        </div>
 
-      </div>
-    </div>
 
-    <!-- OBSERVACIONES -->
-    <div class="form-card">
-      <h2 class="form-card__title">Observaciones</h2>
 
-      <div class="form__group">
-        <textarea class="form__input textarea auto-grow"></textarea>
-      </div>
+<div class="form__group">
 
-      <div class="form__group">
-        <textarea class="form__input textarea auto-grow"></textarea>
-      </div>
-    </div>
+<label class="form__label">
+Fecha
+</label>
 
-    <!-- BOTÓN -->
-    <div class="form-card submit-card">
-      <button class="btn btn--primary" type="submit">
-        Guardar Dictamen
-      </button>
-    </div>
+<input
+id="date"
+name="date"
+class="form__input"
+type="date"
+/>
 
-  </form>
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- ESTADOS -->
+
+<div class="form-card">
+
+<h2 class="form-card__title">
+Estado del Proyecto
+</h2>
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Inversionista
+</label>
+
+
+<select
+id="investor_id"
+name="investor_id"
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Contratista
+</label>
+
+
+<select
+id="builder_id"
+name="builder_id"
+class="form__input">
+
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Estado
+</label>
+
+
+<select
+id="state"
+name="state"
+class="form__input">
+
+
+<option value="Elaborado">
+Elaborado
+</option>
+
+
+<option value="Revisado">
+Revisado
+</option>
+
+
+<option value="Aprobado">
+Aprobado
+</option>
+
+
+<option value="Denegado">
+Denegado
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- MEDIOS -->
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Medios Asociados
+</h2>
+
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Autoridad emisora
+</label>
+
+
+<select
+id="issuing_company"
+name="issuing_company"
+class="form__input">
+
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Código documento
+</label>
+
+
+<select
+id="issuing_document_code"
+name="issuing_document_code"
+class="form__input">
+
+
+<option value="DUS">
+DUS
+</option>
+
+
+<option value="DO">
+DO
+</option>
+
+
+<option value="Micro">
+Micro
+</option>
+
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Características generales
+</label>
+
+
+<textarea
+
+id="general_characteristics"
+
+name="general_characteristics"
+
+class="form__input textarea auto-grow"
+
+></textarea>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- USUARIOS -->
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Usuarios
+</h2>
+
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Elaborado por
+</label>
+
+
+<select
+id="prepared_by"
+name="prepared_by"
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Revisado por
+</label>
+
+
+<select
+id="reviewed_by"
+name="reviewed_by"
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Aprobado por
+</label>
+
+
+<select
+id="approved_by"
+name="approved_by"
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+<!-- OBSERVACIONES -->
+
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Observaciones
+</h2>
+
+
+
+<div class="form__group">
+
+
+<textarea
+
+id="considerations"
+
+name="considerations"
+
+placeholder="Consideraciones"
+
+class="form__input textarea auto-grow">
+
+</textarea>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+
+<textarea
+
+id="observations"
+
+name="observations"
+
+placeholder="Observaciones"
+
+class="form__input textarea auto-grow">
+
+</textarea>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- DATOS OCULTOS -->
+
+<!--<input
+type="hidden"
+id="commission_id"
+name="commission_id"
+/>-->
+
+
+
+<!-- BOTÓN -->
+
+
+<div class="form-card submit-card">
+
+
+<button
+
+class="btn btn--primary"
+
+type="submit">
+
+
+Guardar Dictamen
+
+
+</button>
+
+
+</div>
+
+
+
+</form>
 
 </section>
 
@@ -297,3 +682,593 @@
 
 
 </style>
+<script is:inline>
+
+const BACKEND_BASE = "http://localhost:8000";
+
+const API_OPINIONS =
+`${BACKEND_BASE}/api/v1/opinions`;
+
+let currentOpinionId = null;
+
+// =====================================
+// FETCH GENERAL CON TOKEN
+// =====================================
+
+async function apiFetch(url, options = {}) {
+
+
+    const token =
+    localStorage.getItem("auth_token");
+
+
+    const response =
+    await fetch(
+        url,
+        {
+
+            ...options,
+
+            headers:{
+
+                Accept:"application/json",
+
+                Authorization:
+                `Bearer ${token}`,
+
+
+                "Content-Type":
+                "application/json",
+
+
+                ...options.headers
+
+            }
+
+        }
+    );
+
+
+
+    const json =
+    await response.json();
+
+
+
+    if(!response.ok){
+
+
+        console.error(
+            "API ERROR:",
+            json
+        );
+
+
+        throw json;
+
+    }
+
+
+
+    return json;
+
+}
+
+// =====================================
+// CARGAR PERSONAS
+// =====================================
+
+async function loadPeople(){
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/people?all=true`
+        );
+
+
+        const people =
+        response.data ?? response;
+
+
+        fillSelect(
+            "designer_id",
+            people,
+            "Seleccione proyectista"
+        );
+
+
+        fillSelect(
+            "investor_id",
+            people,
+            "Seleccione inversionista"
+        );
+
+
+        fillSelect(
+            "builder_id",
+            people,
+            "Seleccione contratista"
+        );
+
+
+    } catch(error){
+
+        console.error(
+            "Error cargando personas:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+// =====================================
+// CARGAR USUARIOS
+// =====================================
+
+async function loadUsers(){
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/users?all=true`
+        );
+
+
+        const users =
+        response.data ?? response;
+
+
+
+        fillSelect(
+            "prepared_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+        fillSelect(
+            "reviewed_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+        fillSelect(
+            "approved_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+// =====================================
+// CARGAR AUTORIDADES
+// =====================================
+
+async function loadAuthorities(){
+
+    try {
+
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/authorities?all=true`
+        );
+
+
+        const authorities =
+        response.data ?? response;
+
+
+
+        fillSelect(
+            "issuing_company",
+            authorities,
+            "Seleccione autoridad"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error cargando autoridades:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+// =====================================
+// LLENAR SELECTS
+// =====================================
+
+function fillSelect(
+    id,
+    items,
+    placeholder
+){
+
+
+    const select =
+    document.getElementById(id);
+
+
+
+    if(!select){
+
+        console.warn(
+            "No existe:",
+            id
+        );
+
+        return;
+
+    }
+
+
+
+    select.innerHTML =
+    `
+    <option value="">
+        ${placeholder}
+    </option>
+    `;
+
+
+
+    items.forEach(item=>{
+
+
+        const option =
+        document.createElement("option");
+
+
+
+        option.value =
+        item.id;
+
+
+
+        option.textContent =
+        item.name ??
+        item.full_name ??
+        item.description ??
+        `ID ${item.id}`;
+
+
+
+        select.appendChild(option);
+
+
+    });
+
+
+}
+
+
+
+
+
+// =====================================
+// GUARDAR DICTAMEN
+// =====================================
+
+const form =
+document.getElementById("opinionForm");
+
+
+
+if(form){
+
+
+form.addEventListener(
+"submit",
+async(e)=>{
+
+
+e.preventDefault();
+
+
+
+const formData =
+new FormData(form);
+
+
+
+const data =
+Object.fromEntries(formData);
+
+delete data.commission_id;
+
+
+console.log(
+"DATOS ENVIADOS:",
+data
+);
+
+
+
+let url =
+API_OPINIONS;
+
+
+
+let method =
+"POST";
+
+
+
+if(currentOpinionId){
+
+
+    url =
+    `${API_OPINIONS}/${currentOpinionId}`;
+
+
+    method =
+    "PUT";
+
+}
+
+
+
+
+try{
+
+
+const response =
+await apiFetch(
+url,
+{
+
+method,
+
+body:
+JSON.stringify(data)
+
+}
+);
+
+
+
+console.log(
+"RESPUESTA:",
+response
+);
+
+
+form.reset();
+
+currentOpinionId = null;
+
+localStorage.removeItem(
+    "opinion_edit_id"
+);
+
+// cerrar formulario
+document.querySelector("[data-back]")?.click();
+
+// actualizar tabla
+if (window.loadOpinions) {
+    await window.loadOpinions();
+}
+
+localStorage.removeItem(
+  "opinion_edit_id"
+);
+
+
+
+}catch(error){
+
+
+console.error(
+"Error guardando dictamen:",
+error
+);
+
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+// =====================================
+// AUTO GROW TEXTAREA
+// =====================================
+
+
+document
+.querySelectorAll(
+"textarea.auto-grow"
+)
+.forEach((textarea)=>{
+
+
+const resize = ()=>{
+
+textarea.style.height =
+"auto";
+
+
+textarea.style.height =
+textarea.scrollHeight + "px";
+
+};
+
+
+
+textarea.addEventListener(
+"input",
+resize
+);
+
+
+
+resize();
+
+
+
+});
+
+
+
+async function loadOpinions() {
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/opinions?all=true`
+        );
+
+        console.log("DICTAMENES:", response.data);
+
+    } catch (error) {
+
+        console.error("Error cargando dictámenes", error);
+
+    }
+
+}
+
+// =====================================
+// INICIALIZAR
+// =====================================
+
+
+loadOpinions()
+
+loadPeople();
+
+loadUsers();
+
+loadAuthorities();
+
+
+// =====================================
+// EDITAR DICTAMEN
+// =====================================
+
+window.addEventListener(
+  "opinion-edit",
+  async (event) => {
+
+    const id = event.detail.id;
+
+    currentOpinionId = id;
+
+    try {
+
+      const response = await apiFetch(
+        `${API_OPINIONS}/${id}`
+      );
+
+      const opinion = response.data;
+      console.log(opinion);
+
+      document.getElementById("address").value =
+        opinion.address ?? "";
+
+      document.getElementById("entity").value =
+        opinion.entity ?? "";
+
+      document.getElementById("designer_id").value =
+        opinion.designer_id ?? "";
+
+      document.getElementById("date").value =
+        opinion.date
+        ? opinion.date.substring(0,10)
+        : "";
+
+      document.getElementById("investor_id").value =
+        opinion.investor_id ?? "";
+
+      document.getElementById("builder_id").value =
+        opinion.builder_id ?? "";
+
+      document.getElementById("state").value =
+        opinion.state ?? "";
+
+      document.getElementById("issuing_company").value =
+        opinion.issuing_company ?? "";
+
+      document.getElementById("issuing_document_code").value =
+        opinion.issuing_document_code ?? "";
+
+      document.getElementById("general_characteristics").value =
+        opinion.general_characteristics ?? "";
+
+      document.getElementById("prepared_by").value =
+        opinion.prepared_by ?? "";
+
+      document.getElementById("reviewed_by").value =
+        opinion.reviewed_by ?? "";
+
+      document.getElementById("approved_by").value =
+        opinion.approved_by ?? "";
+
+      document.getElementById("considerations").value =
+        opinion.considerations ?? "";
+
+      document.getElementById("observations").value =
+        opinion.observations ?? "";
+
+      // reajusta los textarea
+      document
+        .querySelectorAll("textarea.auto-grow")
+        .forEach(t => {
+          t.style.height = "auto";
+          t.style.height = t.scrollHeight + "px";
+        });
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando dictamen:",
+        error
+      );
+
+      alert(
+        "No se pudo cargar el dictamen."
+      );
+
+    }
+
+  }
+);
+
+
+</script>

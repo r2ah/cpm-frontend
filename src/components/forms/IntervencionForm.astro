@@ -21,7 +21,7 @@
 </section>
 
 <script type="module">
-const API = "http://localhost:8000/api/interventions";
+const API = "http://localhost:8000/api/v1/interventions";
 
 const form = document.getElementById("intervention-form");
 const status = document.getElementById("status");
@@ -34,7 +34,7 @@ let editId = null;
 ====================== */
 async function loadParents() {
   try {
-    const res = await fetch(`${BASE}/api/interventions?all=1`, {
+    const res = await fetch(`${BASE}/api/v1/interventions?all=1`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("auth_token")}`
       }
@@ -130,7 +130,8 @@ form.addEventListener("submit", async (e) => {
 
   editId = null;
   form.reset();
-
+ 
+  window.location.reload();
   window.loadInterventions?.();
 });
 </script>

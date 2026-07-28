@@ -15,13 +15,13 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
 
     <TablaConVistas
       columns={[
-        { key: 'col1', header: 'Nombre' },
-        { key: 'col2', header: 'Email' },
-        { key: 'col3', header: 'Teléfono' },
-        
-        { key: 'col5', header: 'Rol' },
-        { key: 'acciones', header: 'Acciones' }
-      ]}
+  { key: 'col1', header: 'Nombre' },
+  { key: 'col2', header: 'Email' },
+  { key: 'col3', header: 'Teléfono' },
+  { key: 'col4', header: 'Comisión' },
+  { key: 'col5', header: 'Rol' },
+  { key: 'acciones', header: 'Acciones' }
+]}
       rows={[]}
     >
 
@@ -42,6 +42,16 @@ window.loadUsers = async function () {
       Authorization: `Bearer ${localStorage.getItem("auth_token")}`
     }
   });
+  if (res.status === 401) {
+
+    localStorage.removeItem("auth_token");
+
+    alert("La sesión ha expirado.");
+
+    window.location.href = "/login";
+
+    return;
+}
 
   const json = await res.json();
   const items = json?.data ?? [];
@@ -54,6 +64,14 @@ window.loadUsers = async function () {
     <td class="tabla__td">${u.name}</td>
     <td class="tabla__td">${u.email}</td>
     <td class="tabla__td">${u.phone ?? ""}</td>
+
+    <td class="tabla__td">
+  ${
+    u.commissions?.length
+      ? u.commissions.map(c => c.name).join(", ")
+      : "Sin comisión"
+  }
+</td>
     
     <td class="tabla__td">
       ${(u.roles || []).map(r => `
@@ -76,34 +94,79 @@ window.loadUsers = async function () {
 `).join("");
 
   // EDITAR
-  document.querySelectorAll("[data-edit]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.edit;
+document.querySelectorAll("[data-edit]").forEach(btn => {
 
-      localStorage.setItem("user_edit_id", id);
+  btn.addEventListener("click", () => {
 
-      window.dispatchEvent(new CustomEvent("user-edit", {
+    const id = btn.dataset.edit;
+
+
+    localStorage.setItem(
+      "user_edit_id",
+      id
+    );
+
+
+  
+
+
+    // Después carga los datos de edición
+    setTimeout(()=>{
+
+      // Abrir formulario sin limpiar datos
+window.dispatchEvent(
+    new Event("show-form")
+);
+
+
+// Cargar datos del usuario
+window.dispatchEvent(
+    new CustomEvent("user-edit", {
         detail: { id }
-      }));
+    })
+);
 
-      // abrir form (tu UI)
-      document.querySelector("[data-add]")?.click();
-    });
+    },50);
+
+
   });
+
+});
 
   // DELETE
   document.querySelectorAll("[data-delete]").forEach(btn => {
     btn.addEventListener("click", async () => {
       if (!confirm("¿Eliminar usuario?")) return;
 
-      await fetch(`${API}/${btn.dataset.delete}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("auth_token")}`
-        }
-      });
+      const response = await fetch(`${API}/${btn.dataset.delete}`, {
+    method: "DELETE",
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        Accept: "application/json"
+    }
+});
 
-      window.loadUsers();
+if (response.status === 401) {
+
+    localStorage.removeItem("auth_token");
+
+    alert("La sesión ha expirado.");
+
+    window.location.replace("/login");
+
+    return;
+}
+
+if (!response.ok) {
+
+    const data = await response.json().catch(() => null);
+
+    alert(data?.message ?? "Error al eliminar el usuario");
+
+    return;
+}
+
+window.loadUsers();
     });
   });
 };

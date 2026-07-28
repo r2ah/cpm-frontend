@@ -84,7 +84,7 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
     if (!id) return;
 
     showStatus('Cargando persona...');
-    const res = await apiFetch(`${BACKEND_BASE}/api/people/${id}`);
+    const res = await apiFetch(`${BACKEND_BASE}/api/v1/people/${id}`);
     const p = res?.data ?? res;
 
     const checkbox = form.querySelector('[name="is_natural_person"]');
@@ -146,7 +146,7 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         const editId = getEditId();
 
         if (editId) {
-          await apiFetch(`${BACKEND_BASE}/api/people/${editId}`, {
+          await apiFetch(`${BACKEND_BASE}/api/v1/people/${editId}`, {
             method: 'PUT',
             body: JSON.stringify(payload),
           });
@@ -154,7 +154,7 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
           showStatus('Persona actualizada ✅');
           setEditId(null);
         } else {
-          await apiFetch(`${BACKEND_BASE}/api/people`, {
+          await apiFetch(`${BACKEND_BASE}/api/v1/people`, {
             method: 'POST',
             body: JSON.stringify(payload),
           });

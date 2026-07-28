@@ -24,6 +24,8 @@ try {
     acciones: ''
   }));
 
+  
+
 
 } catch(error) {
 
@@ -57,7 +59,7 @@ try {
   //{ key: 'agenda', header: 'Orden del Día' },
   //{ key: 'approaches', header: 'Intervenciones' },
   //{ key: 'aggreements', header: 'Acuerdos' },
-  { key: 'commission_id', header: 'Comisión' },
+  { key: 'commission_name', header: 'Comisión' },
   //{ key: 'participants', header: 'Participantes' },
   { key: 'signed_document', header: 'Documento' },
   { key: 'createdAt', header: 'Creado' },
@@ -119,73 +121,61 @@ window.loadProceedings = async function () {
 
   try {
 
-    const res = await fetch(
-      `${API}?all=true`,
-      {
-        headers:{
-          Authorization:
-          `Bearer ${localStorage.getItem("auth_token")}`,
+    const res = await fetch(`${API}?all=true`, {
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        Accept: "application/json"
+    }
+});
 
-          Accept:"application/json"
-        }
-      }
-    );
+if (res.status === 401) {
 
+    localStorage.removeItem("auth_token");
 
-    const json = await res.json();
+    alert("La sesión ha expirado.");
+
+    window.location.href = "/login";
+
+    return;
+}
+
+const json = await res.json();
 
     const items = json?.data ?? [];
-
-
     const tbody =
       document.querySelector(
         ".tabla__table tbody"
       );
-
 
     if(!tbody){
       console.error("No existe tbody");
       return;
     }
 
-
-
     tbody.innerHTML = items.map(acta => `
 
       <tr class="tabla__tr">
 
         <td class="tabla__td">
-          ${acta.date ?? ""}
+          ${acta.date.substring(0,10) ?? ""}
         </td>
-
-
         <td class="tabla__td">
           ${acta.address ?? ""}
         </td>
-
-
         <td class="tabla__td">
-          ${acta.commission_id ?? ""}
+          ${acta.commission_name ?? ""}
         </td>
-
-
-        <td class="tabla__td">
+       <td class="tabla__td">
           ${
             acta.signed_document
             ? "📄 Archivo"
             : ""
           }
         </td>
-
-
         <td class="tabla__td">
-          ${acta.createdAt ?? ""}
+          ${acta.createdAt.substring(0,10) ?? ""}
         </td>
-
-
         <td class="tabla__td">
-
-
           <button
             type="button"
             class="tabla__action tabla__action--edit"
@@ -193,8 +183,6 @@ window.loadProceedings = async function () {
           >
             Editar
           </button>
-
-
           <button
             type="button"
             class="tabla__action tabla__action--delete"
@@ -202,47 +190,28 @@ window.loadProceedings = async function () {
           >
             Eliminar
           </button>
-
-
         </td>
-
-
       </tr>
-
-
     `).join("");
-
-
-
 
     /*
     ===========================
        EDITAR
     ===========================
     */
-
-
     document
     .querySelectorAll("[data-proceeding-edit]")
     .forEach(btn=>{
-
-
       btn.addEventListener(
         "click",
         ()=>{
 
-
           const id =
           btn.dataset.proceedingEdit;
-
-
-
           localStorage.setItem(
             "acta_edit_id",
             id
           );
-
-
 
           window.dispatchEvent(
             new CustomEvent(
@@ -254,24 +223,10 @@ window.loadProceedings = async function () {
               }
             )
           );
-
-
-
-          document
-          .querySelector("[data-add]")
-          ?.click();
-
-
+         window.dispatchEvent(new Event("show-form"));
         }
       );
-
-
     });
-
-
-
-
-
     /*
     ===========================
        ELIMINAR
@@ -338,15 +293,20 @@ window.loadProceedings = async function () {
                 }
               }
             );
+           if (response.status === 401) {
 
+          localStorage.removeItem("auth_token");
 
+           alert("La sesión ha expirado.");
 
+          window.location.replace("/login");
+
+          return;
+          }
             console.log(
               "STATUS DELETE:",
               response.status
             );
-
-
 
             const data =
             await response
@@ -354,37 +314,19 @@ window.loadProceedings = async function () {
             .catch(
               ()=>null
             );
-
-
-
             console.log(
               "RESPUESTA DELETE:",
               data
             );
-
-
-
-
             if(!response.ok){
-
               throw new Error(
                 data?.message ??
                 "Error eliminando acta"
               );
-
             }
-
-
-
-
             await window.loadProceedings();
-
-
-
           }
           catch(error){
-
-
             console.error(
               "ERROR ELIMINANDO:",
               error

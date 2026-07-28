@@ -60,6 +60,16 @@ async function loadAuthorities() {
       Authorization: `Bearer ${localStorage.getItem("auth_token")}`
     }
   });
+  if (res.status === 401) {
+
+    localStorage.removeItem("auth_token");
+
+    alert("La sesión ha expirado.");
+
+    window.location.href = "/login";
+
+    return;
+}
 
   const json = await res.json();
   const items = json?.data ?? [];
@@ -133,15 +143,54 @@ cancelBtn.addEventListener("click", () => {
 });
 
 // confirmar eliminación
+// confirmar eliminación
 confirmBtn.addEventListener("click", async () => {
+
   if (!deleteId) return;
 
-  await fetch(`${API}/${deleteId}`, {
-    method: "DELETE"
+
+  const response = await fetch(`${API}/${deleteId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+      Accept: "application/json"
+    }
   });
 
+
+  console.log("DELETE STATUS:", response.status);
+
+
+  if (response.status === 401) {
+
+    localStorage.removeItem("auth_token");
+
+    alert("La sesión ha expirado.");
+
+    window.location.href = "/login";
+
+    return;
+  }
+
+
+  if (!response.ok) {
+
+    const data = await response
+      .json()
+      .catch(() => null);
+
+    alert(
+      data?.message ?? "Error eliminando autoridad"
+    );
+
+    return;
+  }
+
+
   deleteId = null;
+
   modal.classList.add("hidden");
+
 
   loadAuthorities(); // refresca tabla
 });
