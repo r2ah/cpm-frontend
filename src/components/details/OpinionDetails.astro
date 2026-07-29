@@ -1,0 +1,414 @@
+---
+import DetailRow from "../ui/DetailRow.astro";
+---
+
+<div id="opinion-details">
+
+
+<section class="card">
+
+<h3>Información General</h3>
+
+<DetailRow label="ID" id="detail-id"/>
+
+<DetailRow label="Entidad" id="detail-entity"/>
+
+<DetailRow label="Dirección" id="detail-address"/>
+
+<DetailRow label="Estado" id="detail-state"/>
+
+<DetailRow label="Fecha" id="detail-date"/>
+
+<DetailRow label="Código Documento" id="detail-document"/>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Empresas relacionadas</h3>
+
+
+<DetailRow 
+label="Diseñador"
+id="detail-designer"
+/>
+
+
+<DetailRow 
+label="Inversionista"
+id="detail-investor"
+/>
+
+
+<DetailRow 
+label="Constructor"
+id="detail-builder"
+/>
+
+
+</section>
+
+
+
+
+<section class="card">
+
+<h3>Comisión</h3>
+
+
+<DetailRow 
+label="Comisión"
+id="detail-commission"
+/>
+
+
+<DetailRow 
+label="Elaborado por"
+id="detail-prepared"
+/>
+
+
+<DetailRow 
+label="Revisado por"
+id="detail-reviewed"
+/>
+
+
+<DetailRow 
+label="Aprobado por"
+id="detail-approved"
+/>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h3>Información técnica</h3>
+
+
+<DetailRow
+label="Características generales"
+id="detail-general"
+/>
+
+
+<DetailRow
+label="Consideraciones"
+id="detail-considerations"
+/>
+
+
+<DetailRow
+label="Observaciones"
+id="detail-observations"
+/>
+
+
+</section>
+
+<section class="card">
+
+<h3>Intervenciones</h3>
+
+
+<div id="detail-interventions">
+    -
+</div>
+
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Auditoría</h3>
+
+
+<DetailRow
+label="Creado"
+id="detail-created"
+/>
+
+
+<DetailRow
+label="Actualizado"
+id="detail-updated"
+/>
+
+
+</section>
+
+
+</div>
+
+
+
+
+
+<script is:inline>
+
+window.addEventListener(
+"show-opinion-details",
+(e)=>{
+
+
+const o = e.detail;
+
+
+console.log(
+"Opinion recibida:",
+o
+);
+
+
+
+function setDetail(id,value){
+
+    const element =
+    document.getElementById(id);
+
+
+    if(element){
+
+        element.textContent =
+        value ?? "-";
+
+    }else{
+
+        console.warn(
+            "No existe elemento:",
+            id
+        );
+
+    }
+
+}
+
+
+
+// =========================
+// INFORMACIÓN GENERAL
+// =========================
+
+setDetail(
+    "detail-id",
+    o.id
+);
+
+
+setDetail(
+    "detail-entity",
+    o.entity
+);
+
+
+setDetail(
+    "detail-address",
+    o.address
+);
+
+
+setDetail(
+    "detail-state",
+    o.state
+);
+
+
+setDetail(
+    "detail-date",
+    o.date
+);
+
+
+setDetail(
+    "detail-document",
+    o.issuing_document_code
+);
+
+
+
+
+// =========================
+// EMPRESAS
+// =========================
+
+setDetail(
+    "detail-designer",
+    o.designer?.name
+);
+
+
+setDetail(
+    "detail-investor",
+    o.investor?.name
+);
+
+
+setDetail(
+    "detail-builder",
+    o.builder?.name
+);
+
+
+
+
+// =========================
+// COMISIÓN
+// =========================
+
+setDetail(
+    "detail-commission",
+    o.commission?.name
+);
+
+
+setDetail(
+    "detail-prepared",
+    o.prepared_by?.name
+);
+
+
+setDetail(
+    "detail-reviewed",
+    o.reviewed_by?.name
+);
+
+
+setDetail(
+    "detail-approved",
+    o.approved_by?.name
+);
+
+
+
+
+// =========================
+// INFORMACIÓN TÉCNICA
+// =========================
+
+setDetail(
+    "detail-general",
+    o.general_characteristics
+);
+
+
+setDetail(
+    "detail-considerations",
+    o.considerations
+);
+
+
+setDetail(
+    "detail-observations",
+    o.observations
+);
+
+
+// =========================
+// INTERVENCIONES
+// =========================
+
+const interventionsElement =
+document.getElementById(
+    "detail-interventions"
+);
+
+
+if(interventionsElement){
+
+
+    if(
+        o.interventions &&
+        o.interventions.length
+    ){
+
+        interventionsElement.innerHTML =
+        o.interventions
+        .map(
+            intervention =>
+            `<div>
+                ${intervention.name}
+            </div>`
+        )
+        .join("");
+
+
+    }else{
+
+
+        interventionsElement.textContent =
+        "-";
+
+
+    }
+
+}
+
+
+// =========================
+// AUDITORÍA
+// =========================
+
+setDetail(
+    "detail-created",
+    o.createdAt
+);
+
+
+setDetail(
+    "detail-updated",
+    o.updatedAt
+);
+
+
+
+
+// abrir modal
+
+window.dispatchEvent(
+    new Event(
+        "entity-modal:open"
+    )
+);
+
+
+});
+
+</script>
+
+
+
+
+
+<style>
+
+.card{
+
+border:1px solid #ececec;
+
+border-radius:15px;
+
+padding:18px;
+
+margin-bottom:20px;
+
+}
+
+
+.card h3{
+
+margin-top:0;
+
+color:#553304;
+
+}
+
+</style>

@@ -45,7 +45,7 @@ window.loadInterventions = async function () {
 
     localStorage.removeItem("auth_token");
 
-    alert("La sesión ha expirado.");
+    alert("Debe autenticarse.");
 
     window.location.href = "/login";
 
@@ -78,17 +78,43 @@ window.loadInterventions = async function () {
 `).join("");
 
   // EDIT
-  document.querySelectorAll("[data-edit]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      editId = btn.dataset.edit;
+document.querySelectorAll("[data-edit]").forEach(btn => {
 
-      window.dispatchEvent(new CustomEvent("intervention-edit", {
-        detail: { id: editId }
-      }));
+  btn.addEventListener("click", async () => {
 
-      document.querySelector("[data-add]")?.click();
-    });
+
+    const id = btn.dataset.edit;
+
+
+    // Primero abrir formulario
+    document
+      .querySelector("[data-add]")
+      ?.click();
+
+
+
+    // Esperar a que termine el evento new
+    setTimeout(()=>{
+
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "intervention-edit",
+          {
+            detail:{
+              id
+            }
+          }
+        )
+      );
+
+
+    },50);
+
+
   });
+
+});
 
   // DELETE
   document.querySelectorAll("[data-delete]").forEach(btn => {
@@ -100,15 +126,24 @@ window.loadInterventions = async function () {
         }
       });
 
-      if (res.status === 401) {
+const res = await fetch(`${API}/${btn.dataset.delete}`, {
+  method: "DELETE",
+  headers: {
+    Authorization:
+    `Bearer ${localStorage.getItem("auth_token")}`
+  }
+});
 
-    localStorage.removeItem("auth_token");
 
-    alert("La sesión ha expirado.");
+if (res.status === 401) {
 
-    window.location.href = "/login";
+  localStorage.removeItem("auth_token");
 
-    return;
+  alert("La sesión ha expirado.");
+
+  window.location.href="/login";
+
+  return;
 }
 
       loadInterventions();

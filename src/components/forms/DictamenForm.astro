@@ -28,6 +28,7 @@ name="address"
 class="form__input"
 type="text"
 placeholder="Dirección"
+required
 />
 
 </div>
@@ -45,6 +46,7 @@ id="entity"
 name="entity"
 class="form__input"
 type="number"
+required
 />
 
 </div>
@@ -60,7 +62,7 @@ Proyectista
 
 <select
 id="designer_id"
-name="designer_id"
+name="designer_id" required
 class="form__input">
 
 <option value="">
@@ -85,6 +87,7 @@ id="date"
 name="date"
 class="form__input"
 type="date"
+required
 />
 
 </div>
@@ -121,6 +124,7 @@ Inversionista
 <select
 id="investor_id"
 name="investor_id"
+required
 class="form__input">
 
 <option>
@@ -147,6 +151,7 @@ Contratista
 <select
 id="builder_id"
 name="builder_id"
+required
 class="form__input">
 
 
@@ -174,6 +179,7 @@ Estado
 <select
 id="state"
 name="state"
+required
 class="form__input">
 
 
@@ -240,6 +246,7 @@ Autoridad emisora
 <select
 id="issuing_company"
 name="issuing_company"
+required
 class="form__input">
 
 
@@ -267,6 +274,7 @@ Código documento
 <select
 id="issuing_document_code"
 name="issuing_document_code"
+required
 class="form__input">
 
 
@@ -310,6 +318,7 @@ id="general_characteristics"
 name="general_characteristics"
 
 class="form__input textarea auto-grow"
+required
 
 ></textarea>
 
@@ -354,6 +363,7 @@ Elaborado por
 <select
 id="prepared_by"
 name="prepared_by"
+required
 class="form__input">
 
 <option>
@@ -379,6 +389,7 @@ Revisado por
 <select
 id="reviewed_by"
 name="reviewed_by"
+required
 class="form__input">
 
 <option>
@@ -404,6 +415,7 @@ Aprobado por
 <select
 id="approved_by"
 name="approved_by"
+required
 class="form__input">
 
 <option>
@@ -450,7 +462,7 @@ id="considerations"
 
 name="considerations"
 
-placeholder="Consideraciones"
+placeholder="Consideraciones" required
 
 class="form__input textarea auto-grow">
 
@@ -473,6 +485,8 @@ id="observations"
 name="observations"
 
 placeholder="Observaciones"
+
+required
 
 class="form__input textarea auto-grow">
 
@@ -501,6 +515,33 @@ name="commission_id"
 />-->
 
 
+
+<div class="form-card submit-card">
+
+
+<div class="form__group">
+
+<label>
+Intervenciones
+</label>
+
+
+<select
+id="intervention_ids"
+name="intervention_ids[]"
+class="form__input"
+multiple
+size="5"
+>
+</select>
+
+
+</select>
+
+</div>
+
+
+</div>
 
 <!-- BOTÓN -->
 
@@ -682,6 +723,8 @@ Guardar Dictamen
 
 
 </style>
+
+
 <script is:inline>
 
 const BACKEND_BASE = "http://localhost:8000";
@@ -803,9 +846,42 @@ async function loadPeople(){
 
 }
 
+// =====================================
+// CARGAR INTERVENCIONES
+// =====================================
+
+async function loadInterventions(){
 
 
+    try{
 
+
+        const response =
+        await apiFetch(
+            `${BACKEND_BASE}/api/v1/interventions?all=true`
+        );
+
+
+        fillSelect(
+            "intervention_ids",
+            response.data,
+            "Seleccione intervenciones"
+        );
+
+
+    }catch(error){
+
+
+        console.error(
+            "Error cargando intervenciones:",
+            error
+        );
+
+
+    }
+
+}
+loadInterventions();
 
 // =====================================
 // CARGAR USUARIOS
@@ -912,10 +988,8 @@ function fillSelect(
     placeholder
 ){
 
-
     const select =
     document.getElementById(id);
-
 
 
     if(!select){
@@ -931,12 +1005,20 @@ function fillSelect(
 
 
 
-    select.innerHTML =
-    `
-    <option value="">
-        ${placeholder}
-    </option>
-    `;
+    select.innerHTML = "";
+
+
+
+    if(!select.multiple){
+
+        select.innerHTML =
+        `
+        <option value="">
+            ${placeholder}
+        </option>
+        `;
+
+    }
 
 
 
@@ -947,10 +1029,8 @@ function fillSelect(
         document.createElement("option");
 
 
-
         option.value =
         item.id;
-
 
 
         option.textContent =
@@ -960,15 +1040,12 @@ function fillSelect(
         `ID ${item.id}`;
 
 
-
         select.appendChild(option);
 
 
     });
 
-
 }
-
 
 
 
@@ -979,7 +1056,6 @@ function fillSelect(
 
 const form =
 document.getElementById("opinionForm");
-
 
 
 if(form){
@@ -999,10 +1075,40 @@ new FormData(form);
 
 
 
+// Convertir campos normales
 const data =
 Object.fromEntries(formData);
 
+
+
+// =====================================
+// INTERVENCIONES MULTIPLES
+// =====================================
+
+const interventionSelect =
+document.getElementById("intervention_ids");
+
+
+if(interventionSelect){
+
+
+    data.intervention_ids =
+    Array.from(
+        interventionSelect.selectedOptions
+    )
+    .map(
+        option => option.value
+    );
+
+
+}
+
+
+
+// eliminar campos que no se envían
+
 delete data.commission_id;
+
 
 
 console.log(
@@ -1047,6 +1153,7 @@ url,
 
 method,
 
+
 body:
 JSON.stringify(data)
 
@@ -1061,25 +1168,34 @@ response
 );
 
 
+
 form.reset();
+
 
 currentOpinionId = null;
 
+
 localStorage.removeItem(
-    "opinion_edit_id"
+"opinion_edit_id"
 );
+
+
 
 // cerrar formulario
-document.querySelector("[data-back]")?.click();
+
+document
+.querySelector("[data-back]")
+?.click();
+
+
 
 // actualizar tabla
-if (window.loadOpinions) {
-    await window.loadOpinions();
-}
 
-localStorage.removeItem(
-  "opinion_edit_id"
-);
+if(window.loadOpinions){
+
+    await window.loadOpinions();
+
+}
 
 
 
@@ -1092,7 +1208,6 @@ error
 );
 
 
-
 }
 
 
@@ -1101,10 +1216,6 @@ error
 
 
 }
-
-
-
-
 
 // =====================================
 // AUTO GROW TEXTAREA
@@ -1169,13 +1280,25 @@ async function loadOpinions() {
 // =====================================
 
 
-loadOpinions()
+async function initDictamen(){
 
-loadPeople();
+    await loadPeople();
 
-loadUsers();
+    await loadUsers();
 
-loadAuthorities();
+    await loadAuthorities();
+
+    await loadInterventions();
+
+
+    console.log(
+        "SELECTS CARGADOS"
+    );
+
+}
+
+
+initDictamen();
 
 
 // =====================================
@@ -1183,92 +1306,236 @@ loadAuthorities();
 // =====================================
 
 window.addEventListener(
-  "opinion-edit",
-  async (event) => {
+"opinion-edit",
+async (event)=>{
 
-    const id = event.detail.id;
 
-    currentOpinionId = id;
+const id = event.detail.id;
 
-    try {
+currentOpinionId = id;
 
-      const response = await apiFetch(
-        `${API_OPINIONS}/${id}`
-      );
 
-      const opinion = response.data;
-      console.log(opinion);
+try{
 
-      document.getElementById("address").value =
-        opinion.address ?? "";
 
-      document.getElementById("entity").value =
-        opinion.entity ?? "";
+const response = await apiFetch(
+`${API_OPINIONS}/${id}`
+);
 
-      document.getElementById("designer_id").value =
-        opinion.designer_id ?? "";
 
-      document.getElementById("date").value =
-        opinion.date
-        ? opinion.date.substring(0,10)
-        : "";
+const opinion = response.data;
 
-      document.getElementById("investor_id").value =
-        opinion.investor_id ?? "";
 
-      document.getElementById("builder_id").value =
-        opinion.builder_id ?? "";
+console.log(opinion);
 
-      document.getElementById("state").value =
-        opinion.state ?? "";
 
-      document.getElementById("issuing_company").value =
-        opinion.issuing_company ?? "";
 
-      document.getElementById("issuing_document_code").value =
-        opinion.issuing_document_code ?? "";
+document.getElementById("address").value =
+    opinion.address ?? "";
 
-      document.getElementById("general_characteristics").value =
-        opinion.general_characteristics ?? "";
 
-      document.getElementById("prepared_by").value =
-        opinion.prepared_by ?? "";
+document.getElementById("entity").value =
+    opinion.entity ?? "";
 
-      document.getElementById("reviewed_by").value =
-        opinion.reviewed_by ?? "";
 
-      document.getElementById("approved_by").value =
-        opinion.approved_by ?? "";
 
-      document.getElementById("considerations").value =
-        opinion.considerations ?? "";
+/*
+==============================
+ SELECT PERSONAS
+==============================
+*/
 
-      document.getElementById("observations").value =
-        opinion.observations ?? "";
+document.getElementById("designer_id").value =
+    opinion.designer?.id ?? "";
 
-      // reajusta los textarea
-      document
-        .querySelectorAll("textarea.auto-grow")
-        .forEach(t => {
-          t.style.height = "auto";
-          t.style.height = t.scrollHeight + "px";
-        });
 
-    } catch (error) {
+document.getElementById("investor_id").value =
+    opinion.investor?.id ?? "";
 
-      console.error(
-        "Error cargando dictamen:",
-        error
-      );
 
-      alert(
-        "No se pudo cargar el dictamen."
-      );
+document.getElementById("builder_id").value =
+    opinion.builder?.id ?? "";
+
+
+
+/*
+==============================
+ FECHA Y ESTADO
+==============================
+*/
+
+
+document.getElementById("date").value =
+    opinion.date
+    ? opinion.date.substring(0,10)
+    : "";
+
+
+document.getElementById("state").value =
+    opinion.state ?? "";
+
+
+
+/*
+==============================
+ AUTORIDAD
+==============================
+*/
+
+
+document.getElementById("issuing_company").value =
+    opinion.issuing_company?.id ?? "";
+
+
+document.getElementById("issuing_document_code").value =
+    opinion.issuing_document_code ?? "";
+
+/*
+==============================
+ INTERVENCIONES
+==============================
+*/
+
+const interventionSelect =
+document.getElementById("intervention_ids");
+
+
+if(
+    interventionSelect &&
+    opinion.interventions
+){
+
+
+    const selectedIds =
+    opinion.interventions.map(
+        intervention => String(intervention.id)
+    );
+
+
+    Array.from(
+        interventionSelect.options
+    )
+    .forEach(option=>{
+
+
+        option.selected =
+        selectedIds.includes(
+            option.value
+        );
+
+
+    });
+
+
+    console.log(
+        "INTERVENCIONES SELECCIONADAS:",
+        selectedIds
+    );
+
+}
+
+/*
+==============================
+ TEXTO
+==============================
+*/
+
+
+document.getElementById("general_characteristics").value =
+    opinion.general_characteristics ?? "";
+
+
+document.getElementById("considerations").value =
+    opinion.considerations ?? "";
+
+
+document.getElementById("observations").value =
+    opinion.observations ?? "";
+
+
+
+/*
+==============================
+ USUARIOS
+==============================
+*/
+
+
+document.getElementById("prepared_by").value =
+    opinion.prepared_by?.id ?? "";
+
+
+document.getElementById("reviewed_by").value =
+    opinion.reviewed_by?.id ?? "";
+
+
+document.getElementById("approved_by").value =
+    opinion.approved_by?.id ?? "";
+
+
+
+/*
+==============================
+ Ajustar textarea
+==============================
+*/
+
+
+document
+.querySelectorAll("textarea.auto-grow")
+.forEach(t=>{
+
+    t.style.height="auto";
+
+    t.style.height =
+    t.scrollHeight+"px";
+
+});
+
+
+
+}catch(error){
+
+
+console.error(
+"Error cargando dictamen:",
+error
+);
+
+
+alert(
+"No se pudo cargar el dictamen."
+);
+
+
+}
+
+
+});
+
+window.addEventListener(
+"dictamen-clear",
+()=>{
+
+    currentOpinionId = null;
+
+
+    const form =
+    document.getElementById("opinionForm");
+
+
+    if(form){
+
+        form.reset();
 
     }
 
-  }
-);
+
+    console.log(
+        "Formulario limpio, modo nuevo"
+    );
+
+});
 
 
 </script>

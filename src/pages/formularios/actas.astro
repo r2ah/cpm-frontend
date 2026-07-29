@@ -132,7 +132,7 @@ if (res.status === 401) {
 
     localStorage.removeItem("auth_token");
 
-    alert("La sesión ha expirado.");
+    alert("Debe autenticarse.");
 
     window.location.href = "/login";
 
@@ -168,7 +168,7 @@ const json = await res.json();
        <td class="tabla__td">
           ${
             acta.signed_document
-            ? "📄 Archivo"
+            ? " Archivo"
             : ""
           }
         </td>

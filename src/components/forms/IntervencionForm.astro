@@ -1,139 +1,404 @@
 <section class="form-card">
 
-  <h2 class="form-card__title">Intervenciones</h2>
+<h2 class="form-card__title">
+Intervenciones
+</h2>
 
-  <form id="intervention-form" class="form">
 
-    <input name="name" class="form__input" placeholder="Nombre" required />
+<form id="intervention-form" class="form">
 
-    <select name="parent_id" class="form__input">
-      <option value="">Sin superior</option>
-    </select>
 
-    <button class="btn btn--primary" type="submit">
-      Guardar
-    </button>
+<input
+name="name"
+class="form__input"
+placeholder="Nombre"
+required
+/>
 
-    <p id="status"></p>
 
-  </form>
+<select
+name="parent_id"
+class="form__input"
+>
+
+<option value="">
+Sin superior
+</option>
+
+</select>
+
+
+
+<button
+class="btn btn--primary"
+type="submit"
+>
+Guardar
+</button>
+
+
+<p id="status"></p>
+
+
+</form>
 
 </section>
 
-<script type="module">
-const API = "http://localhost:8000/api/v1/interventions";
 
-const form = document.getElementById("intervention-form");
-const status = document.getElementById("status");
-const select = form.querySelector("[name='parent_id']");
+<script is:inline>
+
+const API =
+"http://localhost:8000/api/v1/interventions";
+
+
+const form =
+document.getElementById(
+"intervention-form"
+);
+
+
+const select =
+form.querySelector(
+"[name='parent_id']"
+);
+
+
+const status =
+document.getElementById(
+"status"
+);
+
+
 
 let editId = null;
 
-/* ======================
-   CARGAR PARENTS
-====================== */
-async function loadParents() {
+
+
+async function loadParents(excludeId = null) {
+
   try {
-    const res = await fetch(`${BASE}/api/v1/interventions?all=1`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+
+    const res = await fetch(
+      `${API}?all=1`,
+      {
+        headers:{
+          Authorization:
+          `Bearer ${localStorage.getItem("auth_token")}`
+        }
       }
-    });
+    );
+
 
     const json = await res.json();
 
-    console.log("INTERVENTIONS API:", json); // 🔥 DEBUG
 
-    const data = json.data || [];
+    const data =
+      json.data ?? [];
 
-    select.innerHTML = `<option value="">Ninguna</option>`;
 
-    data.forEach((item) => {
-      const opt = document.createElement("option");
-      opt.value = item.id;
-      opt.textContent = item.name;
-      select.appendChild(opt);
+    select.innerHTML =
+    `
+    <option value="">
+      Ninguna
+    </option>
+    `;
+
+
+    data.forEach(item=>{
+
+
+      // Evitar que una intervención sea padre de sí misma
+      if(item.id == excludeId){
+        return;
+      }
+
+
+      const option =
+      document.createElement("option");
+
+
+      option.value =
+      item.id;
+
+
+      option.textContent =
+      item.name;
+
+
+      select.appendChild(option);
+
+
     });
 
-  } catch (error) {
-    console.error("Error loading interventions:", error);
+
+  }catch(error){
+
+    console.error(
+      "Error cargando padres:",
+      error
+    );
+
   }
+
 }
+/*
+=========================
+NUEVO
+=========================
+*/
+
+
+window.addEventListener(
+"intervention-new",
+()=>{
+
+
+editId = null;
+
+
+form.reset();
+
 
 loadParents();
 
-/* ======================
-   NUEVO
-====================== */
-window.addEventListener("intervention-new", () => {
-  editId = null;
-  form.reset();
+
 });
 
-/* ======================
-   EDITAR
-====================== */
-window.addEventListener("intervention-edit", async (e) => {
-  editId = e.detail.id;
 
-  const res = await fetch(`${API}/${editId}`);
-  const json = await res.json();
-  const i = json.data;
 
-  form.name.value = i.name;
-  form.parent_id.value = i.parent_id ?? "";
+
+
+// ======================
+// EDITAR
+// ======================
+window.addEventListener(
+"intervention-edit",
+async(e)=>{
+
+
+editId = e.detail.id;
+
+
+try{
+
+
+const res = await fetch(
+`${API}/${editId}`,
+{
+headers:{
+Authorization:
+`Bearer ${localStorage.getItem("auth_token")}`
+}
+}
+);
+
+
+const json = await res.json();
+
+const i = json.data;
+
+
+console.log(
+"EDITAR INTERVENCIÓN:",
+i
+);
+
+
+// cargar opciones primero
+await loadParents(i.id);
+
+
+
+form.name.value =
+i.name ?? "";
+
+
+
+// después seleccionar padre
+setTimeout(()=>{
+
+    select.value =
+    i.parent_id ?? "";
+
+
+    console.log(
+        "PADRE SELECCIONADO:",
+        select.value
+    );
+
+
+},50);
+
+
+
+}catch(error){
+
+console.error(
+"Error editando intervención:",
+error
+);
+
+}
+
+
 });
 
-/* ======================
-   SUBMIT
-====================== */
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+/*
+=========================
+GUARDAR
+=========================
+*/
 
-  const fd = new FormData(form);
 
-  const payload = {
-    name: fd.get("name"),
-    parent_id: fd.get("parent_id") || null
-  };
+form.addEventListener(
+"submit",
+async(e)=>{
 
-  console.log("PAYLOAD:", payload);
 
-  const url = editId
-    ? `${API}/${editId}`
-    : API;
+e.preventDefault();
 
-  const method = editId ? "PUT" : "POST";
 
-  const res = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
-    },
-    body: JSON.stringify(payload)
-  });
 
-  const data = await res.json();
+const payload={
 
-  console.log("RESPONSE:", data);
+name:
+form.name.value,
 
-  if (!res.ok) {
-    status.textContent =
-      data.message ||
-      JSON.stringify(data.errors || data);
 
-    return;
-  }
+parent_id:
+form.parent_id.value || null
 
-  status.textContent = "Guardado ✔";
+};
 
-  editId = null;
-  form.reset();
- 
-  window.location.reload();
-  window.loadInterventions?.();
+
+
+console.log(
+"ENVIANDO:",
+payload
+);
+
+
+
+const url =
+editId
+?
+`${API}/${editId}`
+:
+API;
+
+
+
+const method =
+editId
+?
+"PUT"
+:
+"POST";
+
+
+
+try{
+
+
+const response =
+await fetch(
+url,
+{
+
+method,
+
+
+headers:{
+
+
+"Content-Type":
+"application/json",
+
+
+Authorization:
+`Bearer ${localStorage.getItem("auth_token")}`
+
+
+},
+
+
+body:
+JSON.stringify(payload)
+
+
+}
+);
+
+
+
+const json =
+await response.json();
+
+
+
+console.log(
+"RESPUESTA:",
+json
+);
+
+
+
+if(!response.ok){
+
+throw json;
+
+}
+
+
+
+
+editId=null;
+
+
+
+form.reset();
+
+document
+.querySelector("[data-back]")
+?.click();
+
+await loadParents();
+
+
+
+window.loadInterventions?.();
+
+
+
+}catch(error){
+
+
+console.error(
+"ERROR:",
+error
+);
+
+
+status.textContent =
+error.message ??
+"Error guardando";
+
+
+}
+
+
+
 });
+
+
+
+/*
+Carga inicial
+*/
+
+loadParents();
+
+
 </script>
 
 

@@ -16,7 +16,7 @@
 
     <div class="form__group">
       <label class="form__label">Teléfono</label>
-      <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
+      <input name="phone" class="form__input" type="text" placeholder="+53 ########" maxlength="8"  pattern="[0-9]{8}" title="Solo números." />
     </div>
 
     <button class="btn btn--primary" type="submit">

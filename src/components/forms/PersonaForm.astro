@@ -16,7 +16,7 @@
 
     <div class="form__group">
       <label class="form__label">Teléfono</label>
-      <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
+      <input name="phone" class="form__input" type="text" placeholder="+53 ########" maxlength="13"  pattern="^(?:\+53[- ]?)?(?:[0-9]{8}|[0-9]{4}-[0-9]{4})$" title="Solo números." />
     </div>
 
     <div class="form__group">
@@ -167,6 +167,24 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         showStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
       }
     });
+
+
+const phoneInput = form.querySelector("[name='phone']");
+
+phoneInput?.addEventListener("input", () => {
+
+    // Permitir solo números, +, espacio y guión
+    phoneInput.value = phoneInput.value.replace(
+        /[^0-9+\- ]/g,
+        ""
+    );
+
+    // Longitud máxima según el formato más largo: +53-1234-5678
+    if (phoneInput.value.length > 13) {
+        phoneInput.value = phoneInput.value.slice(0, 13);
+    }
+
+});
   
 </script>
 

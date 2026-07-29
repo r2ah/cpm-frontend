@@ -1,0 +1,169 @@
+---
+interface Props {
+    id?: string;
+    title?: string;
+}
+
+const {
+    id="entity-modal",
+    title="Detalles"
+}=Astro.props;
+---
+
+
+<div 
+    id={id}
+    class="entity-modal"
+>
+
+
+<div class="modal-content">
+
+
+<button 
+class="modal-close"
+type="button"
+>
+×
+</button>
+
+
+<h2>
+{title}
+</h2>
+
+
+<div class="modal-body">
+
+<slot />
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+const modal =
+document.getElementById("entity-modal");
+
+
+const close =
+document.querySelector(".modal-close");
+
+
+// abrir
+window.addEventListener(
+"entity-modal:open",
+()=>{
+
+    modal?.classList.add("show");
+
+});
+
+
+// cerrar
+close?.addEventListener(
+"click",
+()=>{
+
+    modal?.classList.remove("show");
+
+});
+
+
+// cerrar haciendo click fuera
+modal?.addEventListener(
+"click",
+(e)=>{
+
+    if(e.target === modal){
+
+        modal.classList.remove("show");
+
+    }
+
+});
+
+</script>
+
+
+
+<style>
+
+.entity-modal{
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.45);
+
+display:none;
+
+align-items:center;
+
+justify-content:center;
+
+z-index:9999;
+
+}
+
+
+/* SOLO VISIBLE CUANDO SE ABRE */
+
+.entity-modal.show{
+
+display:flex;
+
+}
+
+
+
+.modal-content{
+
+background:white;
+
+width:90%;
+
+max-width:900px;
+
+max-height:85vh;
+
+overflow:auto;
+
+border-radius:20px;
+
+padding:30px;
+
+position:relative;
+
+}
+
+
+
+.modal-close{
+
+position:absolute;
+
+right:20px;
+
+top:15px;
+
+border:none;
+
+background:none;
+
+font-size:30px;
+
+cursor:pointer;
+
+}
+
+
+</style>

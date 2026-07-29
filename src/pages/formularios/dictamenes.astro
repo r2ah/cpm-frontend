@@ -5,6 +5,9 @@ import Footer from '../../components/footer_prueba.astro';
 import DictamenForm from '../../components/forms/DictamenForm.astro';
 import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
+
+import EntityDetailsModal from '../../components/modals/EntityDetails.astro';
+import OpinionDetails from '../../components/details/OpinionDetails.astro';
 ---
 
 <Layout
@@ -29,7 +32,14 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
      rows={[]}
     >
       <DictamenForm />
+      
     </TablaConVistas>
+
+<EntityDetailsModal id="entity-modal">
+
+    <OpinionDetails />
+
+</EntityDetailsModal>
 
   </main>
 
@@ -80,7 +90,7 @@ window.loadOpinions = async function () {
 
     localStorage.removeItem("auth_token");
 
-    alert("La sesión ha expirado.");
+    alert("Debe autenticarse.");
 
     window.location.href = "/login";
 
@@ -128,6 +138,13 @@ window.loadOpinions = async function () {
         </td>
 
         <td class="tabla__td">
+
+        <button
+             type="button"
+             class="tabla__action tabla__action--view"
+             data-opinion-view="${opinion.id}">
+             Ver
+          </button>
 
           <button
             type="button"
@@ -179,6 +196,40 @@ window.loadOpinions = async function () {
         });
 
       });
+
+
+    // VER
+  document
+.querySelectorAll("[data-opinion-view]")
+.forEach(btn => {
+
+    btn.addEventListener("click", async () => {
+
+      console.log("CLICK VER", btn.dataset.opinionView);
+      const id = btn.dataset.opinionView;
+      const res = await fetch(`${API}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          Accept: "application/json"
+        }
+      });
+
+      const json = await res.json();
+       
+      console.log("RESPUESTA API:", json);  
+      console.log("DATOS OPINION:", json.data);
+      window.dispatchEvent(
+        new CustomEvent(
+          "show-opinion-details",
+          {
+            detail: json.data
+          }
+        )
+      );
+
+    });
+
+  });  
 
     // ELIMINAR
     document
@@ -348,6 +399,10 @@ body {
 
 .tabla__action:hover {
   opacity: .9;
+}
+
+.tabla__action--view{
+  background: #04553d;
 }
 
 .tabla__action--edit {

@@ -190,19 +190,27 @@ const {
 
         backBtn.addEventListener("click",()=>{
 
-            tabla.classList.remove("is-blur");
+    tabla.classList.remove("is-blur");
 
-            tabla
-                .closest(".tabla-vistas")
-                ?.classList.remove("is-showing-form");
+    tabla
+        .closest(".tabla-vistas")
+        ?.classList.remove("is-showing-form");
 
-            form.classList.remove("is-show");
+    form.classList.remove("is-show");
 
-            form.style.display = "none";
+    form.style.display = "none";
 
-            tabla.removeAttribute("aria-hidden");
+    tabla.removeAttribute("aria-hidden");
 
-        });
+
+    // LIMPIAR MODO EDICIÓN
+    localStorage.removeItem("opinion_edit_id");
+
+    window.dispatchEvent(
+        new Event("dictamen-clear")
+    );
+
+});     
 
     }
 

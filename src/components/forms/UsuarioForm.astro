@@ -5,7 +5,7 @@
 
     <input name="name" placeholder="Nombre" class="form__input" required />
     <input name="email" placeholder="Email" class="form__input" required />
-    <input name="phone" placeholder="Teléfono" class="form__input" />
+    <input name="phone" placeholder="Teléfono" class="form__input" maxlength="8"  pattern="[0-9]{8}" title="Solo números." />
 
 
     
@@ -20,10 +20,10 @@
   <option value="">Comisión</option>
    </select>
 
-    <div id="password-block">
-      <input name="password" type="password" placeholder="Contraseña" class="form__input" />
-      <input name="password_confirmation" type="password" placeholder="Confirmar contraseña" class="form__input" />
-    </div>
+    
+      <input name="password" type="password" placeholder="Contraseña" class="form__input " />
+      <input name="password_confirmation" type="password" placeholder="Confirmar contraseña" class="form__input " />
+  <div id="password-block">  </div>
 
     <button type="submit" class="btn btn--primary">Guardar</button>
 
@@ -244,6 +244,9 @@ form.addEventListener("submit", async (e) => {
   border: 1px solid rgba(0,0,0,0.15);
   font-size: 15px;
   outline: none;
+}
+.w-100{
+  width:95%;
 }
 
 .btn {
