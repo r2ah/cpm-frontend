@@ -125,6 +125,17 @@ id="detail-observations"
 
 </section>
 
+<section class="card">
+
+<h3>Documentos asociados</h3>
+
+<div id="detail-documents">
+
+    No hay documentos.
+
+</div>
+
+</section>
 
 
 <section class="card">
@@ -352,6 +363,56 @@ if(interventionsElement){
 
 }
 
+//DOCUMENTOS
+
+function setDocuments(documents){
+
+    const container =
+    document.getElementById("detail-documents");
+
+    if(!container) return;
+
+    container.innerHTML = "";
+
+    if(!documents || documents.length === 0){
+
+        container.innerHTML =
+        "<p>No hay documentos asociados.</p>";
+
+        return;
+
+    }
+
+    documents.forEach(doc=>{
+
+        const item =
+        document.createElement("div");
+
+        item.className =
+        "document-item";
+
+        item.innerHTML = `
+            <a
+                href="${doc.url}"
+                target="_blank"
+            >
+                ${doc.name}
+            </a>
+
+            <small>
+                (${(doc.size/1024).toFixed(1)} KB)
+            </small>
+        `;
+
+        container.appendChild(item);
+
+    });
+
+}
+setDocuments(
+    o.documents
+);
+
 
 // =========================
 // AUDITORÍA
@@ -408,6 +469,44 @@ margin-bottom:20px;
 margin-top:0;
 
 color:#553304;
+
+}
+
+.document-item{
+
+    padding:8px 0;
+
+    border-bottom:1px solid #eee;
+
+}
+
+.document-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.document-item a{
+
+    color:#0066cc;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.document-item a:hover{
+
+    text-decoration:underline;
+
+}
+
+.document-item small{
+
+    margin-left:8px;
+
+    color:#777;
 
 }
 

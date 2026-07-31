@@ -1,6 +1,9 @@
 ---
 ---
-
+<link 
+rel="stylesheet" 
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
 <section class="dictamen-page">
 
   <form class="dictamen-form" id="opinionForm">
@@ -300,7 +303,33 @@ Micro
 </div>
 
 
+<div class="form__group">
 
+    <label for="documents">
+
+        Documentos asociados
+
+    </label>
+
+    <input
+        type="file"
+        id="documents"
+        name="documents[]"
+        multiple
+        class="form__input"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
+    >
+
+    <small>
+        Puede seleccionar uno o varios archivos.
+    </small>
+
+    <div
+    id="current-documents"
+    class="current-documents"
+    ></div>
+
+</div>
 
 
 
@@ -722,8 +751,116 @@ Guardar Dictamen
 }
 
 
+
+
 </style>
 
+<style is:global>
+
+.current-document{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:8px 12px;
+
+    border:1px solid #ddd;
+
+    border-radius:8px;
+
+    margin-bottom:8px;
+
+}
+
+
+.document-name{
+
+    flex:1;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+
+.document-actions{
+
+    display:flex;
+
+    gap:8px;
+
+    margin-left:15px;
+
+}
+
+
+
+.icon-button{
+
+    width:32px;
+
+    height:32px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+
+.download-document{
+
+    background:#e6f0ff;
+
+    color:#0066cc;
+
+}
+
+
+
+.download-document:hover{
+
+    background:#0066cc;
+
+    color:white;
+
+}
+
+
+
+.btn-remove-document{
+
+    background:#ffe6e6;
+
+    color:#d60000;
+
+}
+
+
+
+.btn-remove-document:hover{
+
+    background:#d60000;
+
+    color:white;
+
+}
+
+</style>
 
 <script is:inline>
 
@@ -733,6 +870,7 @@ const API_OPINIONS =
 `${BACKEND_BASE}/api/v1/opinions`;
 
 let currentOpinionId = null;
+let documentsToDelete = [];
 
 // =====================================
 // FETCH GENERAL CON TOKEN
@@ -740,57 +878,55 @@ let currentOpinionId = null;
 
 async function apiFetch(url, options = {}) {
 
-
     const token =
     localStorage.getItem("auth_token");
 
 
+    const headers = {
+
+        Accept: "application/json",
+
+        Authorization:
+        `Bearer ${token}`,
+
+        ...options.headers
+
+    };
+
+
+    // Solo enviar Content-Type JSON cuando NO sea FormData
+    if (!(options.body instanceof FormData)) {
+
+        headers["Content-Type"] =
+        "application/json";
+
+    }
+
+
     const response =
-    await fetch(
-        url,
-        {
+    await fetch(url, {
 
-            ...options,
+        ...options,
 
-            headers:{
+        headers
 
-                Accept:"application/json",
-
-                Authorization:
-                `Bearer ${token}`,
-
-
-                "Content-Type":
-                "application/json",
-
-
-                ...options.headers
-
-            }
-
-        }
-    );
-
+    });
 
 
     const json =
     await response.json();
 
 
-
-    if(!response.ok){
-
+    if (!response.ok) {
 
         console.error(
             "API ERROR:",
             json
         );
 
-
         throw json;
 
     }
-
 
 
     return json;
@@ -1075,9 +1211,13 @@ new FormData(form);
 
 
 
-// Convertir campos normales
-const data =
-Object.fromEntries(formData);
+// eliminar campos que no se envían
+
+formData.delete("commission_id");
+
+formData.delete("intervention_ids");
+
+formData.delete("intervention_ids[]");
 
 
 
@@ -1092,29 +1232,46 @@ document.getElementById("intervention_ids");
 if(interventionSelect){
 
 
-    data.intervention_ids =
     Array.from(
         interventionSelect.selectedOptions
-    )
-    .map(
-        option => option.value
-    );
+    ).forEach(option=>{
+
+        formData.append(
+            "intervention_ids[]",
+            option.value
+        );
+
+    });
 
 
 }
 
+// =====================================
+// DOCUMENTOS A ELIMINAR
+// =====================================
+
+documentsToDelete.forEach(id=>{
+
+    formData.append(
+        "documents_to_delete[]",
+        id
+    );
+
+});
 
 
-// eliminar campos que no se envían
 
-delete data.commission_id;
+// =====================================
+// DEBUG
+// =====================================
 
+console.log("DATOS ENVIADOS:");
 
+for(const [key,value] of formData.entries()){
 
-console.log(
-"DATOS ENVIADOS:",
-data
-);
+    console.log(key,value);
+
+}
 
 
 
@@ -1153,9 +1310,8 @@ url,
 
 method,
 
-
 body:
-JSON.stringify(data)
+formData
 
 }
 );
@@ -1216,7 +1372,6 @@ error
 
 
 }
-
 // =====================================
 // AUTO GROW TEXTAREA
 // =====================================
@@ -1313,7 +1468,7 @@ async (event)=>{
 const id = event.detail.id;
 
 currentOpinionId = id;
-
+documentsToDelete = [];
 
 try{
 
@@ -1328,7 +1483,9 @@ const opinion = response.data;
 
 console.log(opinion);
 
-
+renderCurrentDocuments(
+    opinion.documents ?? []
+);
 
 document.getElementById("address").value =
     opinion.address ?? "";
@@ -1518,7 +1675,7 @@ window.addEventListener(
 ()=>{
 
     currentOpinionId = null;
-
+    documentsToDelete = [];
 
     const form =
     document.getElementById("opinionForm");
@@ -1527,9 +1684,10 @@ window.addEventListener(
     if(form){
 
         form.reset();
+        
 
     }
-
+    renderCurrentDocuments([]);
 
     console.log(
         "Formulario limpio, modo nuevo"
@@ -1538,4 +1696,176 @@ window.addEventListener(
 });
 
 
+function renderCurrentDocuments(documents){
+
+    const container =
+    document.getElementById(
+        "current-documents"
+    );
+
+
+    if(!container) return;
+
+
+    container.innerHTML = "";
+
+
+    if(!documents || documents.length === 0){
+
+        container.innerHTML =
+        "<p>No hay documentos asociados.</p>";
+
+        return;
+
+    }
+
+
+
+    documents.forEach(doc=>{
+
+
+        const div =
+        document.createElement("div");
+
+
+        div.className =
+        "current-document";
+
+
+
+        div.innerHTML = `
+
+
+
+    <span class="document-name">
+        ${doc.name}
+    </span>
+
+
+    <div class="document-actions">
+
+        <button
+            type="button"
+            class="download-document icon-button"
+            data-id="${doc.id}"
+            title="Descargar documento"
+        >
+            <i class="fa-solid fa-download"></i>
+        </button>
+
+
+        <button
+            type="button"
+            class="btn-remove-document icon-button"
+            data-id="${doc.id}"
+            title="Eliminar documento"
+        >
+            <i class="fa-solid fa-trash"></i>
+        </button>
+
+    </div>
+
+
+
+`;
+
+
+
+        container.appendChild(div);
+
+
+
+        div
+        .querySelector(".btn-remove-document")
+        .addEventListener(
+            "click",
+            ()=>{
+
+
+                documentsToDelete.push(
+                    doc.id
+                );
+
+
+                div.remove();
+
+
+                console.log(
+                    "Documentos a eliminar:",
+                    documentsToDelete
+                );
+
+
+            }
+        );
+
+
+    });
+
+}
+
+
+
+document.addEventListener(
+"click",
+async(e)=>{
+
+
+if(
+!e.target.classList.contains(
+"download-document"
+)
+)
+return;
+
+
+
+const id =
+e.target.dataset.id;
+
+
+
+const response =
+await fetch(
+`${BACKEND_BASE}/api/v1/opinion-documents/${id}/download`,
+{
+headers:{
+Authorization:
+`Bearer ${localStorage.getItem("auth_token")}`
+}
+}
+);
+
+
+
+const blob =
+await response.blob();
+
+
+
+const url =
+URL.createObjectURL(blob);
+
+
+
+const a =
+document.createElement("a");
+
+
+a.href=url;
+
+
+a.download =
+"documento";
+
+
+a.click();
+
+
+
+URL.revokeObjectURL(url);
+
+
+
+});
 </script>
