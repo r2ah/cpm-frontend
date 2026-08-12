@@ -229,11 +229,17 @@ const BACKEND_BASE = getBackendBase();
       try {
         console.log('LOGIN_PAYLOAD', { email, passwordLen: password?.length });
 
-        const res = await fetch(`${BACKEND_BASE}/api/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
+        const res = await fetch(`${BACKEND_BASE}/api/v1/login`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+        email,
+        password
+    })
+});
 
         const data = await res.json().catch(() => null);
 

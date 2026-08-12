@@ -26,7 +26,7 @@ import HamburgerButton from './HamburgerButton.astro';
     <!-- CENTER -->
     <div class="site-header__center">
       <nav class="site-header__nav" aria-label="Navegación">
-        <Menu />
+       <Menu />
       </nav>
     </div>
 
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileWrap = document.getElementById('site-header-profile');
     if (profileWrap) profileWrap.style.display = 'flex';
     if (emailEl && authUser?.email) {
-      emailEl.textContent = authUser.email;
+      emailEl.textContent = authUser.name;
     }
     authLink.href = '#';
     authText.textContent = 'Cerrar Sesión';

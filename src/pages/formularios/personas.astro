@@ -8,7 +8,7 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
 import Confirm from '../../components/Delete-confirm.astro';
 ---
 
-<Layout title="Form Persona" bodyClass="body--light">
+<Layout title="Personas" bodyClass="body--light">
 
   <Header />
   <FormTabs/>
@@ -20,6 +20,7 @@ import Confirm from '../../components/Delete-confirm.astro';
         { key: 'col1', header: 'Nombre' },
         { key: 'col2', header: 'Email' },
         { key: 'col3', header: 'Teléfono' },
+        { key: 'col4', header: 'Tipo' },
         { key: 'acciones', header: 'Acciones' }
       ]}
       rows={[]}
@@ -51,13 +52,41 @@ import Confirm from '../../components/Delete-confirm.astro';
 </Layout>
 
 <script type="module">
-const API = "http://localhost:8000/api/people";
+const API = "http://localhost:8000/api/v1/people";
 
 async function loadPeople() {
-  const res = await fetch(API);
+
+  const res = await fetch(
+    `${API}?all=true`,
+    {
+      headers:{
+        Accept:"application/json",
+
+        Authorization:
+        `Bearer ${localStorage.getItem("auth_token")}`
+      }
+    }
+  );
+  if (res.status === 401) {
+
+    localStorage.removeItem("auth_token");
+
+    alert("Debe autenticarse.");
+
+    window.location.href = "/login";
+
+    return;
+}
+
+
   const json = await res.json();
 
+  console.log("PERSONAS:", json);
+
+
   const items = json?.data ?? [];
+
+ 
 
   const tbody = document.querySelector(".tabla__table tbody");
   if (!tbody) return;
@@ -68,7 +97,9 @@ async function loadPeople() {
       <td class="tabla__td">${p.name ?? ""}</td>
       <td class="tabla__td">${p.email ?? ""}</td>
       <td class="tabla__td">${p.phone ?? "-"}</td>
-
+       <td class="tabla__td">
+  ${p.is_natural_person ? " Natural" : " Jurídica"}
+</td>
       <td class="tabla__td tabla__td--actions">
         <div class="tabla__actions">
 
@@ -134,16 +165,42 @@ cancelBtn.addEventListener("click", () => {
 
 // confirmar eliminación
 confirmBtn.addEventListener("click", async () => {
-  if (!deleteId) return;
 
-  await fetch(`${API}/${deleteId}`, {
-    method: "DELETE"
-  });
+    if (!deleteId) return;
 
-  deleteId = null;
-  modal.classList.add("hidden");
+    const response = await fetch(`${API}/${deleteId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+            Accept: "application/json"
+        }
+    });
 
-  loadPeople(); // refresca tabla
+    if (response.status === 401) {
+
+        localStorage.removeItem("auth_token");
+
+        alert("La sesión ha expirado.");
+
+        window.location.href = "/login";
+
+        return;
+    }
+
+    if (!response.ok) {
+
+        const data = await response.json().catch(() => null);
+
+        alert(data?.message ?? "No se pudo eliminar la persona.");
+
+        return;
+    }
+
+    deleteId = null;
+
+    modal.classList.add("hidden");
+
+    loadPeople();
 });
 }
 

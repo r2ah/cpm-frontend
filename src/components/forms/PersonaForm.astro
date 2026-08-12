@@ -16,7 +16,14 @@
 
     <div class="form__group">
       <label class="form__label">Teléfono</label>
-      <input name="phone" class="form__input" type="text" placeholder="+53 ########" />
+      <input name="phone" class="form__input" type="text" placeholder="+53 ########" maxlength="13"  pattern="^(?:\+53[- ]?)?(?:[0-9]{8}|[0-9]{4}-[0-9]{4})$" title="Solo números." />
+    </div>
+
+    <div class="form__group">
+      <label class="form__label">
+      <input type="checkbox" name="is_natural_person" value="1">
+       Persona natural
+     </label>
     </div>
 
     <button class="btn btn--primary" type="submit">
@@ -77,8 +84,11 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
     if (!id) return;
 
     showStatus('Cargando persona...');
-    const res = await apiFetch(`${BACKEND_BASE}/api/people/${id}`);
+    const res = await apiFetch(`${BACKEND_BASE}/api/v1/people/${id}`);
     const p = res?.data ?? res;
+
+    const checkbox = form.querySelector('[name="is_natural_person"]');
+    checkbox.checked = Boolean(p?.is_natural_person);
 
     const nameInput = form?.querySelector('input[name="name"]');
     const emailInput = form?.querySelector('input[name="email"]');
@@ -125,16 +135,18 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         showStatus('Guardando...');
 
         const fd = new FormData(form);
-        const payload = {
-          name: String(fd.get('name') ?? ''),
-          email: String(fd.get('email') ?? ''),
-          phone: fd.get('phone') ? String(fd.get('phone')) : null,
-        };
+
+         const payload = {
+  name: form.elements.name.value,
+  email: form.elements.email.value,
+  phone: form.elements.phone.value,
+  is_natural_person: form.elements.is_natural_person.checked
+};
 
         const editId = getEditId();
 
         if (editId) {
-          await apiFetch(`${BACKEND_BASE}/api/people/${editId}`, {
+          await apiFetch(`${BACKEND_BASE}/api/v1/people/${editId}`, {
             method: 'PUT',
             body: JSON.stringify(payload),
           });
@@ -142,7 +154,7 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
           showStatus('Persona actualizada ✅');
           setEditId(null);
         } else {
-          await apiFetch(`${BACKEND_BASE}/api/people`, {
+          await apiFetch(`${BACKEND_BASE}/api/v1/people`, {
             method: 'POST',
             body: JSON.stringify(payload),
           });
@@ -155,6 +167,24 @@ console.debug('BACKEND_BASE', BACKEND_BASE);
         showStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
       }
     });
+
+
+const phoneInput = form.querySelector("[name='phone']");
+
+phoneInput?.addEventListener("input", () => {
+
+    // Permitir solo números, +, espacio y guión
+    phoneInput.value = phoneInput.value.replace(
+        /[^0-9+\- ]/g,
+        ""
+    );
+
+    // Longitud máxima según el formato más largo: +53-1234-5678
+    if (phoneInput.value.length > 13) {
+        phoneInput.value = phoneInput.value.slice(0, 13);
+    }
+
+});
   
 </script>
 

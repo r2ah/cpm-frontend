@@ -1,71 +1,230 @@
 <section class="form-card">
+  <h2 class="form-card__title">Usuario</h2>
 
-  <h2 class="form-card__title">Registrar Usuario</h2>
+  <form id="user-form" class="form">
 
-  <form class="form">
+    <input name="name" placeholder="Nombre" class="form__input" required />
+    <input name="email" placeholder="Email" class="form__input" required />
+    <input name="phone" placeholder="Teléfono" class="form__input" maxlength="8"  pattern="[0-9]{8}" title="Solo números." />
 
-    <div class="form__group">
-      <label class="form__label">Nombre</label>
-      <input class="form__input" type="text" placeholder="Nombre completo" required />
-    </div>
 
-    <div class="form__group">
-      <label class="form__label">Email</label>
-      <input class="form__input" type="email" placeholder="correo@ejemplo.com" required />
-    </div>
+    
 
-    <div class="form__group">
-      <label class="form__label">Teléfono</label>
-      <input class="form__input" type="text" placeholder="+53 ########" />
-    </div>
+    <!-- UI SOLO (NO SE ENVÍA AL BACKEND) -->
+    <select name="role" class="form__input">
+      <option value="">Rol (solo visual)</option>
+      <option value="admin">Admin</option>
+      <option value="editor">Editor</option>
+    </select>
+    <select id="commission_id" name="commission_id" class="form__input">
+  <option value="">Comisión</option>
+   </select>
 
-    <!-- 🔐 Contraseña -->
-    <div class="form__group">
-      <label class="form__label">Contraseña</label>
-      <input class="form__input" type="password" placeholder="••••••••" required />
-    </div>
+    
+      <input name="password" type="password" placeholder="Contraseña" class="form__input " />
+      <input name="password_confirmation" type="password" placeholder="Confirmar contraseña" class="form__input " />
+  <div id="password-block">  </div>
 
-    <!-- 👤 Rol -->
-    <div class="form__group">
-      <label class="form__label">Rol</label>
-      <select class="form__input" required>
-        <option value="">Selecciona un rol</option>
-        <option value="admin">Administrador</option>
-        <option value="usuario">Usuario</option>
-        <option value="editor">Editor</option>
-      </select>
-    </div>
+    <button type="submit" class="btn btn--primary">Guardar</button>
 
-    <button class="btn btn--primary" type="submit">
-      Guardar
-    </button>
-
+    <p id="user-status"></p>
   </form>
-
 </section>
 
+<script type="module">
+const API = "http://localhost:8000/api/v1/users";
+
+const form = document.getElementById("user-form");
+const status = document.getElementById("user-status");
+
+let editId = null;
+
+
+
+const commissionSelect =
+    document.getElementById("commission_id");
+
+async function loadCommissions(){
+
+  const res = await fetch(
+    "http://localhost:8000/api/v1/commissions?all=true",
+    {
+      headers:{
+        Authorization:
+        `Bearer ${localStorage.getItem("auth_token")}`
+      }
+    }
+  );
+
+  const json = await res.json();
+
+  const commissions =
+      json.data ?? [];
+
+
+  commissionSelect.innerHTML =
+    `
+    <option value="">
+      Seleccione comisión
+    </option>
+    `;
+
+
+  commissions.forEach(c=>{
+
+    commissionSelect.innerHTML +=
+    `
+    <option value="${c.id}">
+      ${c.name}
+    </option>
+    `;
+
+  });
+
+}    
+
+/* =========================
+   LIMPIAR FORM
+========================= */
+function clearForm() {
+  form.reset();
+  form.querySelectorAll("input").forEach(el => {
+    el.value = "";
+});
+
+form.querySelectorAll("select").forEach(el => {
+    if(el.name !== "commission_id"){
+        el.value = "";
+    }
+});
+  status.textContent = "";
+}
+
+/* =========================
+   NUEVO
+========================= */
+loadCommissions();
+window.addEventListener("user-new", () => {
+  editId = null;
+  clearForm();
+});
+
+/* =========================
+   EDITAR
+========================= */
+window.addEventListener("user-edit", async (e) => {
+
+  editId = Number(e.detail.id);
+
+  console.log("EDITANDO USUARIO:", editId);
+
+
+  const res = await fetch(`${API}/${editId}`, {
+    headers: {
+      Authorization:
+      `Bearer ${localStorage.getItem("auth_token")}`
+    }
+  });
+
+
+  const json = await res.json();
+
+  const u = json?.data;
+
+
+  console.log("USUARIO EDITAR:", u);
+
+
+  clearForm();
+
+
+  form.querySelector("[name='name']").value =
+      u?.name ?? "";
+
+  form.querySelector("[name='email']").value =
+      u?.email ?? "";
+
+  form.querySelector("[name='phone']").value =
+      u?.phone ?? "";
+
+
+  form.querySelector("[name='role']").value =
+      u?.roles?.[0] ?? "";
+
+
+  commissionSelect.value =
+      u?.commissions?.[0]?.id ?? "";
+
+
+});
+
+/* =========================
+   SUBMIT
+========================= */
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  console.log("EDIT ID AL GUARDAR:", editId);
+  
+  const fd = new FormData(form);
+  const payload = Object.fromEntries(fd);
+ console.log("PAYLOAD:", payload);
+  const isEdit = !!editId;
+
+  const url = isEdit
+    ? `${API}/${editId}`
+    : API;
+
+  const method = isEdit ? "PUT" : "POST";
+
+  
+
+  // 🔥 password opcional en edición
+  if (isEdit && !payload.password) {
+    delete payload.password;
+    delete payload.password_confirmation;
+  }
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    status.textContent = data.message || "Error";
+    return;
+  }
+
+  status.textContent = "Guardado ✔";
+
+  editId = null;
+  clearForm();
+
+  window.loadUsers?.();
+  window.location.reload();
+});
+</script>
+
 <style>
-
-
 .form-card {
   width: 100%;
   max-width: 420px;
-  
   margin: 0 auto;
-  text-align: center;
-  margin-top:0px;
   padding: 30px;
   border-radius: 20px;
-
   background: #fff;
-  box-shadow: 0 4px 20px #5a3506;;
-
+  box-shadow: 0 4px 20px #5a3506;
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* TITULO COMO LOGIN */
 .form-card__title {
   font-size: 32px;
   font-weight: 400;
@@ -73,62 +232,34 @@
   margin: 0;
 }
 
-/* FORM */
 .form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* FIELD */
-.form__group {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  gap: 6px;
-}
-
-.form__label {
-  font-size: 13px;
-  color: #444;
-}
-
-/* INPUT (MISMO ESTILO LOGIN) */
 .form__input {
   padding: 12px;
   border-radius: 12px;
-
   border: 1px solid rgba(0,0,0,0.15);
-  background: rgba(255,255,255,0.95);
-
   font-size: 15px;
   outline: none;
 }
-
-.form__input::placeholder {
-  font-size: 14px;
-  color: rgba(0,0,0,0.45);
+.w-100{
+  width:95%;
 }
 
-/* BOTÓN IGUAL ESTILO LOGIN */
 .btn {
   width: 100%;
   padding: 14px;
   border-radius: 19px;
   border: none;
   cursor: pointer;
-
   font-weight: 800;
-  font-size: 15px;
 }
 
 .btn--primary {
   background: #553304;
   color: #fff;
 }
-
-.btn--primary:hover {
-  opacity: 0.9;
-}
-
 </style>

@@ -1,146 +1,601 @@
 ---
 ---
-
+<link 
+rel="stylesheet" 
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
 <section class="dictamen-page">
 
-  <form class="dictamen-form">
+  <form class="dictamen-form" id="opinionForm">
 
-    <!-- DICTAMEN -->
-    <div class="form-card">
-      <h2 class="form-card__title">Dictamen</h2>
 
-      <div class="form">
+<!-- DICTAMEN -->
+<div class="form-card">
 
-        <div class="form__group">
-          <label class="form__label">Dirección</label>
-          <input class="form__input" type="text" placeholder="Dirección" />
-        </div>
+<h2 class="form-card__title">
+Dictamen
+</h2>
 
-        <div class="form__group">
-          <label class="form__label">Localización</label>
-          <input class="form__input" type="text" placeholder="Localización" />
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Proyectista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
+<div class="form">
 
-        <div class="form__group">
-          <label class="form__label">Fecha</label>
-          <input class="form__input" type="date" />
-        </div>
 
-      </div>
-    </div>
+<div class="form__group">
+<label class="form__label">
+Dirección
+</label>
 
-    <!-- ESTADOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Estado del Proyecto</h2>
+<input
+id="address"
+name="address"
+class="form__input"
+type="text"
+placeholder="Dirección"
+required
+/>
 
-      <div class="form">
+</div>
 
-        <div class="form__group">
-          <label class="form__label">Inversionista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Contratista</label>
-          <select class="form__input">
-            <option>Seleccione...</option>
-          </select>
-        </div>
 
-        <div class="form__group">
-          <label class="form__label">Estado</label>
-          <select class="form__input">
-            <option>Elaborado</option>
-            <option>Revisado</option>
-            <option>Aprobado</option>
-            <option>Denegado</option>
-          </select>
-        </div>
+<div class="form__group">
 
-      </div>
-    </div>
+<label class="form__label">
+Entidad
+</label>
 
-    <!-- MEDIOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Medios Asociados</h2>
+<input
+id="entity"
+name="entity"
+class="form__input"
+type="number"
+required
+/>
 
-      <div class="form">
+</div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="Emisor" />
-        </div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="Localización" />
-        </div>
 
-        <div class="form__group">
-          <input class="form__input" type="text" placeholder="DUS / Micro" />
-        </div>
 
-        <div class="form__group">
-          <select class="form__input">
-            <option>Intervenciones</option>
-          </select>
-        </div>
+<div class="form__group">
 
-      </div>
-    </div>
+<label class="form__label">
+Proyectista
+</label>
 
-    <!-- USUARIOS -->
-    <div class="form-card">
-      <h2 class="form-card__title">Usuarios</h2>
+<select
+id="designer_id"
+name="designer_id" required
+class="form__input">
 
-      <div class="form">
+<option value="">
+Seleccione...
+</option>
 
-        <div class="form__group">
-          <label class="form__label">Elaborado por</label>
-          <input class="form__input" type="text" />
-        </div>
+</select>
 
-        <div class="form__group">
-          <label class="form__label">Aprobado por</label>
-          <input class="form__input" type="text" />
-        </div>
+</div>
 
-        <div class="form__group">
-          <label class="form__label">Revisado por</label>
-          <input class="form__input" type="text" />
-        </div>
 
-      </div>
-    </div>
 
-    <!-- OBSERVACIONES -->
-    <div class="form-card">
-      <h2 class="form-card__title">Observaciones</h2>
 
-      <div class="form__group">
-        <textarea class="form__input textarea auto-grow"></textarea>
-      </div>
+<div class="form__group">
 
-      <div class="form__group">
-        <textarea class="form__input textarea auto-grow"></textarea>
-      </div>
-    </div>
+<label class="form__label">
+Fecha
+</label>
 
-    <!-- BOTÓN -->
-    <div class="form-card submit-card">
-      <button class="btn btn--primary" type="submit">
-        Guardar Dictamen
-      </button>
-    </div>
+<input
+id="date"
+name="date"
+class="form__input"
+type="date"
+required
+/>
 
-  </form>
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- ESTADOS -->
+
+<div class="form-card">
+
+<h2 class="form-card__title">
+Estado del Proyecto
+</h2>
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Inversionista
+</label>
+
+
+<select
+id="investor_id"
+name="investor_id"
+required
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Contratista
+</label>
+
+
+<select
+id="builder_id"
+name="builder_id"
+required
+class="form__input">
+
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Estado
+</label>
+
+
+<select
+id="state"
+name="state"
+required
+class="form__input">
+
+
+<option value="Elaborado">
+Elaborado
+</option>
+
+
+<option value="Revisado">
+Revisado
+</option>
+
+
+<option value="Aprobado">
+Aprobado
+</option>
+
+
+<option value="Denegado">
+Denegado
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- MEDIOS -->
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Medios Asociados
+</h2>
+
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Autoridad emisora
+</label>
+
+
+<select
+id="issuing_company"
+name="issuing_company"
+required
+class="form__input">
+
+
+<option>
+Seleccione...
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Código documento
+</label>
+
+
+<select
+id="issuing_document_code"
+name="issuing_document_code"
+required
+class="form__input">
+
+
+<option value="DUS">
+DUS
+</option>
+
+
+<option value="DO">
+DO
+</option>
+
+
+<option value="Micro">
+Micro
+</option>
+
+
+
+</select>
+
+
+</div>
+
+
+<div class="form__group">
+
+    <label for="documents">
+
+        Documentos asociados
+
+    </label>
+
+    <input
+        type="file"
+        id="documents"
+        name="documents[]"
+        multiple
+        class="form__input"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
+    >
+
+    <small>
+        Puede seleccionar uno o varios archivos.
+    </small>
+
+    <div
+    id="current-documents"
+    class="current-documents"
+    ></div>
+
+</div>
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Características generales
+</label>
+
+
+<textarea
+
+id="general_characteristics"
+
+name="general_characteristics"
+
+class="form__input textarea auto-grow"
+required
+
+></textarea>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- USUARIOS -->
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Usuarios
+</h2>
+
+
+
+<div class="form">
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Elaborado por
+</label>
+
+
+<select
+id="prepared_by"
+name="prepared_by"
+required
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Revisado por
+</label>
+
+
+<select
+id="reviewed_by"
+name="reviewed_by"
+required
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+<label class="form__label">
+Aprobado por
+</label>
+
+
+<select
+id="approved_by"
+name="approved_by"
+required
+class="form__input">
+
+<option>
+Seleccione...
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+<!-- OBSERVACIONES -->
+
+
+<div class="form-card">
+
+
+<h2 class="form-card__title">
+Observaciones
+</h2>
+
+
+
+<div class="form__group">
+
+
+<textarea
+
+id="considerations"
+
+name="considerations"
+
+placeholder="Consideraciones" required
+
+class="form__input textarea auto-grow">
+
+</textarea>
+
+
+</div>
+
+
+
+
+
+<div class="form__group">
+
+
+<textarea
+
+id="observations"
+
+name="observations"
+
+placeholder="Observaciones"
+
+required
+
+class="form__input textarea auto-grow">
+
+</textarea>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- DATOS OCULTOS -->
+
+<!--<input
+type="hidden"
+id="commission_id"
+name="commission_id"
+/>-->
+
+
+
+<div class="form-card submit-card">
+
+
+<div class="form__group">
+
+<label>
+Intervenciones
+</label>
+
+
+<select
+id="intervention_ids"
+name="intervention_ids[]"
+class="form__input"
+multiple
+size="5"
+>
+</select>
+
+
+</select>
+
+</div>
+
+
+</div>
+
+<!-- BOTÓN -->
+
+
+<div class="form-card submit-card">
+
+
+<button
+
+class="btn btn--primary"
+
+type="submit">
+
+
+Guardar Dictamen
+
+
+</button>
+
+
+</div>
+
+
+
+</form>
 
 </section>
 
@@ -296,4 +751,1121 @@
 }
 
 
+
+
 </style>
+
+<style is:global>
+
+.current-document{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:8px 12px;
+
+    border:1px solid #ddd;
+
+    border-radius:8px;
+
+    margin-bottom:8px;
+
+}
+
+
+.document-name{
+
+    flex:1;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+
+.document-actions{
+
+    display:flex;
+
+    gap:8px;
+
+    margin-left:15px;
+
+}
+
+
+
+.icon-button{
+
+    width:32px;
+
+    height:32px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+
+.download-document{
+
+    background:#e6f0ff;
+
+    color:#0066cc;
+
+}
+
+
+
+.download-document:hover{
+
+    background:#0066cc;
+
+    color:white;
+
+}
+
+
+
+.btn-remove-document{
+
+    background:#ffe6e6;
+
+    color:#d60000;
+
+}
+
+
+
+.btn-remove-document:hover{
+
+    background:#d60000;
+
+    color:white;
+
+}
+
+</style>
+
+<script is:inline>
+
+const BACKEND_BASE = "http://localhost:8000";
+
+const API_OPINIONS =
+`${BACKEND_BASE}/api/v1/opinions`;
+
+let currentOpinionId = null;
+let documentsToDelete = [];
+
+// =====================================
+// FETCH GENERAL CON TOKEN
+// =====================================
+
+async function apiFetch(url, options = {}) {
+
+    const token =
+    localStorage.getItem("auth_token");
+
+
+    const headers = {
+
+        Accept: "application/json",
+
+        Authorization:
+        `Bearer ${token}`,
+
+        ...options.headers
+
+    };
+
+
+    // Solo enviar Content-Type JSON cuando NO sea FormData
+    if (!(options.body instanceof FormData)) {
+
+        headers["Content-Type"] =
+        "application/json";
+
+    }
+
+
+    const response =
+    await fetch(url, {
+
+        ...options,
+
+        headers
+
+    });
+
+
+    const json =
+    await response.json();
+
+
+    if (!response.ok) {
+
+        console.error(
+            "API ERROR:",
+            json
+        );
+
+        throw json;
+
+    }
+
+
+    return json;
+
+}
+
+// =====================================
+// CARGAR PERSONAS
+// =====================================
+
+async function loadPeople(){
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/people?all=true`
+        );
+
+
+        const people =
+        response.data ?? response;
+
+
+        fillSelect(
+            "designer_id",
+            people,
+            "Seleccione proyectista"
+        );
+
+
+        fillSelect(
+            "investor_id",
+            people,
+            "Seleccione inversionista"
+        );
+
+
+        fillSelect(
+            "builder_id",
+            people,
+            "Seleccione contratista"
+        );
+
+
+    } catch(error){
+
+        console.error(
+            "Error cargando personas:",
+            error
+        );
+
+    }
+
+}
+
+// =====================================
+// CARGAR INTERVENCIONES
+// =====================================
+
+async function loadInterventions(){
+
+
+    try{
+
+
+        const response =
+        await apiFetch(
+            `${BACKEND_BASE}/api/v1/interventions?all=true`
+        );
+
+
+        fillSelect(
+            "intervention_ids",
+            response.data,
+            "Seleccione intervenciones"
+        );
+
+
+    }catch(error){
+
+
+        console.error(
+            "Error cargando intervenciones:",
+            error
+        );
+
+
+    }
+
+}
+loadInterventions();
+
+// =====================================
+// CARGAR USUARIOS
+// =====================================
+
+async function loadUsers(){
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/users?all=true`
+        );
+
+
+        const users =
+        response.data ?? response;
+
+
+
+        fillSelect(
+            "prepared_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+        fillSelect(
+            "reviewed_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+        fillSelect(
+            "approved_by",
+            users,
+            "Seleccione usuario"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+// =====================================
+// CARGAR AUTORIDADES
+// =====================================
+
+async function loadAuthorities(){
+
+    try {
+
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/authorities?all=true`
+        );
+
+
+        const authorities =
+        response.data ?? response;
+
+
+
+        fillSelect(
+            "issuing_company",
+            authorities,
+            "Seleccione autoridad"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error cargando autoridades:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+// =====================================
+// LLENAR SELECTS
+// =====================================
+
+function fillSelect(
+    id,
+    items,
+    placeholder
+){
+
+    const select =
+    document.getElementById(id);
+
+
+    if(!select){
+
+        console.warn(
+            "No existe:",
+            id
+        );
+
+        return;
+
+    }
+
+
+
+    select.innerHTML = "";
+
+
+
+    if(!select.multiple){
+
+        select.innerHTML =
+        `
+        <option value="">
+            ${placeholder}
+        </option>
+        `;
+
+    }
+
+
+
+    items.forEach(item=>{
+
+
+        const option =
+        document.createElement("option");
+
+
+        option.value =
+        item.id;
+
+
+        option.textContent =
+        item.name ??
+        item.full_name ??
+        item.description ??
+        `ID ${item.id}`;
+
+
+        select.appendChild(option);
+
+
+    });
+
+}
+
+
+
+
+// =====================================
+// GUARDAR DICTAMEN
+// =====================================
+
+const form =
+document.getElementById("opinionForm");
+
+
+if(form){
+
+
+form.addEventListener(
+"submit",
+async(e)=>{
+
+
+e.preventDefault();
+
+
+
+const formData =
+new FormData(form);
+
+
+
+// eliminar campos que no se envían
+
+formData.delete("commission_id");
+
+formData.delete("intervention_ids");
+
+formData.delete("intervention_ids[]");
+
+
+
+// =====================================
+// INTERVENCIONES MULTIPLES
+// =====================================
+
+const interventionSelect =
+document.getElementById("intervention_ids");
+
+
+if(interventionSelect){
+
+
+    Array.from(
+        interventionSelect.selectedOptions
+    ).forEach(option=>{
+
+        formData.append(
+            "intervention_ids[]",
+            option.value
+        );
+
+    });
+
+
+}
+
+// =====================================
+// DOCUMENTOS A ELIMINAR
+// =====================================
+
+documentsToDelete.forEach(id=>{
+
+    formData.append(
+        "documents_to_delete[]",
+        id
+    );
+
+});
+
+
+
+// =====================================
+// DEBUG
+// =====================================
+
+console.log("DATOS ENVIADOS:");
+
+for(const [key,value] of formData.entries()){
+
+    console.log(key,value);
+
+}
+
+
+
+let url =
+API_OPINIONS;
+
+
+
+let method =
+"POST";
+
+
+
+if(currentOpinionId){
+
+
+    url =
+    `${API_OPINIONS}/${currentOpinionId}`;
+
+
+    method =
+    "PUT";
+
+}
+
+
+
+
+try{
+
+
+const response =
+await apiFetch(
+url,
+{
+
+method,
+
+body:
+formData
+
+}
+);
+
+
+
+console.log(
+"RESPUESTA:",
+response
+);
+
+
+
+form.reset();
+
+
+currentOpinionId = null;
+
+
+localStorage.removeItem(
+"opinion_edit_id"
+);
+
+
+
+// cerrar formulario
+
+document
+.querySelector("[data-back]")
+?.click();
+
+
+
+// actualizar tabla
+
+if(window.loadOpinions){
+
+    await window.loadOpinions();
+
+}
+
+
+
+}catch(error){
+
+
+console.error(
+"Error guardando dictamen:",
+error
+);
+
+
+}
+
+
+
+});
+
+
+}
+// =====================================
+// AUTO GROW TEXTAREA
+// =====================================
+
+
+document
+.querySelectorAll(
+"textarea.auto-grow"
+)
+.forEach((textarea)=>{
+
+
+const resize = ()=>{
+
+textarea.style.height =
+"auto";
+
+
+textarea.style.height =
+textarea.scrollHeight + "px";
+
+};
+
+
+
+textarea.addEventListener(
+"input",
+resize
+);
+
+
+
+resize();
+
+
+
+});
+
+
+
+async function loadOpinions() {
+
+    try {
+
+        const response = await apiFetch(
+            `${BACKEND_BASE}/api/v1/opinions?all=true`
+        );
+
+        console.log("DICTAMENES:", response.data);
+
+    } catch (error) {
+
+        console.error("Error cargando dictámenes", error);
+
+    }
+
+}
+
+// =====================================
+// INICIALIZAR
+// =====================================
+
+
+async function initDictamen(){
+
+    await loadPeople();
+
+    await loadUsers();
+
+    await loadAuthorities();
+
+    await loadInterventions();
+
+
+    console.log(
+        "SELECTS CARGADOS"
+    );
+
+}
+
+
+initDictamen();
+
+
+// =====================================
+// EDITAR DICTAMEN
+// =====================================
+
+window.addEventListener(
+"opinion-edit",
+async (event)=>{
+
+
+const id = event.detail.id;
+
+currentOpinionId = id;
+documentsToDelete = [];
+
+try{
+
+
+const response = await apiFetch(
+`${API_OPINIONS}/${id}`
+);
+
+
+const opinion = response.data;
+
+
+console.log(opinion);
+
+renderCurrentDocuments(
+    opinion.documents ?? []
+);
+
+document.getElementById("address").value =
+    opinion.address ?? "";
+
+
+document.getElementById("entity").value =
+    opinion.entity ?? "";
+
+
+
+/*
+==============================
+ SELECT PERSONAS
+==============================
+*/
+
+document.getElementById("designer_id").value =
+    opinion.designer?.id ?? "";
+
+
+document.getElementById("investor_id").value =
+    opinion.investor?.id ?? "";
+
+
+document.getElementById("builder_id").value =
+    opinion.builder?.id ?? "";
+
+
+
+/*
+==============================
+ FECHA Y ESTADO
+==============================
+*/
+
+
+document.getElementById("date").value =
+    opinion.date
+    ? opinion.date.substring(0,10)
+    : "";
+
+
+document.getElementById("state").value =
+    opinion.state ?? "";
+
+
+
+/*
+==============================
+ AUTORIDAD
+==============================
+*/
+
+
+document.getElementById("issuing_company").value =
+    opinion.issuing_company?.id ?? "";
+
+
+document.getElementById("issuing_document_code").value =
+    opinion.issuing_document_code ?? "";
+
+/*
+==============================
+ INTERVENCIONES
+==============================
+*/
+
+const interventionSelect =
+document.getElementById("intervention_ids");
+
+
+if(
+    interventionSelect &&
+    opinion.interventions
+){
+
+
+    const selectedIds =
+    opinion.interventions.map(
+        intervention => String(intervention.id)
+    );
+
+
+    Array.from(
+        interventionSelect.options
+    )
+    .forEach(option=>{
+
+
+        option.selected =
+        selectedIds.includes(
+            option.value
+        );
+
+
+    });
+
+
+    console.log(
+        "INTERVENCIONES SELECCIONADAS:",
+        selectedIds
+    );
+
+}
+
+/*
+==============================
+ TEXTO
+==============================
+*/
+
+
+document.getElementById("general_characteristics").value =
+    opinion.general_characteristics ?? "";
+
+
+document.getElementById("considerations").value =
+    opinion.considerations ?? "";
+
+
+document.getElementById("observations").value =
+    opinion.observations ?? "";
+
+
+
+/*
+==============================
+ USUARIOS
+==============================
+*/
+
+
+document.getElementById("prepared_by").value =
+    opinion.prepared_by?.id ?? "";
+
+
+document.getElementById("reviewed_by").value =
+    opinion.reviewed_by?.id ?? "";
+
+
+document.getElementById("approved_by").value =
+    opinion.approved_by?.id ?? "";
+
+
+
+/*
+==============================
+ Ajustar textarea
+==============================
+*/
+
+
+document
+.querySelectorAll("textarea.auto-grow")
+.forEach(t=>{
+
+    t.style.height="auto";
+
+    t.style.height =
+    t.scrollHeight+"px";
+
+});
+
+
+
+}catch(error){
+
+
+console.error(
+"Error cargando dictamen:",
+error
+);
+
+
+alert(
+"No se pudo cargar el dictamen."
+);
+
+
+}
+
+
+});
+
+window.addEventListener(
+"dictamen-clear",
+()=>{
+
+    currentOpinionId = null;
+    documentsToDelete = [];
+
+    const form =
+    document.getElementById("opinionForm");
+
+
+    if(form){
+
+        form.reset();
+        
+
+    }
+    renderCurrentDocuments([]);
+
+    console.log(
+        "Formulario limpio, modo nuevo"
+    );
+
+});
+
+
+function renderCurrentDocuments(documents){
+
+    const container =
+    document.getElementById(
+        "current-documents"
+    );
+
+
+    if(!container) return;
+
+
+    container.innerHTML = "";
+
+
+    if(!documents || documents.length === 0){
+
+        container.innerHTML =
+        "<p>No hay documentos asociados.</p>";
+
+        return;
+
+    }
+
+
+
+    documents.forEach(doc=>{
+
+
+        const div =
+        document.createElement("div");
+
+
+        div.className =
+        "current-document";
+
+
+
+        div.innerHTML = `
+
+
+
+    <span class="document-name">
+        ${doc.name}
+    </span>
+
+
+    <div class="document-actions">
+
+        <button
+            type="button"
+            class="download-document icon-button"
+            data-id="${doc.id}"
+            title="Descargar documento"
+        >
+            <i class="fa-solid fa-download"></i>
+        </button>
+
+
+        <button
+            type="button"
+            class="btn-remove-document icon-button"
+            data-id="${doc.id}"
+            title="Eliminar documento"
+        >
+            <i class="fa-solid fa-trash"></i>
+        </button>
+
+    </div>
+
+
+
+`;
+
+
+
+        container.appendChild(div);
+
+
+
+        div
+        .querySelector(".btn-remove-document")
+        .addEventListener(
+            "click",
+            ()=>{
+
+
+                documentsToDelete.push(
+                    doc.id
+                );
+
+
+                div.remove();
+
+
+                console.log(
+                    "Documentos a eliminar:",
+                    documentsToDelete
+                );
+
+
+            }
+        );
+
+
+    });
+
+}
+
+
+
+document.addEventListener(
+"click",
+async(e)=>{
+
+
+if(
+!e.target.classList.contains(
+"download-document"
+)
+)
+return;
+
+
+
+const id =
+e.target.dataset.id;
+
+
+
+const response =
+await fetch(
+`${BACKEND_BASE}/api/v1/opinion-documents/${id}/download`,
+{
+headers:{
+Authorization:
+`Bearer ${localStorage.getItem("auth_token")}`
+}
+}
+);
+
+
+
+const blob =
+await response.blob();
+
+
+
+const url =
+URL.createObjectURL(blob);
+
+
+
+const a =
+document.createElement("a");
+
+
+a.href=url;
+
+
+a.download =
+"documento";
+
+
+a.click();
+
+
+
+URL.revokeObjectURL(url);
+
+
+
+});
+</script>

@@ -1,0 +1,60 @@
+---
+interface Props{
+    label:string;
+    value?:any;
+    id?:string;
+}
+
+const {
+    label,
+    value,
+    id
+}=Astro.props;
+---
+
+<div class="detail-row">
+
+    <span class="detail-label">
+        {label}
+    </span>
+
+    <span 
+        class="detail-value"
+        id={id}
+    >
+        {value ?? "-"}
+    </span>
+
+</div>
+
+
+<style>
+
+.detail-row{
+
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:12px;
+
+    padding:10px 0;
+
+    border-bottom:1px solid #ececec;
+
+}
+
+
+.detail-label{
+
+    font-weight:700;
+    color:#553304;
+
+}
+
+
+.detail-value{
+
+    color:#222;
+
+}
+
+</style>
