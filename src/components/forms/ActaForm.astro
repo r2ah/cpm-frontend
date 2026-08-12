@@ -1,6 +1,11 @@
 ---
 ---
 
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
+
 <section class="acta-page">
 
   <form id="acta-form" class="global-form">
@@ -58,22 +63,54 @@
     <input type="hidden" name="commission_id" id="acta-commission-id" value="1" />
     <input type="hidden" name="signed_document" id="acta-signed-document" value="" />
 
-    <!-- DOCUMENTO -->
-    <div class="form-card">
-      <h2 class="form-card__title">Documento Firmado</h2>
+    <!-- DOCUMENTOS -->
+<div class="form-card">
 
-      <div class="form__group">
-        <input type="file" id="documento"/>
+  <h2 class="form-card__title">
+    Documentos asociados
+  </h2>
 
-        <!--<label class="form__input file" for="documento">
-          Seleccionar documento firmado
-        </label>-->
+  <div class="form__group">
 
-        <span id="file-name">
-          Ningún archivo seleccionado
-        </span>
-      </div>
-    </div>
+    <label class="form__label">
+      Documentos
+    </label>
+
+    <input
+      type="file"
+      id="documentos"
+      multiple
+      class="form__input"
+      accept="
+        .pdf,
+        .doc,
+        .docx,
+        .txt,
+        .odt,
+        .rtf,
+        .xls,
+        .xlsx,
+        .csv,
+        .ppt,
+        .pptx,
+        image/*
+      "
+    />
+
+    <small>
+      Puede seleccionar uno o varios archivos.
+    </small>
+
+    <!-- AQUÍ SE MOSTRARÁN LOS DOCUMENTOS -->
+    <div
+    id="current-documents"
+    class="current-documents"
+  ></div>
+
+  </div>
+
+</div>
+
 
     <!-- PARTICIPANTES -->
     <div class="form-card">
@@ -332,40 +369,250 @@ textarea {
     width: 100%;
   }
 }
+.current-document {
 
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 8px 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.document-name {
+
+    flex: 1;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+}
+
+
+.document-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-left: 15px;
+
+}
+
+
+.icon-button {
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.download-document {
+
+    background: #e6f0ff;
+
+    color: #0066cc;
+
+}
+
+
+.download-document:hover {
+
+    background: #0066cc;
+
+    color: white;
+
+}
+
+
+.btn-remove-document {
+
+    background: #ffe6e6;
+
+    color: #d60000;
+
+}
+
+
+.btn-remove-document:hover {
+
+    background: #d60000;
+
+    color: white;
+
+}
+
+/* =========================================
+   DOCUMENTOS
+========================================= */
+
+.current-documents {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.current-document {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 8px 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+.document-name {
+
+  flex: 1;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 13px;
+
+  color: #444;
+}
+
+.document-actions {
+
+  display: flex;
+
+  gap: 8px;
+
+  margin-left: 15px;
+}
+
+.icon-button {
+
+  width: 32px;
+
+  height: 32px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* DESCARGAR */
+
+.download-document {
+
+  background: #e6f0ff;
+
+  color: #0066cc;
+}
+
+.download-document:hover {
+
+  background: #0066cc;
+
+  color: white;
+}
+
+/* ELIMINAR */
+
+.btn-remove-document {
+
+  background: #ffe6e6;
+
+  color: #d60000;
+}
+
+.btn-remove-document:hover {
+
+  background: #d60000;
+
+  color: white;
+}
 </style>
 
 <script>
-  const input = document.getElementById('documento');
-  const fileName = document.getElementById('file-name');
 
-  input?.addEventListener('change', () => {
+document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
 
-  if(!fileName) return;
-
-
-  fileName.textContent =
-    input.files && input.files.length > 0
-      ? input.files[0].name
-      : 'Ningún archivo seleccionado';
-
-});
-
-  document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
     const resize = () => {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
+
+        textarea.style.height = 'auto';
+
+        textarea.style.height =
+            `${textarea.scrollHeight}px`;
+
     };
 
     textarea.addEventListener('input', resize);
+
     resize();
-  });
 
-  const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+});
 
-  const apiFetch = async (url, options = {}) => {
 
-    const token = window.localStorage.getItem('auth_token');
+// =====================================================
+// BACKEND
+// =====================================================
+
+const BACKEND_BASE =
+    `${window.location.protocol}//${window.location.hostname}:8000`;
+
+
+// =====================================================
+// API FETCH
+// =====================================================
+
+const apiFetch = async (url, options = {}) => {
+
+    const token =
+        window.localStorage.getItem('auth_token');
 
     const headers = {
         ...(options.headers || {}),
@@ -377,12 +624,18 @@ textarea {
         !(headers['Content-Type'] || headers['content-type']) &&
         !(options.body instanceof FormData)
     ) {
-        headers['Content-Type'] = 'application/json';
+
+        headers['Content-Type'] =
+            'application/json';
+
     }
 
 
     if (token) {
-        headers.Authorization = `Bearer ${token}`;
+
+        headers.Authorization =
+            `Bearer ${token}`;
+
     }
 
 
@@ -392,25 +645,30 @@ textarea {
     });
 
 
-    // ==========================
+    // =================================================
     // SESIÓN EXPIRADA
-    // ==========================
+    // =================================================
 
     if (res.status === 401) {
 
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem(
+            'auth_token'
+        );
 
-        alert('La sesión ha expirado.');
+        alert(
+            'La sesión ha expirado.'
+        );
 
-        window.location.href = '/login';
+        window.location.href =
+            '/login';
 
         return null;
+
     }
 
 
-
-    const data = await res.json().catch(() => null);
-
+    const data =
+        await res.json().catch(() => null);
 
 
     if (!res.ok) {
@@ -418,28 +676,58 @@ textarea {
         const msg =
             data?.message ||
             data?.error ||
-            (typeof data === 'string'
-                ? data
-                : null) ||
+            (
+                typeof data === 'string'
+                    ? data
+                    : null
+            ) ||
             `Request failed: ${res.status}`;
 
 
         throw new Error(msg);
+
     }
 
 
     return data;
+
 };
 
-  const form = document.getElementById('acta-form');
-  let currentParticipants = [];
-  let currentElaboradoPor = null;
+
+// =====================================================
+// FORMULARIO
+// =====================================================
+
+const form =
+    document.getElementById(
+        'acta-form'
+    );
+
+
+// =====================================================
+// PARTICIPANTES
+// =====================================================
+
+let currentParticipants = [];
+
+let currentElaboradoPor = null;
+
+
+// =====================================================
+// CARGAR USUARIOS
+// =====================================================
+
 const loadUsers = async () => {
 
-    console.log("🔥 EJECUTANDO loadUsers");
+    console.log(
+        "🔥 EJECUTANDO loadUsers"
+    );
 
 
-    const select = document.getElementById('participants');
+    const select =
+        document.getElementById(
+            'participants'
+        );
 
 
     console.log(
@@ -459,13 +747,12 @@ const loadUsers = async () => {
     }
 
 
-
     try {
 
-
-        const response = await apiFetch(
-            `${BACKEND_BASE}/api/v1/users?all=true`
-        );
+        const response =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/users?all=true`
+            );
 
 
         console.log(
@@ -478,37 +765,36 @@ const loadUsers = async () => {
             response.data ?? response;
 
 
-
         console.log(
             "USUARIOS:",
             users
         );
 
 
-
         select.innerHTML = "";
-
 
 
         users.forEach(user => {
 
-
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
 
-            option.value = user.id;
+            option.value =
+                user.id;
 
 
             option.textContent =
                 user.name;
 
 
-            select.appendChild(option);
-
+            select.appendChild(
+                option
+            );
 
         });
-
 
 
         console.log(
@@ -516,10 +802,8 @@ const loadUsers = async () => {
             select.options.length
         );
 
-
-
     }
-    catch(error){
+    catch(error) {
 
         console.error(
             "ERROR LOAD USERS:",
@@ -530,11 +814,17 @@ const loadUsers = async () => {
 
 };
 
+
+// =====================================================
+// ELABORADO POR
+// =====================================================
+
 const loadElaboradoPor = async () => {
 
-    const select = document.getElementById(
-        "elaborado_por"
-    );
+    const select =
+        document.getElementById(
+            "elaborado_por"
+        );
 
 
     if (!select) return;
@@ -542,9 +832,10 @@ const loadElaboradoPor = async () => {
 
     try {
 
-        const response = await apiFetch(
-            `${BACKEND_BASE}/api/v1/users?all=true`
-        );
+        const response =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/users?all=true`
+            );
 
 
         const users =
@@ -557,31 +848,35 @@ const loadElaboradoPor = async () => {
         users.forEach(user => {
 
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
 
-            option.value = user.id;
+            option.value =
+                user.id;
 
 
             option.textContent =
                 user.name;
 
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
 
         });
 
 
-        // seleccionar usuario actual si existe
-        if(currentElaboradoPor){
+        if (currentElaboradoPor) {
 
             select.value =
                 currentElaboradoPor;
 
         }
 
-
-    } catch(error){
+    }
+    catch(error) {
 
         console.error(
             "ERROR LOAD ELABORADO POR:",
@@ -593,93 +888,571 @@ const loadElaboradoPor = async () => {
 };
 
 
-  const documentoInput = document.getElementById('documento');
-  let currentSignedDocument = null;
-  const getEditId = () => window.localStorage.getItem('acta_edit_id');
+// =====================================================
+// DOCUMENTOS
+// =====================================================
 
-  const setEditId = (id) => {
-    if (id) window.localStorage.setItem('acta_edit_id', String(id));
-    else window.localStorage.removeItem('acta_edit_id');
-  };
+const documentoInput =
+    document.getElementById(
+        'documentos'
+    );
 
-  const prefill = async (id) => {
 
-    console.log("PREFILL ID:", id);
+let currentDocuments = [];
+
+
+// Archivos nuevos seleccionados
+let newDocuments = [];
+
+
+// =====================================================
+// RENDER DOCUMENTOS
+// =====================================================
+
+const renderDocuments = () => {
+
+    const container =
+        document.getElementById(
+            "current-documents"
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    // =================================================
+    // SIN DOCUMENTOS
+    // =================================================
+
+    if (
+        currentDocuments.length === 0 &&
+        newDocuments.length === 0
+    ) {
+
+        container.innerHTML = `
+            <p>
+                No hay documentos asociados.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    // =================================================
+    // DOCUMENTOS ACTUALES
+    // =================================================
+
+    currentDocuments.forEach(
+        (doc, index) => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "current-document";
+
+
+            div.innerHTML = `
+
+                <span class="document-name">
+                    ${doc.name}
+                </span>
+
+                <div class="document-actions">
+
+                    <button
+                        type="button"
+                        class="download-document icon-button"
+                        data-id="${doc.id}"
+                        title="Descargar documento"
+                    >
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn-remove-document icon-button"
+                        data-index="${index}"
+                        data-type="current"
+                        title="Eliminar documento"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                div
+            );
+
+        }
+    );
+
+
+    // =================================================
+    // DOCUMENTOS NUEVOS
+    // =================================================
+
+    newDocuments.forEach(
+        (file, index) => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "current-document";
+
+
+            div.innerHTML = `
+
+                <span class="document-name">
+                    ${file.name}
+                </span>
+
+                <div class="document-actions">
+
+                    <button
+                        type="button"
+                        class="btn-remove-document icon-button"
+                        data-index="${index}"
+                        data-type="new"
+                        title="Eliminar documento"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                div
+            );
+
+        }
+    );
+
+};
+
+
+// =====================================================
+// SELECCIONAR NUEVOS DOCUMENTOS
+// =====================================================
+
+documentoInput?.addEventListener(
+    'change',
+    () => {
+
+        if (
+            !documentoInput.files?.length
+        ) {
+
+            return;
+
+        }
+
+
+        const files =
+            Array.from(
+                documentoInput.files
+            );
+
+
+        console.log(
+            "🔥 NUEVOS ARCHIVOS SELECCIONADOS:",
+            files.map(
+                file => file.name
+            )
+        );
+
+
+        // Agregar los archivos
+        newDocuments.push(
+            ...files
+        );
+
+
+        // Limpiar input
+        // permite seleccionar nuevamente
+        // el mismo archivo
+        documentoInput.value = "";
+
+
+        renderDocuments();
+
+    }
+);
+
+
+// =====================================================
+// ACCIONES DE DOCUMENTOS
+// =====================================================
+
+document
+    .getElementById(
+        "current-documents"
+    )
+    ?.addEventListener(
+        "click",
+        async (event) => {
+
+            const button =
+                event.target.closest(
+                    "button"
+                );
+
+
+            if (!button) return;
+
+
+            // =========================================
+            // DESCARGAR
+            // =========================================
+
+            if (
+                button.classList.contains(
+                    "download-document"
+                )
+            ) {
+
+                const id =
+                    button.dataset.id;
+
+
+                console.log(
+                    "DESCARGANDO DOCUMENTO:",
+                    id
+                );
+
+
+                try {
+
+                    /*
+                     * IMPORTANTE:
+                     * Esta ruta debe coincidir
+                     * con la ruta de tu backend.
+                     */
+
+                    const response =
+                        await fetch(
+                            `${BACKEND_BASE}/api/v1/media-files/${id}/download`,
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bearer ${localStorage.getItem('auth_token')}`
+                                }
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "No se pudo descargar el documento."
+                        );
+
+                    }
+
+
+                    const blob =
+                        await response.blob();
+
+
+                    const url =
+                        URL.createObjectURL(
+                            blob
+                        );
+
+
+                    const a =
+                        document.createElement(
+                            "a"
+                        );
+
+
+                    a.href =
+                        url;
+
+
+                    a.download =
+                        "documento";
+
+
+                    document.body.appendChild(
+                        a
+                    );
+
+
+                    a.click();
+
+
+                    a.remove();
+
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                }
+                catch(error) {
+
+                    console.error(
+                        "ERROR DESCARGANDO DOCUMENTO:",
+                        error
+                    );
+
+
+                    alert(
+                        "No se pudo descargar el documento."
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            // =========================================
+            // ELIMINAR
+            // =========================================
+
+            if (
+                button.classList.contains(
+                    "btn-remove-document"
+                )
+            ) {
+
+                const index =
+                    Number(
+                        button.dataset.index
+                    );
+
+
+                const type =
+                    button.dataset.type;
+
+
+                // -------------------------------------
+                // DOCUMENTO ACTUAL
+                // -------------------------------------
+
+                if (
+                    type === "current"
+                ) {
+
+                    console.log(
+                        "ELIMINANDO DOCUMENTO ACTUAL:",
+                        currentDocuments[index]
+                    );
+
+
+                    currentDocuments.splice(
+                        index,
+                        1
+                    );
+
+                }
+
+
+                // -------------------------------------
+                // DOCUMENTO NUEVO
+                // -------------------------------------
+
+                if (
+                    type === "new"
+                ) {
+
+                    console.log(
+                        "ELIMINANDO DOCUMENTO NUEVO:",
+                        newDocuments[index]
+                    );
+
+
+                    newDocuments.splice(
+                        index,
+                        1
+                    );
+
+                }
+
+
+                renderDocuments();
+
+            }
+
+        }
+    );
+
+
+// =====================================================
+// ID EDICIÓN
+// =====================================================
+
+const getEditId = () =>
+    window.localStorage.getItem(
+        'acta_edit_id'
+    );
+
+
+const setEditId = (id) => {
+
+    if (id) {
+
+        window.localStorage.setItem(
+            'acta_edit_id',
+            String(id)
+        );
+
+    }
+    else {
+
+        window.localStorage.removeItem(
+            'acta_edit_id'
+        );
+
+    }
+
+};
+
+
+// =====================================================
+// PREFILL
+// =====================================================
+
+const prefill = async (id) => {
+
+    console.log(
+        "PREFILL ID:",
+        id
+    );
+
 
     if (!id) {
-        console.log("No existe id");
+
+        console.log(
+            "No existe id"
+        );
+
         return;
+
     }
 
 
     try {
 
-        const res = await apiFetch(
-            `${BACKEND_BASE}/api/v1/proceedings/${id}`
+        const res =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/proceedings/${id}`
+            );
+
+
+        console.log(
+            "RESPUESTA API:",
+            res
         );
 
 
-        console.log("RESPUESTA API:", res);
+        const p =
+            res?.data ?? res;
 
 
-        const p = res?.data ?? res;
-
-
-        console.log("DATOS ACTA:", p);
-
+        console.log(
+            "DATOS ACTA:",
+            p
+        );
 
 
         const dateEl =
-            document.getElementById('acta-date');
+            document.getElementById(
+                'acta-date'
+            );
+
 
         const addressEl =
-            document.getElementById('acta-address');
+            document.getElementById(
+                'acta-address'
+            );
+
 
         const agendaEl =
-            document.getElementById('acta-agenda');
+            document.getElementById(
+                'acta-agenda'
+            );
+
 
         const approachesEl =
-            document.getElementById('acta-approaches');
+            document.getElementById(
+                'acta-approaches'
+            );
+
 
         const agreementsEl =
-            document.getElementById('acta-aggreements');
+            document.getElementById(
+                'acta-aggreements'
+            );
 
 
-        console.log({
-            dateEl,
-            addressEl,
-            agendaEl,
-            approachesEl,
-            agreementsEl
-        });
+        if (dateEl) {
 
-
-
-        if (dateEl)
-            dateEl.value = 
+            dateEl.value =
                 p.date?.split(" ")[0] ?? "";
 
+        }
 
-        if (addressEl)
+
+        if (addressEl) {
+
             addressEl.value =
                 p.address ?? "";
 
+        }
 
-        if (agendaEl)
+
+        if (agendaEl) {
+
             agendaEl.value =
                 p.agenda ?? "";
 
+        }
 
-        if (approachesEl)
+
+        if (approachesEl) {
+
             approachesEl.value =
                 p.approaches ?? "";
 
+        }
 
-        if (agreementsEl)
+
+        if (agreementsEl) {
+
             agreementsEl.value =
                 p.aggreements ?? "";
 
+        }
 
+
+        // =========================================
+        // COMISIÓN
+        // =========================================
 
         const commissionIdHidden =
             document.getElementById(
@@ -687,74 +1460,114 @@ const loadElaboradoPor = async () => {
             );
 
 
-        if (commissionIdHidden)
+        if (commissionIdHidden) {
+
             commissionIdHidden.value =
                 p.commission_id ?? "";
-        currentSignedDocument = p?.signed_document ?? null;
-        if (documentoInput) {
-        documentoInput.required = false;
+
         }
-       currentParticipants = Array.isArray(p?.participants)
-    ? p.participants.map(user => Number(user.id))
-    : [];
-    const participantsSelect =
-    document.getElementById('participants');
 
 
-if (participantsSelect) {
+        // =========================================
+        // DOCUMENTOS
+        // =========================================
 
-    Array.from(participantsSelect.options)
-        .forEach(option => {
-
-            option.selected =
-                currentParticipants.includes(
-                    Number(option.value)
-                );
-
-        });
-
-}
-
-    const elaboradoSelect =
-    document.getElementById('elaborado_por');
-    
-
-if (elaboradoSelect) {
-
-    elaboradoSelect.value =
-        p.elaborado_por ?? "";
-
-}
+        currentDocuments =
+            Array.isArray(
+                p?.documents
+            )
+                ? p.documents
+                : [];
 
 
-console.log(
-    "PARTICIPANTES DEL ACTA:",
-    currentParticipants
-);
+        newDocuments = [];
+
+
+        if (documentoInput) {
+
+            documentoInput.required =
+                false;
+
+        }
+
+
+        renderDocuments();
+
+
+        // =========================================
+        // PARTICIPANTES
+        // =========================================
+
+        currentParticipants =
+            Array.isArray(
+                p?.participants
+            )
+                ? p.participants.map(
+                    user =>
+                        Number(user.id)
+                )
+                : [];
+
+
+        const participantsSelect =
+            document.getElementById(
+                'participants'
+            );
+
+
+        if (participantsSelect) {
+
+            Array.from(
+                participantsSelect.options
+            ).forEach(
+                option => {
+
+                    option.selected =
+                        currentParticipants.includes(
+                            Number(
+                                option.value
+                            )
+                        );
+
+                }
+            );
+
+        }
+
+
+        // =========================================
+        // ELABORADO POR
+        // =========================================
+
+        const elaboradoSelect =
+            document.getElementById(
+                'elaborado_por'
+            );
+
+
+        if (elaboradoSelect) {
+
+            elaboradoSelect.value =
+                p.elaborado_por ?? "";
+
+        }
+
 
         console.log(
-               "DOCUMENTO ACTUAL:",
-                currentSignedDocument
-                   );
-    const fileName =
-    document.getElementById('file-name');
+            "PARTICIPANTES DEL ACTA:",
+            currentParticipants
+        );
 
 
-if(fileName){
+        console.log(
+            "DOCUMENTOS ACTUALES:",
+            currentDocuments
+        );
 
-    if(p.signed_document){
 
-        fileName.textContent =
-            "Tiene documento asignado";
-
-    }else{
-
-        fileName.textContent =
-            "Ningún archivo seleccionado";
-
-    }
-
-}
+        // =========================================
+        // BOTÓN
+        // =========================================
 
         const btn =
             form?.querySelector(
@@ -762,13 +1575,15 @@ if(fileName){
             );
 
 
-        if(btn)
+        if (btn) {
+
             btn.textContent =
                 "Actualizar Acta";
 
+        }
 
     }
-    catch(error){
+    catch(error) {
 
         console.error(
             "ERROR PREFILL:",
@@ -780,17 +1595,22 @@ if(fileName){
 };
 
 
+// =====================================================
+// RESET FORM
+// =====================================================
 
+const resetForm = () => {
 
-  const resetForm = () => {
-
-
-    console.log("RESET FORM");
+    console.log(
+        "RESET FORM"
+    );
 
 
     currentParticipants = [];
 
-    currentSignedDocument = null;
+    currentDocuments = [];
+
+    newDocuments = [];
 
 
     localStorage.removeItem(
@@ -798,11 +1618,13 @@ if(fileName){
     );
 
 
-    if(!form) return;
+    if (!form) return;
 
 
     form.reset();
 
+
+    renderDocuments();
 
 
     const commissionIdHidden =
@@ -811,12 +1633,12 @@ if(fileName){
         );
 
 
-    if(commissionIdHidden){
+    if (commissionIdHidden) {
 
-        commissionIdHidden.value = "";
+        commissionIdHidden.value =
+            "";
 
     }
-
 
 
     const participantsSelect =
@@ -825,34 +1647,37 @@ if(fileName){
         );
 
 
-    if(participantsSelect){
+    if (participantsSelect) {
 
-        participantsSelect.innerHTML = "";
+        participantsSelect.innerHTML =
+            "";
 
-        participantsSelect.value = "";
-
-    }
-
-
-
-    if(documentoInput){
-
-        documentoInput.value = "";
+        participantsSelect.value =
+            "";
 
     }
 
+
+    if (documentoInput) {
+
+        documentoInput.value =
+            "";
+
+    }
 
 
     document
-    .querySelectorAll(
-        'textarea.auto-grow'
-    )
-    .forEach(textarea=>{
+        .querySelectorAll(
+            'textarea.auto-grow'
+        )
+        .forEach(
+            textarea => {
 
-        textarea.style.height="auto";
+                textarea.style.height =
+                    "auto";
 
-    });
-
+            }
+        );
 
 
     const btn =
@@ -861,177 +1686,416 @@ if(fileName){
         );
 
 
-    if(btn){
+    if (btn) {
 
         btn.textContent =
             "Guardar Acta";
 
     }
 
-
 };
 
-  window.addEventListener('acta-new', async () => {
 
-    console.log("NUEVA ACTA");
+// =====================================================
+// NUEVA ACTA
+// =====================================================
 
-    setEditId(null);
+window.addEventListener(
+    'acta-new',
+    async () => {
 
-    resetForm();
+        console.log(
+            "NUEVA ACTA"
+        );
 
 
-    // esperar que el formulario exista
-    setTimeout(async () => {
+        setEditId(null);
 
-        currentParticipants = [];
-        
+
+        resetForm();
+
+
+        setTimeout(
+            async () => {
+
+                currentParticipants =
+                    [];
+
+
+                await loadUsers();
+
+                await loadElaboradoPor();
+
+            },
+            100
+        );
+
+    }
+);
+
+
+// =====================================================
+// EDITAR ACTA
+// =====================================================
+
+window.addEventListener(
+    'acta-edit',
+    async (ev) => {
+
+        const id =
+            ev?.detail?.id;
+
+
+        console.log(
+            "EDIT EVENT ID:",
+            id
+        );
+
+
+        if (!id) {
+
+            console.error(
+                "No llegó ID para editar"
+            );
+
+            return;
+
+        }
+
+
+        setEditId(id);
+
+
+        console.log(
+            "GUARDADO EN STORAGE:",
+            localStorage.getItem(
+                'acta_edit_id'
+            )
+        );
+
+
         await loadUsers();
+
         await loadElaboradoPor();
-    }, 100);
 
-});
+        await prefill(id);
 
-  window.addEventListener('acta-edit', async (ev) => {
-
-    const id = ev?.detail?.id;
-
-    console.log("EDIT EVENT ID:", id);
-
-
-    if (!id) {
-        console.error("No llegó ID para editar");
-        return;
     }
-
-
-    setEditId(id);
-
-
-    console.log(
-        "GUARDADO EN STORAGE:",
-        localStorage.getItem('acta_edit_id')
-    );
-
-
-    // Primero llenar los selects
-    await loadUsers();
-
-    await loadElaboradoPor();
-
-
-    // Después cargar los datos del acta
-    await prefill(id);
-
-});
-
-  form?.addEventListener('submit', async (e) => {
-    console.log("SUBMIT EJECUTADO");
-    e.preventDefault();
-
-    const date = form.elements['date'].value;
-    const address = form.elements['address'].value;
-    const agenda = form.elements['agenda'].value;
-    const approaches = form.elements['approaches'].value;
-    const aggreements = form.elements['aggreements'].value;
-    const elaborado_por =
-    Number(
-      document.getElementById('elaborado_por').value
-    );    
-
-   
-
-    let signed_document = currentSignedDocument;
-
-    const fileInput = document.getElementById('documento');
-    if (fileInput?.files?.length) {
-      const file = fileInput.files[0];
-
-      const fd = new FormData();
-      fd.append('file', file);
-
-      const uploadRes = await apiFetch(
-        `${BACKEND_BASE}/api/v1/images/upload`,
-        {
-          method: 'POST',
-          body: fd,
-        }
-      );
-
-      signed_document = uploadRes.data.id;
-      
-    }
-
-    const participantsSelect = document.getElementById('participants');
-    const participants = Array.from(participantsSelect.selectedOptions).map(
-      (option) => Number(option.value)
-    );
-    console.log("ELABORADO POR:", elaborado_por);
-    const payload = {
-    date,
-    address,
-    agenda,
-    approaches,
-    aggreements,
-    elaborado_por,
-    signed_document,
-    participants,
-};
-    if (!signed_document) {
-    delete payload.signed_document;
-}
-
-    try {
-      const editId = getEditId();
-
-console.log("ID AL HACER SUBMIT:", editId);
-
-console.log(
-    "STORAGE AL HACER SUBMIT:",
-    localStorage.getItem("acta_edit_id")
 );
-      
-      console.log('ACTA MODE:', editId ? `EDIT ${editId}` : 'NEW');
-      
-      console.log("SUBMIT EDIT ID:", editId);
 
-console.log(
-  "LOCAL STORAGE AL ENVIAR:",
-  localStorage.getItem("acta_edit_id")
-);
-      if (editId) {
 
-    const response = await apiFetch(
-        `${BACKEND_BASE}/api/v1/proceedings/${editId}`,
-        {
-            method: 'PUT',
-            body: JSON.stringify(payload),
+// =====================================================
+// SUBMIT
+// =====================================================
+
+form?.addEventListener(
+    'submit',
+    async (e) => {
+
+        console.log(
+            "SUBMIT EJECUTADO"
+        );
+
+
+        e.preventDefault();
+
+
+        try {
+
+            // =========================================
+            // DATOS
+            // =========================================
+
+            const date =
+                form.elements[
+                    'date'
+                ].value;
+
+
+            const address =
+                form.elements[
+                    'address'
+                ].value;
+
+
+            const agenda =
+                form.elements[
+                    'agenda'
+                ].value;
+
+
+            const approaches =
+                form.elements[
+                    'approaches'
+                ].value;
+
+
+            const aggreements =
+                form.elements[
+                    'aggreements'
+                ].value;
+
+
+            const elaborado_por =
+                Number(
+                    document.getElementById(
+                        'elaborado_por'
+                    ).value
+                );
+
+
+            // =========================================
+            // DOCUMENTOS ACTUALES
+            // =========================================
+
+            let documents =
+                currentDocuments.map(
+                    doc =>
+                        Number(doc.id)
+                );
+
+
+            console.log(
+                "DOCUMENTOS ACTUALES:",
+                documents
+            );
+
+
+            // =========================================
+            // SUBIR DOCUMENTOS NUEVOS
+            // =========================================
+
+            console.log(
+                "DOCUMENTOS NUEVOS:",
+                newDocuments
+            );
+
+
+            for (
+                const file
+                of newDocuments
+            ) {
+
+                console.log(
+                    "🔥 SUBIENDO NUEVO DOCUMENTO:",
+                    file.name
+                );
+
+
+                const fd =
+                    new FormData();
+
+
+                fd.append(
+                    'file',
+                    file
+                );
+
+
+                const uploadRes =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/images/upload`,
+                        {
+                            method: 'POST',
+                            body: fd
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA UPLOAD:",
+                    uploadRes
+                );
+
+
+                const newDocumentId =
+                    Number(
+                        uploadRes?.data?.id
+                    );
+
+
+                console.log(
+                    "NUEVO DOCUMENT ID:",
+                    newDocumentId
+                );
+
+
+                if (
+                    !newDocumentId ||
+                    Number.isNaN(
+                        newDocumentId
+                    )
+                ) {
+
+                    throw new Error(
+                        `El servidor no devolvió un ID válido para: ${file.name}`
+                    );
+
+                }
+
+
+                documents.push(
+                    newDocumentId
+                );
+
+            }
+
+
+            // =========================================
+            // PARTICIPANTES
+            // =========================================
+
+            const participantsSelect =
+                document.getElementById(
+                    'participants'
+                );
+
+
+            const participants =
+                participantsSelect
+                    ? Array.from(
+                        participantsSelect.selectedOptions
+                    ).map(
+                        option =>
+                            Number(
+                                option.value
+                            )
+                    )
+                    : [];
+
+
+            // =========================================
+            // PAYLOAD
+            // =========================================
+
+            const payload = {
+
+                date,
+
+                address,
+
+                agenda,
+
+                approaches,
+
+                aggreements,
+
+                elaborado_por,
+
+                documents,
+
+                participants
+
+            };
+
+
+            console.log(
+                "PAYLOAD COMPLETO:",
+                payload
+            );
+
+
+            // =========================================
+            // ID
+            // =========================================
+
+            const editId =
+                getEditId();
+
+
+            console.log(
+                "ID DEL ACTA:",
+                editId
+            );
+
+
+            // =========================================
+            // ACTUALIZAR
+            // =========================================
+
+            if (editId) {
+
+                const response =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/proceedings/${editId}`,
+                        {
+                            method: 'PUT',
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA UPDATE:",
+                    response
+                );
+
+            }
+
+
+            // =========================================
+            // CREAR
+            // =========================================
+
+            else {
+
+                const response =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/proceedings`,
+                        {
+                            method: 'POST',
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA CREATE:",
+                    response
+                );
+
+            }
+
+
+            // =========================================
+            // FINALIZAR
+            // =========================================
+
+            setEditId(null);
+
+
+            setTimeout(
+                () =>
+                    window.location.reload(),
+                300
+            );
+
         }
-    );
+        catch (err) {
+
+            console.error(
+                "ERROR AL GUARDAR ACTA:",
+                err
+            );
 
 
-    console.log(
-        "RESPUESTA UPDATE:",
-        response
-    );
+            alert(
+                err instanceof Error
+                    ? err.message
+                    : String(err)
+            );
 
-} else {
-        localStorage.removeItem('acta_edit_id');
-        console.log("ENTRANDO EN CREATE");
-        await apiFetch(`${BACKEND_BASE}/api/v1/proceedings`, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-      }
+        }
 
-      setEditId(null);
-      setTimeout(() => window.location.reload(), 300);
-    } catch (err) {
-      console.error(err);
-      alert(err instanceof Error ? err.message : String(err));
     }
-  });
+);
 
-  
-
-  
 </script>

@@ -1,0 +1,492 @@
+---
+import DetailRow from "../ui/DetailRow.astro";
+---
+
+<div id="proceeding-details">
+
+<section class="card">
+
+<h3>Información General</h3>
+
+<DetailRow
+label="ID"
+id="detail-proceeding-id"
+/>
+
+<DetailRow
+label="Fecha"
+id="detail-proceeding-date"
+/>
+
+<DetailRow
+label="Dirección"
+id="detail-proceeding-address"
+/>
+
+<DetailRow
+label="Agenda"
+id="detail-proceeding-agenda"
+/>
+
+<DetailRow
+label="Enfoques"
+id="detail-proceeding-approaches"
+/>
+
+<DetailRow
+label="Acuerdos"
+id="detail-proceeding-aggreements"
+/>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Comisión</h3>
+
+<DetailRow
+label="Comisión"
+id="detail-proceeding-commission"
+/>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Elaborado por</h3>
+
+<DetailRow
+label="Usuario"
+id="detail-proceeding-user"
+/>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Participantes</h3>
+
+<div id="detail-proceeding-participants">
+-
+</div>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>Documentos asociados</h3>
+
+<div id="detail-proceeding-documents">
+
+    No hay documentos.
+
+</div>
+
+</section>
+
+</div>
+
+
+
+<script is:inline>
+
+window.addEventListener(
+"show-proceeding-details",
+async(e)=>{
+
+const id = e.detail.id;
+
+try{
+
+const response =
+await fetch(
+
+`http://localhost:8000/api/v1/proceedings/${id}`,
+
+{
+
+headers:{
+
+Accept:"application/json",
+
+Authorization:
+`Bearer ${localStorage.getItem("auth_token")}`
+
+}
+
+}
+
+);
+
+if(!response.ok){
+
+throw new Error(
+"No se pudo obtener la información del acta."
+);
+
+}
+
+const json =
+await response.json();
+
+const acta =
+json.data;
+
+console.log(
+"ACTA DETALLE:",
+acta
+);
+
+document.getElementById(
+"detail-proceeding-id"
+).textContent =
+acta.id ?? "-";
+
+document.getElementById(
+"detail-proceeding-date"
+).textContent =
+acta.date
+? acta.date.substring(0,10)
+: "-";
+
+document.getElementById(
+"detail-proceeding-address"
+).textContent =
+acta.address ?? "-";
+
+document.getElementById(
+"detail-proceeding-agenda"
+).textContent =
+acta.agenda ?? "-";
+
+document.getElementById(
+"detail-proceeding-approaches"
+).textContent =
+acta.approaches ?? "-";
+
+document.getElementById(
+"detail-proceeding-aggreements"
+).textContent =
+acta.aggreements ?? "-";
+
+document.getElementById(
+"detail-proceeding-commission"
+).textContent =
+acta.commission_name ?? "-";
+
+document.getElementById(
+"detail-proceeding-user"
+).textContent =
+acta.elaborador?.name ?? "-";
+
+
+
+// ==========================
+// PARTICIPANTES
+// ==========================
+
+const participants =
+document.getElementById(
+"detail-proceeding-participants"
+);
+
+if(acta.participants?.length){
+
+participants.innerHTML =
+acta.participants
+.map(
+p=>`
+<div>${p.name}</div>
+`
+)
+.join("");
+
+}else{
+
+participants.textContent =
+"-";
+
+}
+
+
+
+// ==========================
+// DOCUMENTOS
+// ==========================
+
+const documentsContainer =
+    document.getElementById(
+        "detail-proceeding-documents"
+    );
+
+if (
+    Array.isArray(acta.documents) &&
+    acta.documents.length
+) {
+
+    documentsContainer.innerHTML = "";
+
+    acta.documents.forEach(documento => {
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "detail-document";
+
+        row.innerHTML = `
+
+            <span class="detail-document-name">
+
+                <i class="fa-solid fa-file"></i>
+
+                ${documento.name}
+
+            </span>
+
+            <button
+                type="button"
+                class="download-detail-document"
+                data-id="${documento.id}"
+                title="Descargar documento"
+            >
+
+                <i class="fa-solid fa-download"></i>
+
+            </button>
+
+        `;
+
+        documentsContainer.appendChild(row);
+
+    });
+
+} else {
+
+    documentsContainer.innerHTML =
+        `<span class="no-documents">
+            No hay documentos asociados.
+        </span>`;
+
+}
+
+documentsContainer
+    ?.addEventListener(
+        "click",
+        async (event) => {
+
+            const button =
+                event.target.closest(
+                    ".download-detail-document"
+                );
+
+            if (!button) return;
+
+            const documentId =
+                button.dataset.id;
+
+            try {
+
+                const response =
+                    await fetch(
+                        `http://localhost:8000/api/v1/media-files/${documentId}/download`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${localStorage.getItem("auth_token")}`
+                            }
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "No se pudo descargar el documento."
+                    );
+
+                }
+
+                const blob =
+                    await response.blob();
+
+                const url =
+                    window.URL.createObjectURL(
+                        blob
+                    );
+
+                const a =
+                    document.createElement("a");
+
+                a.href = url;
+
+                /*
+                 * Intentamos utilizar el nombre
+                 * que viene del backend.
+                 */
+                const documento =
+                    acta.documents.find(
+                        doc =>
+                            Number(doc.id) ===
+                            Number(documentId)
+                    );
+
+                a.download =
+                    documento?.name ||
+                    "documento";
+
+                document.body.appendChild(a);
+
+                a.click();
+
+                a.remove();
+
+                window.URL.revokeObjectURL(
+                    url
+                );
+
+            }
+            catch(error) {
+
+                console.error(
+                    "ERROR DESCARGANDO DOCUMENTO:",
+                    error
+                );
+
+                alert(
+                    "Error descargando documento."
+                );
+
+            }
+
+        }
+    );
+
+// ==========================
+// ABRIR MODAL
+// ==========================
+
+window.dispatchEvent(
+new Event(
+"entity-modal:open"
+)
+);
+
+}catch(error){
+
+console.error(
+"Error cargando acta:",
+error
+);
+
+}
+
+});
+</script>
+
+<style>
+
+.download-detail-document{
+    border:none;
+    background:none;
+    cursor:pointer;
+    width:32px;
+    height:32px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:#0066ff;
+    padding:0;
+    border-radius:8px;
+    transition:.2s;
+}
+
+
+.download-detail-document svg{
+    width:22px;
+    height:22px;
+}
+
+
+
+.download-detail-document:hover{
+    background:#e8f1ff;
+    color:#004bb5;
+
+}
+
+
+.detail-document {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 9px 12px;
+
+    margin-bottom: 8px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: #fff;
+}
+
+.detail-document-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex: 1;
+
+    min-width: 0;
+
+    font-size: 14px;
+    color: #444;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-document-name i {
+    flex-shrink: 0;
+    color: #666;
+}
+
+.download-detail-document {
+    border: none;
+    background: #e8f1ff;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #0066ff;
+    padding: 0;
+    border-radius: 8px;
+    transition: .2s;
+    flex-shrink: 0;
+}
+
+.download-detail-document:hover {
+    background: #0066ff;
+    color: white;
+}
+
+.no-documents {
+    color: #777;
+    font-size: 14px;
+}
+
+</style>

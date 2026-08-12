@@ -1677,46 +1677,28 @@ window.addEventListener(
     currentOpinionId = null;
     documentsToDelete = [];
 
-    const form =
-    document.getElementById("opinionForm");
-
-
+    const form = document.getElementById("opinionForm");
     if(form){
-
         form.reset();
-        
-
     }
     renderCurrentDocuments([]);
-
     console.log(
         "Formulario limpio, modo nuevo"
     );
-
 });
-
-
 function renderCurrentDocuments(documents){
-
     const container =
     document.getElementById(
         "current-documents"
     );
-
-
     if(!container) return;
-
-
     container.innerHTML = "";
 
 
     if(!documents || documents.length === 0){
-
         container.innerHTML =
         "<p>No hay documentos asociados.</p>";
-
         return;
-
     }
 
 
@@ -1724,15 +1706,8 @@ function renderCurrentDocuments(documents){
     documents.forEach(doc=>{
 
 
-        const div =
-        document.createElement("div");
-
-
-        div.className =
-        "current-document";
-
-
-
+        const div = document.createElement("div");
+        div.className = "current-document";
         div.innerHTML = `
 
 
@@ -1762,110 +1737,43 @@ function renderCurrentDocuments(documents){
         >
             <i class="fa-solid fa-trash"></i>
         </button>
-
     </div>
-
-
-
 `;
 
-
-
-        container.appendChild(div);
-
-
-
-        div
-        .querySelector(".btn-remove-document")
-        .addEventListener(
-            "click",
+container.appendChild(div);
+div.querySelector(".btn-remove-document").addEventListener("click",
             ()=>{
-
-
                 documentsToDelete.push(
                     doc.id
                 );
 
-
                 div.remove();
-
-
                 console.log(
-                    "Documentos a eliminar:",
-                    documentsToDelete
+                    "Documentos a eliminar:", documentsToDelete
                 );
-
-
             }
         );
-
-
     });
-
 }
 
+document.addEventListener("click",async(e)=>{
 
-
-document.addEventListener(
-"click",
-async(e)=>{
-
-
-if(
-!e.target.classList.contains(
-"download-document"
-)
-)
+if(!e.target.classList.contains("download-document"))
 return;
 
-
-
-const id =
-e.target.dataset.id;
-
-
-
-const response =
-await fetch(
-`${BACKEND_BASE}/api/v1/opinion-documents/${id}/download`,
-{
-headers:{
-Authorization:
-`Bearer ${localStorage.getItem("auth_token")}`
-}
-}
+const id = e.target.dataset.id;
+const response = await fetch(`${BACKEND_BASE}/api/v1/opinion-documents/${id}/download`,
+ { 
+    headers:{  Authorization:`Bearer ${localStorage.getItem("auth_token")}`
+            }
+ }
 );
-
-
-
-const blob =
-await response.blob();
-
-
-
-const url =
-URL.createObjectURL(blob);
-
-
-
-const a =
-document.createElement("a");
-
-
+const blob = await response.blob();
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
 a.href=url;
-
-
-a.download =
-"documento";
-
-
+a.download = "documento";
 a.click();
-
-
-
 URL.revokeObjectURL(url);
-
-
-
 });
 </script>
