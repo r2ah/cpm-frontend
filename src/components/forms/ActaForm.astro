@@ -24,12 +24,12 @@
         </div>
 
         <div class="form__group">
-          <label class="form__label">Dirección</label>
+          <label class="form__label">DirecciÃ³n</label>
           <input class="form__input" type="text" name="address" id="acta-address" required />
         </div>
 
         <div class="form__group">
-          <label class="form__label">Localización</label>
+          <label class="form__label">LocalizaciÃ³n</label>
           <input class="form__input" type="text" name="location" id="location" />
         </div>
 
@@ -37,9 +37,9 @@
       </div>
     </div>
 
-    <!-- ORDEN DEL DÍA -->
+    <!-- ORDEN DEL DÃA -->
     <div class="form-card">
-      <h2 class="form-card__title">Orden del Día</h2>
+      <h2 class="form-card__title">Orden del DÃ­a</h2>
 
       <textarea class="form__input textarea auto-grow" name="agenda" id="acta-agenda" required></textarea>
     </div>
@@ -101,7 +101,7 @@
       Puede seleccionar uno o varios archivos.
     </small>
 
-    <!-- AQUÍ SE MOSTRARÁN LOS DOCUMENTOS -->
+    <!-- AQUÃ SE MOSTRARÃN LOS DOCUMENTOS -->
     <div
     id="current-documents"
     class="current-documents"
@@ -127,7 +127,7 @@
     </label>
 
 
-    <select 
+    <select
   id="participants"
   class="form__input"
   multiple
@@ -137,7 +137,7 @@
 
 
   </div>
-  
+
 
 </div>
 <!-- ELABORADO POR -->
@@ -150,11 +150,11 @@
   <div class="form__group">
 
     <label class="form__label">
-      Usuario que elaboró el acta
+      Usuario que elaborÃ³ el acta
     </label>
 
 
-    <select 
+    <select
       id="elaborado_por"
       class="form__input"
     >
@@ -187,7 +187,7 @@
   width: 100%;
   display: grid;
   place-items: center;
-  
+
   box-sizing: border-box;
 }
 
@@ -646,7 +646,7 @@ const apiFetch = async (url, options = {}) => {
 
 
     // =================================================
-    // SESIÓN EXPIRADA
+    // SESIÃ“N EXPIRADA
     // =================================================
 
     if (res.status === 401) {
@@ -656,7 +656,7 @@ const apiFetch = async (url, options = {}) => {
         );
 
         alert(
-            'La sesión ha expirado.'
+            'La sesiÃ³n ha expirado.'
         );
 
         window.location.href =
@@ -720,7 +720,7 @@ let currentElaboradoPor = null;
 const loadUsers = async () => {
 
     console.log(
-        "🔥 EJECUTANDO loadUsers"
+        "ðŸ”¥ EJECUTANDO loadUsers"
     );
 
 
@@ -739,7 +739,7 @@ const loadUsers = async () => {
     if (!select) {
 
         console.error(
-            "❌ NO EXISTE #participants"
+            "âŒ NO EXISTE #participants"
         );
 
         return;
@@ -1075,7 +1075,7 @@ documentoInput?.addEventListener(
 
 
         console.log(
-            "🔥 NUEVOS ARCHIVOS SELECCIONADOS:",
+            "ðŸ”¥ NUEVOS ARCHIVOS SELECCIONADOS:",
             files.map(
                 file => file.name
             )
@@ -1303,7 +1303,7 @@ document
 
 
 // =====================================================
-// ID EDICIÓN
+// ID EDICIÃ“N
 // =====================================================
 
 const getEditId = () =>
@@ -1451,7 +1451,7 @@ const prefill = async (id) => {
 
 
         // =========================================
-        // COMISIÓN
+        // COMISIÃ“N
         // =========================================
 
         const commissionIdHidden =
@@ -1566,7 +1566,7 @@ const prefill = async (id) => {
 
 
         // =========================================
-        // BOTÓN
+        // BOTÃ“N
         // =========================================
 
         const btn =
@@ -1755,7 +1755,7 @@ window.addEventListener(
         if (!id) {
 
             console.error(
-                "No llegó ID para editar"
+                "No llegÃ³ ID para editar"
             );
 
             return;
@@ -1877,19 +1877,25 @@ form?.addEventListener(
             ) {
 
                 console.log(
-                    "🔥 SUBIENDO NUEVO DOCUMENTO:",
+                    "ðŸ”¥ SUBIENDO NUEVO DOCUMENTO:",
                     file.name
                 );
 
 
-                const fd =
-                    new FormData();
+                console.log("ARCHIVO ANTES DE SUBIR:", {
+    name: file.name,
+    type: file.type,
+    size: file.size
+});
 
+const fd = new FormData();
 
-                fd.append(
-                    'file',
-                    file
-                );
+fd.append('file', file);
+
+console.log(
+    "FORMDATA FILE:",
+    fd.get('file')
+);
 
 
                 const uploadRes =
@@ -1906,6 +1912,7 @@ form?.addEventListener(
                     "RESPUESTA UPLOAD:",
                     uploadRes
                 );
+
 
 
                 const newDocumentId =
@@ -1928,7 +1935,7 @@ form?.addEventListener(
                 ) {
 
                     throw new Error(
-                        `El servidor no devolvió un ID válido para: ${file.name}`
+                        `El servidor no devolviÃ³ un ID vÃ¡lido para: ${file.name}`
                     );
 
                 }

@@ -8,6 +8,7 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
 import ProceedingDetails from '../../components/details/ProceedingDetails.astro';
 import EntityModal from '../../components/EntityModal.astro';
 
+
 const BACKEND = "http://localhost:8000";
 
 
@@ -26,7 +27,7 @@ try {
     acciones: ''
   }));
 
-  
+
 
 
 } catch(error) {
@@ -49,6 +50,7 @@ try {
 
   <FormTabs />
   
+ 
   <EntityModal title="Detalles del Acta">
 
     <ProceedingDetails />
@@ -62,11 +64,11 @@ try {
 
       columns={[
   { key: 'date', header: 'Fecha' },
-  { key: 'address', header: 'Dirección' },
-  //{ key: 'agenda', header: 'Orden del Día' },
+  { key: 'address', header: 'DirecciÃ³n' },
+  //{ key: 'agenda', header: 'Orden del DÃ­a' },
   //{ key: 'approaches', header: 'Intervenciones' },
   //{ key: 'aggreements', header: 'Acuerdos' },
-  { key: 'commission_name', header: 'Comisión' },
+  { key: 'commission_name', header: 'ComisiÃ³n' },
   //{ key: 'participants', header: 'Participantes' },
   //{ key: 'signed_document', header: 'Documento' },
   { key: 'createdAt', header: 'Creado' },
@@ -78,7 +80,7 @@ try {
 
     >
 
-      <ActaForm />
+      <ActaForm/>
 
     </TablaConVistas>
 
@@ -308,7 +310,7 @@ document
           );
           if(
             !confirm(
-              "¿Desea eliminar esta acta?"
+              "Â¿Desea eliminar esta acta?"
             )
           ){
             return;
@@ -335,7 +337,7 @@ document
 
           localStorage.removeItem("auth_token");
 
-           alert("La sesión ha expirado.");
+           alert("La sesiÃ³n ha expirado.");
 
           window.location.replace("/login");
 
@@ -460,7 +462,7 @@ body {
   width: 100%;
 }
 
-/* fallback por si tu Tabla.astro usa tabla clásica */
+/* fallback por si tu Tabla.astro usa tabla clÃ¡sica */
 .tabla {
   width: 100%;
   display: block;

@@ -1,7 +1,7 @@
 ---
 ---
-<link 
-rel="stylesheet" 
+<link
+rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 />
 <section class="dictamen-page">
@@ -22,7 +22,7 @@ Dictamen
 
 <div class="form__group">
 <label class="form__label">
-Dirección
+DirecciÃ³n
 </label>
 
 <input
@@ -30,7 +30,7 @@ id="address"
 name="address"
 class="form__input"
 type="text"
-placeholder="Dirección"
+placeholder="DirecciÃ³n"
 required
 />
 
@@ -270,7 +270,7 @@ Seleccione...
 <div class="form__group">
 
 <label class="form__label">
-Código documento
+CÃ³digo documento
 </label>
 
 
@@ -336,7 +336,7 @@ Micro
 <div class="form__group">
 
 <label class="form__label">
-Características generales
+CaracterÃ­sticas generales
 </label>
 
 
@@ -572,7 +572,7 @@ size="5"
 
 </div>
 
-<!-- BOTÓN -->
+<!-- BOTÃ“N -->
 
 
 <div class="form-card submit-card">
@@ -613,7 +613,7 @@ Guardar Dictamen
 
 <style>
 /* ========================= */
-/* 🔥 CENTRADO FORZADO REAL */
+/* ðŸ”¥ CENTRADO FORZADO REAL */
 /* ========================= */
 
 .dictamen-page {
@@ -1211,7 +1211,7 @@ new FormData(form);
 
 
 
-// eliminar campos que no se envían
+// eliminar campos que no se envÃ­an
 
 formData.delete("commission_id");
 
@@ -1424,7 +1424,7 @@ async function loadOpinions() {
 
     } catch (error) {
 
-        console.error("Error cargando dictámenes", error);
+        console.error("Error cargando dictÃ¡menes", error);
 
     }
 
@@ -1763,7 +1763,7 @@ return;
 
 const id = e.target.dataset.id;
 const response = await fetch(`${BACKEND_BASE}/api/v1/opinion-documents/${id}/download`,
- { 
+ {
     headers:{  Authorization:`Bearer ${localStorage.getItem("auth_token")}`
             }
  }
