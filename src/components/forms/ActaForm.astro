@@ -1,6 +1,11 @@
 ---
 ---
 
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
+
 <section class="acta-page">
 
   <form id="acta-form" class="global-form">
@@ -24,17 +29,85 @@
         </div>
 
         <div class="form__group">
-          <label class="form__label">Localización</label>
-          <input class="form__input" type="text" name="location" id="location" />
+
+    <label class="form__label">
+        Localización
+    </label>
+
+    <div class="location-actions">
+
+        <button
+            type="button"
+            class="btn btn--secondary"
+            id="get-location"
+        >
+            <i class="fa-solid fa-location-crosshairs"></i>
+            Obtener mi ubicación
+        </button>
+
+    </div>
+
+    <div
+        id="location-status"
+        class="location-status"
+    >
+        Haz clic en el mapa para seleccionar una ubicación.
+    </div>
+
+    <div
+        id="acta-map"
+        class="acta-map"
+    ></div>
+
+    <div class="coordinates-grid">
+
+        <div class="coordinates-field">
+
+           <!--<label class="form__label">
+                Latitud
+            </label> --> 
+
+            <input
+                type="number"
+                id="latitude"
+                name="latitude"
+                step="any"
+                class="form__input"
+                hidden
+                readonly
+            />
+
         </div>
+
+        <div class="coordinates-field">
+
+           <!-- <label class="form__label">
+                Longitud
+            </label> -->
+
+            <input
+                type="number"
+                id="longitude"
+                name="longitude"
+                step="any"
+                class="form__input"
+                hidden
+                readonly
+            />
+
+        </div>
+
+    </div>
+
+</div>
 
 
       </div>
     </div>
 
-    <!-- ORDEN DEL DÍA -->
+    <!-- ORDEN DEL DÃA -->
     <div class="form-card">
-      <h2 class="form-card__title">Orden del Día</h2>
+      <h2 class="form-card__title">Orden del Dí­a</h2>
 
       <textarea class="form__input textarea auto-grow" name="agenda" id="acta-agenda" required></textarea>
     </div>
@@ -58,22 +131,54 @@
     <input type="hidden" name="commission_id" id="acta-commission-id" value="1" />
     <input type="hidden" name="signed_document" id="acta-signed-document" value="" />
 
-    <!-- DOCUMENTO -->
-    <div class="form-card">
-      <h2 class="form-card__title">Documento Firmado</h2>
+    <!-- DOCUMENTOS -->
+<div class="form-card">
 
-      <div class="form__group">
-        <input type="file" id="documento"/>
+  <h2 class="form-card__title">
+    Documentos asociados
+  </h2>
 
-        <!--<label class="form__input file" for="documento">
-          Seleccionar documento firmado
-        </label>-->
+  <div class="form__group">
 
-        <span id="file-name">
-          Ningún archivo seleccionado
-        </span>
-      </div>
-    </div>
+    <label class="form__label">
+      Documentos
+    </label>
+
+    <input
+      type="file"
+      id="documentos"
+      multiple
+      class="form__input"
+      accept="
+        .pdf,
+        .doc,
+        .docx,
+        .txt,
+        .odt,
+        .rtf,
+        .xls,
+        .xlsx,
+        .csv,
+        .ppt,
+        .pptx,
+        image/*
+      "
+    />
+
+    <small>
+      Puede seleccionar uno o varios archivos.
+    </small>
+
+    <!-- AQUÃ SE MOSTRARÃN LOS DOCUMENTOS -->
+    <div
+    id="current-documents"
+    class="current-documents"
+  ></div>
+
+  </div>
+
+</div>
+
 
     <!-- PARTICIPANTES -->
     <div class="form-card">
@@ -90,7 +195,7 @@
     </label>
 
 
-    <select 
+    <select
   id="participants"
   class="form__input"
   multiple
@@ -100,7 +205,7 @@
 
 
   </div>
-  
+
 
 </div>
 <!-- ELABORADO POR -->
@@ -117,7 +222,7 @@
     </label>
 
 
-    <select 
+    <select
       id="elaborado_por"
       class="form__input"
     >
@@ -150,7 +255,7 @@
   width: 100%;
   display: grid;
   place-items: center;
-  
+
   box-sizing: border-box;
 }
 
@@ -284,6 +389,67 @@ textarea {
   width: 100%;
 }
 
+
+
+/* =========================================
+   MAPA
+========================================= */
+
+.acta-map {
+    width: 100%;
+    height: 380px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 8px;
+    background: #f1f1f1;
+}
+
+.location-actions {
+    display: flex;
+    width: 100%;
+}
+
+.location-actions .btn {
+    width: 100%;
+}
+
+.location-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.coordinates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.coordinates-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+@media (max-width: 600px) {
+
+    .acta-map {
+        height: 300px;
+    }
+
+    .coordinates-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
 /* TABLET */
 @media (max-width: 900px) {
   .form-card {
@@ -332,40 +498,296 @@ textarea {
     width: 100%;
   }
 }
+.current-document {
 
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 8px 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.document-name {
+
+    flex: 1;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+}
+
+
+.document-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-left: 15px;
+
+}
+
+
+.icon-button {
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.download-document {
+
+    background: #e6f0ff;
+
+    color: #0066cc;
+
+}
+
+
+.download-document:hover {
+
+    background: #0066cc;
+
+    color: white;
+
+}
+
+
+.btn-remove-document {
+
+    background: #ffe6e6;
+
+    color: #d60000;
+
+}
+
+
+.btn-remove-document:hover {
+
+    background: #d60000;
+
+    color: white;
+
+}
+
+
+
+/* =========================================
+   LOCALIZACIÓN
+========================================= */
+
+.location-actions {
+    display: flex;
+    width: 100%;
+}
+
+.location-actions .btn {
+    width: 100%;
+}
+
+.location-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+/* =========================================
+   DOCUMENTOS
+========================================= */
+
+.current-documents {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.current-document {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 8px 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+.document-name {
+
+  flex: 1;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 13px;
+
+  color: #444;
+}
+
+.document-actions {
+
+  display: flex;
+
+  gap: 8px;
+
+  margin-left: 15px;
+}
+
+.icon-button {
+
+  width: 32px;
+
+  height: 32px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* DESCARGAR */
+
+.download-document {
+
+  background: #e6f0ff;
+
+  color: #0066cc;
+}
+
+.download-document:hover {
+
+  background: #0066cc;
+
+  color: white;
+}
+
+/* ELIMINAR */
+
+.btn-remove-document {
+
+  background: #ffe6e6;
+
+  color: #d60000;
+}
+
+.btn-remove-document:hover {
+
+  background: #d60000;
+
+  color: white;
+}
 </style>
 
 <script>
-  const input = document.getElementById('documento');
-  const fileName = document.getElementById('file-name');
 
-  input?.addEventListener('change', () => {
+import 'ol/ol.css';
 
-  if(!fileName) return;
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
 
+import TileLayer from 'ol/layer/Tile.js';
+import VectorLayer from 'ol/layer/Vector.js';
 
-  fileName.textContent =
-    input.files && input.files.length > 0
-      ? input.files[0].name
-      : 'Ningún archivo seleccionado';
+import OSM from 'ol/source/OSM.js';
+import VectorSource from 'ol/source/Vector.js';
 
-});
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
 
-  document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
+import Style from 'ol/style/Style.js';
+import CircleStyle from 'ol/style/Circle.js';
+import Fill from 'ol/style/Fill.js';
+import Stroke from 'ol/style/Stroke.js';
+
+import { fromLonLat, toLonLat } from 'ol/proj.js';    
+
+document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
+
     const resize = () => {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
+
+        textarea.style.height = 'auto';
+
+        textarea.style.height =
+            `${textarea.scrollHeight}px`;
+
     };
 
     textarea.addEventListener('input', resize);
+
     resize();
-  });
 
-  const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+});
 
-  const apiFetch = async (url, options = {}) => {
 
-    const token = window.localStorage.getItem('auth_token');
+// =====================================================
+// BACKEND
+// =====================================================
+
+const BACKEND_BASE =
+    `${window.location.protocol}//${window.location.hostname}:8000`;
+
+
+// =====================================================
+// API FETCH
+// =====================================================
+
+const apiFetch = async (url, options = {}) => {
+
+    const token =
+        window.localStorage.getItem('auth_token');
 
     const headers = {
         ...(options.headers || {}),
@@ -377,12 +799,18 @@ textarea {
         !(headers['Content-Type'] || headers['content-type']) &&
         !(options.body instanceof FormData)
     ) {
-        headers['Content-Type'] = 'application/json';
+
+        headers['Content-Type'] =
+            'application/json';
+
     }
 
 
     if (token) {
-        headers.Authorization = `Bearer ${token}`;
+
+        headers.Authorization =
+            `Bearer ${token}`;
+
     }
 
 
@@ -392,25 +820,30 @@ textarea {
     });
 
 
-    // ==========================
-    // SESIÓN EXPIRADA
-    // ==========================
+    // =================================================
+    // SESIÃ“N EXPIRADA
+    // =================================================
 
     if (res.status === 401) {
 
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem(
+            'auth_token'
+        );
 
-        alert('La sesión ha expirado.');
+        alert(
+            'La sesiÃ³n ha expirado.'
+        );
 
-        window.location.href = '/login';
+        window.location.href =
+            '/login';
 
         return null;
+
     }
 
 
-
-    const data = await res.json().catch(() => null);
-
+    const data =
+        await res.json().catch(() => null);
 
 
     if (!res.ok) {
@@ -418,28 +851,527 @@ textarea {
         const msg =
             data?.message ||
             data?.error ||
-            (typeof data === 'string'
-                ? data
-                : null) ||
+            (
+                typeof data === 'string'
+                    ? data
+                    : null
+            ) ||
             `Request failed: ${res.status}`;
 
 
         throw new Error(msg);
+
     }
 
 
     return data;
+
 };
 
-  const form = document.getElementById('acta-form');
-  let currentParticipants = [];
-  let currentElaboradoPor = null;
+
+// =====================================================
+// FORMULARIO
+// =====================================================
+
+const form =
+    document.getElementById(
+        'acta-form'
+    );
+
+// =====================================================
+// LOCALIZACIÓN
+// =====================================================
+
+const locationButton =
+    document.getElementById(
+        'get-location'
+    );
+
+const latitudeInput =
+    document.getElementById(
+        'latitude'
+    );
+
+const longitudeInput =
+    document.getElementById(
+        'longitude'
+    );
+
+const locationStatus =
+    document.getElementById(
+        'location-status'
+    );
+
+    // =====================================================
+// MAPA
+// =====================================================
+
+let actaMap = null;
+let locationSource = null;
+let locationLayer = null;
+let locationFeature = null;
+
+// Ubicación que debe aplicarse cuando el mapa esté disponible
+let pendingMapLocation = null;
+
+
+// =====================================================
+// COORDENADAS INICIALES
+// =====================================================
+
+// Centro aproximado de La Habana Vieja.
+// Solamente sirve como posición inicial cuando
+// el acta todavía no tiene ubicación.
+
+const DEFAULT_LATITUDE = 23.1379;
+
+const DEFAULT_LONGITUDE = -82.3487;
+
+
+// =====================================================
+// ESTILO DEL PUNTO
+// =====================================================
+
+const locationStyle =
+    new Style({
+
+        image:
+            new CircleStyle({
+
+                radius: 8,
+
+                fill:
+                    new Fill({
+                        color: '#553304'
+                    }),
+
+                stroke:
+                    new Stroke({
+                        color: '#ffffff',
+                        width: 3
+                    })
+
+            })
+
+    });
+
+
+// =====================================================
+// CREAR MAPA
+// =====================================================
+
+const initializeActaMap = () => {
+
+    const mapElement =
+        document.getElementById(
+            'acta-map'
+        );
+
+    if (!mapElement) {
+
+        console.error(
+            'No existe #acta-map'
+        );
+
+        return;
+
+    }
+
+    if (actaMap) {
+        return;
+    }
+
+
+    // =============================================
+    // SOURCE DEL MARCADOR
+    // =============================================
+
+    locationSource =
+        new VectorSource();
+
+
+    // =============================================
+    // CAPA DEL MARCADOR
+    // =============================================
+
+    locationLayer =
+        new VectorLayer({
+
+            source: locationSource,
+
+            style:
+                locationStyle
+
+        });
+
+
+    // =============================================
+    // MAPA
+    // =============================================
+
+    actaMap =
+        new Map({
+
+            target:
+                mapElement,
+
+            layers: [
+
+                /*
+                 * Esta capa es solamente
+                 * un fondo de referencia.
+                 *
+                 * Posteriormente pondremos
+                 * aquí las capas oficiales
+                 * de Plan Maestro.
+                 */
+                new TileLayer({
+
+                    source:
+                        new OSM()
+
+                }),
+
+                locationLayer
+
+            ],
+
+            view:
+                new View({
+
+                    center:
+                        fromLonLat([
+                            DEFAULT_LONGITUDE,
+                            DEFAULT_LATITUDE
+                        ]),
+
+                    zoom: 16
+
+                })
+
+        });
+
+
+    // =============================================
+    // CLICK EN MAPA
+    // =============================================
+
+    actaMap.on(
+        'click',
+        (event) => {
+
+            const [
+                longitude,
+                latitude
+            ] = toLonLat(
+                event.coordinate
+            );
+
+            setLocationFromMap(
+                latitude,
+                longitude
+            );
+
+        }
+    );
+
+
+    // =============================================
+    // CORREGIR TAMAÑO
+    // =============================================
+
+    setTimeout(() => {
+
+        actaMap.updateSize();
+
+    }, 100);
+
+};
+
+
+// =====================================================
+// SELECCIONAR UBICACIÓN
+// =====================================================
+
+const setLocationFromMap = (
+    latitude,
+    longitude,
+    centerMap = true
+) => {
+
+    if (!actaMap || !locationSource) {
+        return;
+    }
+
+    latitude =
+        Number(latitude);
+
+    longitude =
+        Number(longitude);
+
+
+    if (
+        Number.isNaN(latitude) ||
+        Number.isNaN(longitude)
+    ) {
+
+        console.error(
+            'Coordenadas inválidas:',
+            latitude,
+            longitude
+        );
+
+        return;
+
+    }
+
+
+    // =============================================
+    // GUARDAR COORDENADAS
+    // =============================================
+
+    latitudeInput.value =
+        latitude;
+
+    longitudeInput.value =
+        longitude;
+
+
+    // =============================================
+    // CONVERTIR A EPSG:3857
+    // =============================================
+
+    const coordinate =
+        fromLonLat([
+            longitude,
+            latitude
+        ]);
+
+
+    // =============================================
+    // CREAR / MOVER PUNTO
+    // =============================================
+
+    if (!locationFeature) {
+
+        locationFeature =
+            new Feature({
+
+                geometry:
+                    new Point(
+                        coordinate
+                    )
+
+            });
+
+        locationSource.addFeature(
+            locationFeature
+        );
+
+    }
+    else {
+
+        locationFeature
+            .getGeometry()
+            .setCoordinates(
+                coordinate
+            );
+
+    }
+
+
+    // =============================================
+    // CENTRAR MAPA
+    // =============================================
+
+    if (centerMap) {
+
+        actaMap
+            .getView()
+            .animate({
+
+                center:
+                    coordinate,
+
+                zoom: 18,
+
+                duration: 500
+
+            });
+
+    }
+
+
+    // =============================================
+    // ESTADO
+    // =============================================
+
+    locationStatus.textContent =
+        `Ubicación seleccionada: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+
+    console.log(
+        'UBICACIÓN SELECCIONADA:',
+        {
+            latitude,
+            longitude
+        }
+    );
+
+};
+
+// =====================================================
+// OBTENER UBICACIÓN
+// =====================================================
+
+locationButton?.addEventListener(
+    'click',
+    () => {
+
+        if (!navigator.geolocation) {
+
+            locationStatus.textContent =
+                'Tu navegador no soporta geolocalización.';
+
+            return;
+        }
+
+        locationStatus.textContent =
+            'Obteniendo ubicación...';
+
+        locationButton.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+
+            (position) => {
+
+                const latitude =
+                    position.coords.latitude;
+
+                const longitude =
+                    position.coords.longitude;
+
+                setLocationFromMap(
+    latitude,
+    longitude
+);
+
+                locationStatus.textContent =
+                    `Ubicación obtenida: ${latitude}, ${longitude}`;
+
+                locationButton.disabled =
+                    false;
+
+                console.log(
+                    'LATITUD:',
+                    latitude
+                );
+
+                console.log(
+                    'LONGITUD:',
+                    longitude
+                );
+            },
+
+            (error) => {
+
+                console.error(
+                    'ERROR DE GEOLOCALIZACIÓN:',
+                    error
+                );
+
+                locationButton.disabled =
+                    false;
+
+                switch (error.code) {
+
+                    case error.PERMISSION_DENIED:
+
+                        locationStatus.textContent =
+                            'Permiso de ubicación denegado.';
+
+                        break;
+
+                    case error.POSITION_UNAVAILABLE:
+
+                        locationStatus.textContent =
+                            'No se pudo obtener la ubicación.';
+
+                        break;
+
+                    case error.TIMEOUT:
+
+                        locationStatus.textContent =
+                            'Se agotó el tiempo para obtener la ubicación.';
+
+                        break;
+
+                    default:
+
+                        locationStatus.textContent =
+                            'No se pudo obtener la ubicación.';
+                }
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+);    
+
+
+const startActaMap = () => {
+
+    initializeActaMap();
+
+};
+
+if (
+    document.readyState === 'loading'
+) {
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        startActaMap,
+        {
+            once: true
+        }
+    );
+
+}
+else {
+
+    startActaMap();
+
+}
+
+// =====================================================
+// PARTICIPANTES
+// =====================================================
+
+let currentParticipants = [];
+
+let currentElaboradoPor = null;
+
+
+// =====================================================
+// CARGAR USUARIOS
+// =====================================================
+
 const loadUsers = async () => {
 
-    console.log("🔥 EJECUTANDO loadUsers");
+    console.log(
+        "ðŸ”¥ EJECUTANDO loadUsers"
+    );
 
 
-    const select = document.getElementById('participants');
+    const select =
+        document.getElementById(
+            'participants'
+        );
 
 
     console.log(
@@ -451,7 +1383,7 @@ const loadUsers = async () => {
     if (!select) {
 
         console.error(
-            "❌ NO EXISTE #participants"
+            "âŒ NO EXISTE #participants"
         );
 
         return;
@@ -459,13 +1391,12 @@ const loadUsers = async () => {
     }
 
 
-
     try {
 
-
-        const response = await apiFetch(
-            `${BACKEND_BASE}/api/v1/users?all=true`
-        );
+        const response =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/users?all=true`
+            );
 
 
         console.log(
@@ -478,37 +1409,36 @@ const loadUsers = async () => {
             response.data ?? response;
 
 
-
         console.log(
             "USUARIOS:",
             users
         );
 
 
-
         select.innerHTML = "";
-
 
 
         users.forEach(user => {
 
-
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
 
-            option.value = user.id;
+            option.value =
+                user.id;
 
 
             option.textContent =
                 user.name;
 
 
-            select.appendChild(option);
-
+            select.appendChild(
+                option
+            );
 
         });
-
 
 
         console.log(
@@ -516,10 +1446,8 @@ const loadUsers = async () => {
             select.options.length
         );
 
-
-
     }
-    catch(error){
+    catch(error) {
 
         console.error(
             "ERROR LOAD USERS:",
@@ -530,11 +1458,17 @@ const loadUsers = async () => {
 
 };
 
+
+// =====================================================
+// ELABORADO POR
+// =====================================================
+
 const loadElaboradoPor = async () => {
 
-    const select = document.getElementById(
-        "elaborado_por"
-    );
+    const select =
+        document.getElementById(
+            "elaborado_por"
+        );
 
 
     if (!select) return;
@@ -542,9 +1476,10 @@ const loadElaboradoPor = async () => {
 
     try {
 
-        const response = await apiFetch(
-            `${BACKEND_BASE}/api/v1/users?all=true`
-        );
+        const response =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/users?all=true`
+            );
 
 
         const users =
@@ -557,31 +1492,35 @@ const loadElaboradoPor = async () => {
         users.forEach(user => {
 
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
 
-            option.value = user.id;
+            option.value =
+                user.id;
 
 
             option.textContent =
                 user.name;
 
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
 
         });
 
 
-        // seleccionar usuario actual si existe
-        if(currentElaboradoPor){
+        if (currentElaboradoPor) {
 
             select.value =
                 currentElaboradoPor;
 
         }
 
-
-    } catch(error){
+    }
+    catch(error) {
 
         console.error(
             "ERROR LOAD ELABORADO POR:",
@@ -593,93 +1532,665 @@ const loadElaboradoPor = async () => {
 };
 
 
-  const documentoInput = document.getElementById('documento');
-  let currentSignedDocument = null;
-  const getEditId = () => window.localStorage.getItem('acta_edit_id');
+// =====================================================
+// DOCUMENTOS
+// =====================================================
 
-  const setEditId = (id) => {
-    if (id) window.localStorage.setItem('acta_edit_id', String(id));
-    else window.localStorage.removeItem('acta_edit_id');
-  };
+const documentoInput =
+    document.getElementById(
+        'documentos'
+    );
 
-  const prefill = async (id) => {
 
-    console.log("PREFILL ID:", id);
+let currentDocuments = [];
+
+
+// Archivos nuevos seleccionados
+let newDocuments = [];
+
+
+// =====================================================
+// RENDER DOCUMENTOS
+// =====================================================
+
+const renderDocuments = () => {
+
+    const container =
+        document.getElementById(
+            "current-documents"
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    // =================================================
+    // SIN DOCUMENTOS
+    // =================================================
+
+    if (
+        currentDocuments.length === 0 &&
+        newDocuments.length === 0
+    ) {
+
+        container.innerHTML = `
+            <p>
+                No hay documentos asociados.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    // =================================================
+    // DOCUMENTOS ACTUALES
+    // =================================================
+
+    currentDocuments.forEach(
+        (doc, index) => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "current-document";
+
+
+            div.innerHTML = `
+
+                <span class="document-name">
+                    ${doc.name}
+                </span>
+
+                <div class="document-actions">
+
+                    <button
+                        type="button"
+                        class="download-document icon-button"
+                        data-id="${doc.id}"
+                        title="Descargar documento"
+                    >
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn-remove-document icon-button"
+                        data-index="${index}"
+                        data-type="current"
+                        title="Eliminar documento"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                div
+            );
+
+        }
+    );
+
+
+    // =================================================
+    // DOCUMENTOS NUEVOS
+    // =================================================
+
+    newDocuments.forEach(
+        (file, index) => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "current-document";
+
+
+            div.innerHTML = `
+
+                <span class="document-name">
+                    ${file.name}
+                </span>
+
+                <div class="document-actions">
+
+                    <button
+                        type="button"
+                        class="btn-remove-document icon-button"
+                        data-index="${index}"
+                        data-type="new"
+                        title="Eliminar documento"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                div
+            );
+
+        }
+    );
+
+};
+
+
+// =====================================================
+// SELECCIONAR NUEVOS DOCUMENTOS
+// =====================================================
+
+documentoInput?.addEventListener(
+    'change',
+    () => {
+
+        if (
+            !documentoInput.files?.length
+        ) {
+
+            return;
+
+        }
+
+
+        const files =
+            Array.from(
+                documentoInput.files
+            );
+
+
+        console.log(
+            "ðŸ”¥ NUEVOS ARCHIVOS SELECCIONADOS:",
+            files.map(
+                file => file.name
+            )
+        );
+
+
+        // Agregar los archivos
+        newDocuments.push(
+            ...files
+        );
+
+
+        // Limpiar input
+        // permite seleccionar nuevamente
+        // el mismo archivo
+        documentoInput.value = "";
+
+
+        renderDocuments();
+
+    }
+);
+
+
+// =====================================================
+// ACCIONES DE DOCUMENTOS
+// =====================================================
+
+document
+    .getElementById(
+        "current-documents"
+    )
+    ?.addEventListener(
+        "click",
+        async (event) => {
+
+            const button =
+                event.target.closest(
+                    "button"
+                );
+
+
+            if (!button) return;
+
+
+            // =========================================
+            // DESCARGAR
+            // =========================================
+
+            if (
+                button.classList.contains(
+                    "download-document"
+                )
+            ) {
+
+                const id =
+                    button.dataset.id;
+
+
+                console.log(
+                    "DESCARGANDO DOCUMENTO:",
+                    id
+                );
+
+
+                try {
+
+                    /*
+                     * IMPORTANTE:
+                     * Esta ruta debe coincidir
+                     * con la ruta de tu backend.
+                     */
+
+                    const response =
+                        await fetch(
+                            `${BACKEND_BASE}/api/v1/media-files/${id}/download`,
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bearer ${localStorage.getItem('auth_token')}`
+                                }
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "No se pudo descargar el documento."
+                        );
+
+                    }
+
+
+                    const blob =
+                        await response.blob();
+
+
+                    const url =
+                        URL.createObjectURL(
+                            blob
+                        );
+
+
+                    const a =
+                        document.createElement(
+                            "a"
+                        );
+
+
+                    a.href =
+                        url;
+
+
+                    a.download =
+                        "documento";
+
+
+                    document.body.appendChild(
+                        a
+                    );
+
+
+                    a.click();
+
+
+                    a.remove();
+
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                }
+                catch(error) {
+
+                    console.error(
+                        "ERROR DESCARGANDO DOCUMENTO:",
+                        error
+                    );
+
+
+                    alert(
+                        "No se pudo descargar el documento."
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            // =========================================
+            // ELIMINAR
+            // =========================================
+
+            if (
+                button.classList.contains(
+                    "btn-remove-document"
+                )
+            ) {
+
+                const index =
+                    Number(
+                        button.dataset.index
+                    );
+
+
+                const type =
+                    button.dataset.type;
+
+
+                // -------------------------------------
+                // DOCUMENTO ACTUAL
+                // -------------------------------------
+
+                if (
+                    type === "current"
+                ) {
+
+                    console.log(
+                        "ELIMINANDO DOCUMENTO ACTUAL:",
+                        currentDocuments[index]
+                    );
+
+
+                    currentDocuments.splice(
+                        index,
+                        1
+                    );
+
+                }
+
+
+                // -------------------------------------
+                // DOCUMENTO NUEVO
+                // -------------------------------------
+
+                if (
+                    type === "new"
+                ) {
+
+                    console.log(
+                        "ELIMINANDO DOCUMENTO NUEVO:",
+                        newDocuments[index]
+                    );
+
+
+                    newDocuments.splice(
+                        index,
+                        1
+                    );
+
+                }
+
+
+                renderDocuments();
+
+            }
+
+        }
+    );
+
+
+// =====================================================
+// ID EDICIÃ“N
+// =====================================================
+
+const getEditId = () =>
+    window.localStorage.getItem(
+        'acta_edit_id'
+    );
+
+
+const setEditId = (id) => {
+
+    if (id) {
+
+        window.localStorage.setItem(
+            'acta_edit_id',
+            String(id)
+        );
+
+    }
+    else {
+
+        window.localStorage.removeItem(
+            'acta_edit_id'
+        );
+
+    }
+
+};
+
+
+// =====================================================
+// PREFILL
+// =====================================================
+
+const prefill = async (id) => {
+
+    console.log(
+        "PREFILL ID:",
+        id
+    );
+
 
     if (!id) {
-        console.log("No existe id");
+
+        console.log(
+            "No existe id"
+        );
+
         return;
+
     }
 
 
     try {
 
-        const res = await apiFetch(
-            `${BACKEND_BASE}/api/v1/proceedings/${id}`
+        const res =
+            await apiFetch(
+                `${BACKEND_BASE}/api/v1/proceedings/${id}`
+            );
+
+
+        console.log(
+            "RESPUESTA API:",
+            res
         );
 
 
-        console.log("RESPUESTA API:", res);
+        const p =
+            res?.data ?? res;
 
 
-        const p = res?.data ?? res;
-
-
-        console.log("DATOS ACTA:", p);
-
+        console.log(
+            "DATOS ACTA:",
+            p
+        );
 
 
         const dateEl =
-            document.getElementById('acta-date');
+            document.getElementById(
+                'acta-date'
+            );
+
 
         const addressEl =
-            document.getElementById('acta-address');
+            document.getElementById(
+                'acta-address'
+            );
+
 
         const agendaEl =
-            document.getElementById('acta-agenda');
+            document.getElementById(
+                'acta-agenda'
+            );
+
 
         const approachesEl =
-            document.getElementById('acta-approaches');
+            document.getElementById(
+                'acta-approaches'
+            );
+
 
         const agreementsEl =
-            document.getElementById('acta-aggreements');
+            document.getElementById(
+                'acta-aggreements'
+            );
 
 
-        console.log({
-            dateEl,
-            addressEl,
-            agendaEl,
-            approachesEl,
-            agreementsEl
-        });
+        if (dateEl) {
 
-
-
-        if (dateEl)
-            dateEl.value = 
+            dateEl.value =
                 p.date?.split(" ")[0] ?? "";
 
+        }
 
-        if (addressEl)
+
+        if (addressEl) {
+
             addressEl.value =
                 p.address ?? "";
 
+        }
 
-        if (agendaEl)
+
+        if (agendaEl) {
+
             agendaEl.value =
                 p.agenda ?? "";
 
+        }
 
-        if (approachesEl)
+
+        if (approachesEl) {
+
             approachesEl.value =
                 p.approaches ?? "";
 
+        }
 
-        if (agreementsEl)
+
+        if (agreementsEl) {
+
             agreementsEl.value =
                 p.aggreements ?? "";
 
+        }
+// =========================================
+// LOCALIZACIÓN
+// =========================================
 
+const latitudeInput =
+    document.getElementById('latitude');
+
+const longitudeInput =
+    document.getElementById('longitude');
+
+const latitude =
+    Number(p.location?.latitude);
+
+const longitude =
+    Number(p.location?.longitude);
+
+console.log(
+    'UBICACIÓN DEL ACTA:',
+    {
+        latitude,
+        longitude
+    }
+);
+
+// =========================================
+// CARGAR COORDENADAS EN INPUTS
+// =========================================
+
+if (
+    latitudeInput &&
+    p.location?.latitude !== null &&
+    p.location?.latitude !== undefined
+) {
+    latitudeInput.value =
+        p.location.latitude;
+}
+
+if (
+    longitudeInput &&
+    p.location?.longitude !== null &&
+    p.location?.longitude !== undefined
+) {
+    longitudeInput.value =
+        p.location.longitude;
+}
+
+// =========================================
+// CENTRAR MAPA EN UBICACIÓN EXISTENTE
+// =========================================
+
+if (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+) {
+
+    const centerExistingLocation = () => {
+
+        if (!actaMap) {
+            return false;
+        }
+
+        // Importante cuando el formulario estaba oculto
+        actaMap.updateSize();
+
+        setLocationFromMap(
+            latitude,
+            longitude,
+            true
+        );
+
+        return true;
+    };
+
+    // Intento inmediato
+    if (!centerExistingLocation()) {
+
+        // El mapa todavía no estaba inicializado
+        setTimeout(() => {
+
+            centerExistingLocation();
+
+        }, 300);
+
+    } else {
+
+        // El mapa existe, pero el formulario
+        // puede estar terminando de hacerse visible.
+        setTimeout(() => {
+
+            centerExistingLocation();
+
+        }, 300);
+    }
+}
+
+
+        // =========================================
+        // COMISIÃ“N
+        // =========================================
 
         const commissionIdHidden =
             document.getElementById(
@@ -687,74 +2198,114 @@ const loadElaboradoPor = async () => {
             );
 
 
-        if (commissionIdHidden)
+        if (commissionIdHidden) {
+
             commissionIdHidden.value =
                 p.commission_id ?? "";
-        currentSignedDocument = p?.signed_document ?? null;
-        if (documentoInput) {
-        documentoInput.required = false;
+
         }
-       currentParticipants = Array.isArray(p?.participants)
-    ? p.participants.map(user => Number(user.id))
-    : [];
-    const participantsSelect =
-    document.getElementById('participants');
 
 
-if (participantsSelect) {
+        // =========================================
+        // DOCUMENTOS
+        // =========================================
 
-    Array.from(participantsSelect.options)
-        .forEach(option => {
-
-            option.selected =
-                currentParticipants.includes(
-                    Number(option.value)
-                );
-
-        });
-
-}
-
-    const elaboradoSelect =
-    document.getElementById('elaborado_por');
-    
-
-if (elaboradoSelect) {
-
-    elaboradoSelect.value =
-        p.elaborado_por ?? "";
-
-}
+        currentDocuments =
+            Array.isArray(
+                p?.documents
+            )
+                ? p.documents
+                : [];
 
 
-console.log(
-    "PARTICIPANTES DEL ACTA:",
-    currentParticipants
-);
+        newDocuments = [];
+
+
+        if (documentoInput) {
+
+            documentoInput.required =
+                false;
+
+        }
+
+
+        renderDocuments();
+
+
+        // =========================================
+        // PARTICIPANTES
+        // =========================================
+
+        currentParticipants =
+            Array.isArray(
+                p?.participants
+            )
+                ? p.participants.map(
+                    user =>
+                        Number(user.id)
+                )
+                : [];
+
+
+        const participantsSelect =
+            document.getElementById(
+                'participants'
+            );
+
+
+        if (participantsSelect) {
+
+            Array.from(
+                participantsSelect.options
+            ).forEach(
+                option => {
+
+                    option.selected =
+                        currentParticipants.includes(
+                            Number(
+                                option.value
+                            )
+                        );
+
+                }
+            );
+
+        }
+
+
+        // =========================================
+        // ELABORADO POR
+        // =========================================
+
+        const elaboradoSelect =
+            document.getElementById(
+                'elaborado_por'
+            );
+
+
+        if (elaboradoSelect) {
+
+            elaboradoSelect.value =
+                p.elaborado_por ?? "";
+
+        }
+
 
         console.log(
-               "DOCUMENTO ACTUAL:",
-                currentSignedDocument
-                   );
-    const fileName =
-    document.getElementById('file-name');
+            "PARTICIPANTES DEL ACTA:",
+            currentParticipants
+        );
 
 
-if(fileName){
+        console.log(
+            "DOCUMENTOS ACTUALES:",
+            currentDocuments
+        );
 
-    if(p.signed_document){
 
-        fileName.textContent =
-            "Tiene documento asignado";
-
-    }else{
-
-        fileName.textContent =
-            "Ningún archivo seleccionado";
-
-    }
-
-}
+        // =========================================
+        // BOTÃ“N
+        // =========================================
 
         const btn =
             form?.querySelector(
@@ -762,13 +2313,15 @@ if(fileName){
             );
 
 
-        if(btn)
+        if (btn) {
+
             btn.textContent =
                 "Actualizar Acta";
 
+        }
 
     }
-    catch(error){
+    catch(error) {
 
         console.error(
             "ERROR PREFILL:",
@@ -780,17 +2333,22 @@ if(fileName){
 };
 
 
+// =====================================================
+// RESET FORM
+// =====================================================
 
+const resetForm = () => {
 
-  const resetForm = () => {
-
-
-    console.log("RESET FORM");
+    console.log(
+        "RESET FORM"
+    );
 
 
     currentParticipants = [];
 
-    currentSignedDocument = null;
+    currentDocuments = [];
+
+    newDocuments = [];
 
 
     localStorage.removeItem(
@@ -798,11 +2356,13 @@ if(fileName){
     );
 
 
-    if(!form) return;
+    if (!form) return;
 
 
     form.reset();
 
+
+    renderDocuments();
 
 
     const commissionIdHidden =
@@ -811,12 +2371,12 @@ if(fileName){
         );
 
 
-    if(commissionIdHidden){
+    if (commissionIdHidden) {
 
-        commissionIdHidden.value = "";
+        commissionIdHidden.value =
+            "";
 
     }
-
 
 
     const participantsSelect =
@@ -825,34 +2385,37 @@ if(fileName){
         );
 
 
-    if(participantsSelect){
+    if (participantsSelect) {
 
-        participantsSelect.innerHTML = "";
+        participantsSelect.innerHTML =
+            "";
 
-        participantsSelect.value = "";
-
-    }
-
-
-
-    if(documentoInput){
-
-        documentoInput.value = "";
+        participantsSelect.value =
+            "";
 
     }
 
+
+    if (documentoInput) {
+
+        documentoInput.value =
+            "";
+
+    }
 
 
     document
-    .querySelectorAll(
-        'textarea.auto-grow'
-    )
-    .forEach(textarea=>{
+        .querySelectorAll(
+            'textarea.auto-grow'
+        )
+        .forEach(
+            textarea => {
 
-        textarea.style.height="auto";
+                textarea.style.height =
+                    "auto";
 
-    });
-
+            }
+        );
 
 
     const btn =
@@ -861,177 +2424,436 @@ if(fileName){
         );
 
 
-    if(btn){
+    if (btn) {
 
         btn.textContent =
             "Guardar Acta";
 
     }
 
-
 };
 
-  window.addEventListener('acta-new', async () => {
 
-    console.log("NUEVA ACTA");
+// =====================================================
+// NUEVA ACTA
+// =====================================================
 
-    setEditId(null);
+window.addEventListener(
+    'acta-new',
+    async () => {
 
-    resetForm();
-
-
-    // esperar que el formulario exista
-    setTimeout(async () => {
-
-        currentParticipants = [];
-        
-        await loadUsers();
-        await loadElaboradoPor();
-    }, 100);
-
-});
-
-  window.addEventListener('acta-edit', async (ev) => {
-
-    const id = ev?.detail?.id;
-
-    console.log("EDIT EVENT ID:", id);
+        console.log(
+            "NUEVA ACTA"
+        );
 
 
-    if (!id) {
-        console.error("No llegó ID para editar");
-        return;
+        setEditId(null);
+
+
+        resetForm();
+
+
+        setTimeout(
+            async () => {
+
+                currentParticipants =
+                    [];
+
+
+                await loadUsers();
+
+                await loadElaboradoPor();
+
+            },
+            100
+        );
+
     }
+);
 
 
-    setEditId(id);
+// =====================================================
+// EDITAR ACTA
+// =====================================================
+
+window.addEventListener(
+    'acta-edit',
+    async (ev) => {
+
+        const id =
+            ev?.detail?.id;
 
 
-    console.log(
-        "GUARDADO EN STORAGE:",
-        localStorage.getItem('acta_edit_id')
-    );
+        console.log(
+            "EDIT EVENT ID:",
+            id
+        );
 
 
-    // Primero llenar los selects
-    await loadUsers();
+        if (!id) {
 
-    await loadElaboradoPor();
+            console.error(
+                "No llegÃ³ ID para editar"
+            );
 
+            return;
 
-    // Después cargar los datos del acta
-    await prefill(id);
-
-});
-
-  form?.addEventListener('submit', async (e) => {
-    console.log("SUBMIT EJECUTADO");
-    e.preventDefault();
-
-    const date = form.elements['date'].value;
-    const address = form.elements['address'].value;
-    const agenda = form.elements['agenda'].value;
-    const approaches = form.elements['approaches'].value;
-    const aggreements = form.elements['aggreements'].value;
-    const elaborado_por =
-    Number(
-      document.getElementById('elaborado_por').value
-    );    
-
-   
-
-    let signed_document = currentSignedDocument;
-
-    const fileInput = document.getElementById('documento');
-    if (fileInput?.files?.length) {
-      const file = fileInput.files[0];
-
-      const fd = new FormData();
-      fd.append('file', file);
-
-      const uploadRes = await apiFetch(
-        `${BACKEND_BASE}/api/v1/images/upload`,
-        {
-          method: 'POST',
-          body: fd,
         }
-      );
 
-      signed_document = uploadRes.data.id;
-      
+
+        setEditId(id);
+
+
+        console.log(
+            "GUARDADO EN STORAGE:",
+            localStorage.getItem(
+                'acta_edit_id'
+            )
+        );
+
+
+        await loadUsers();
+
+        await loadElaboradoPor();
+
+        await prefill(id);
+
     }
+);
 
-    const participantsSelect = document.getElementById('participants');
-    const participants = Array.from(participantsSelect.selectedOptions).map(
-      (option) => Number(option.value)
-    );
-    console.log("ELABORADO POR:", elaborado_por);
-    const payload = {
+
+// =====================================================
+// SUBMIT
+// =====================================================
+
+form?.addEventListener(
+    'submit',
+    async (e) => {
+
+        console.log(
+            "SUBMIT EJECUTADO"
+        );
+
+
+        e.preventDefault();
+
+
+        try {
+
+            // =========================================
+            // DATOS
+            // =========================================
+
+            const date =
+                form.elements[
+                    'date'
+                ].value;
+
+
+            const address =
+                form.elements[
+                    'address'
+                ].value;
+
+
+            const agenda =
+                form.elements[
+                    'agenda'
+                ].value;
+
+
+            const approaches =
+                form.elements[
+                    'approaches'
+                ].value;
+
+
+            const aggreements =
+                form.elements[
+                    'aggreements'
+                ].value;
+
+
+            const elaborado_por =
+                Number(
+                    document.getElementById(
+                        'elaborado_por'
+                    ).value
+                );
+
+
+            // =========================================
+            // DOCUMENTOS ACTUALES
+            // =========================================
+
+            let documents =
+                currentDocuments.map(
+                    doc =>
+                        Number(doc.id)
+                );
+
+
+            console.log(
+                "DOCUMENTOS ACTUALES:",
+                documents
+            );
+
+
+            // =========================================
+            // SUBIR DOCUMENTOS NUEVOS
+            // =========================================
+
+            console.log(
+                "DOCUMENTOS NUEVOS:",
+                newDocuments
+            );
+
+
+            for (
+                const file
+                of newDocuments
+            ) {
+
+                console.log(
+                    "ðŸ”¥ SUBIENDO NUEVO DOCUMENTO:",
+                    file.name
+                );
+
+
+                console.log("ARCHIVO ANTES DE SUBIR:", {
+    name: file.name,
+    type: file.type,
+    size: file.size
+});
+
+const fd = new FormData();
+
+fd.append('file', file);
+
+console.log(
+    "FORMDATA FILE:",
+    fd.get('file')
+);
+
+
+                const uploadRes =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/images/upload`,
+                        {
+                            method: 'POST',
+                            body: fd
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA UPLOAD:",
+                    uploadRes
+                );
+
+
+
+                const newDocumentId =
+                    Number(
+                        uploadRes?.data?.id
+                    );
+
+
+                console.log(
+                    "NUEVO DOCUMENT ID:",
+                    newDocumentId
+                );
+
+
+                if (
+                    !newDocumentId ||
+                    Number.isNaN(
+                        newDocumentId
+                    )
+                ) {
+
+                    throw new Error(
+                        `El servidor no devolviÃ³ un ID vÃ¡lido para: ${file.name}`
+                    );
+
+                }
+
+
+                documents.push(
+                    newDocumentId
+                );
+
+            }
+
+
+            // =========================================
+            // PARTICIPANTES
+            // =========================================
+
+            const participantsSelect =
+                document.getElementById(
+                    'participants'
+                );
+
+
+            const participants =
+                participantsSelect
+                    ? Array.from(
+                        participantsSelect.selectedOptions
+                    ).map(
+                        option =>
+                            Number(
+                                option.value
+                            )
+                    )
+                    : [];
+
+
+                  const latitudeInput = document.getElementById('latitude');
+const longitudeInput = document.getElementById('longitude');
+
+const latitude = latitudeInput
+    ? Number(latitudeInput.value)
+    : null;
+
+const longitude = longitudeInput
+    ? Number(longitudeInput.value)
+    : null;
+
+console.log("LATITUD A ENVIAR:", latitude);
+console.log("LONGITUD A ENVIAR:", longitude);
+
+const payload = {
     date,
     address,
     agenda,
     approaches,
     aggreements,
     elaborado_por,
-    signed_document,
-    participants,
+    documents,
+    participants
 };
-    if (!signed_document) {
-    delete payload.signed_document;
+
+if (
+    latitudeInput?.value &&
+    longitudeInput?.value &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude)
+) {
+    payload.location = {
+        latitude,
+        longitude
+    };
 }
 
-    try {
-      const editId = getEditId();
 
-console.log("ID AL HACER SUBMIT:", editId);
+            console.log(
+                "PAYLOAD COMPLETO:",
+                payload
+            );
 
-console.log(
-    "STORAGE AL HACER SUBMIT:",
-    localStorage.getItem("acta_edit_id")
-);
-      
-      console.log('ACTA MODE:', editId ? `EDIT ${editId}` : 'NEW');
-      
-      console.log("SUBMIT EDIT ID:", editId);
 
-console.log(
-  "LOCAL STORAGE AL ENVIAR:",
-  localStorage.getItem("acta_edit_id")
-);
-      if (editId) {
+            // =========================================
+            // ID
+            // =========================================
 
-    const response = await apiFetch(
-        `${BACKEND_BASE}/api/v1/proceedings/${editId}`,
-        {
-            method: 'PUT',
-            body: JSON.stringify(payload),
+            const editId =
+                getEditId();
+
+
+            console.log(
+                "ID DEL ACTA:",
+                editId
+            );
+
+
+            // =========================================
+            // ACTUALIZAR
+            // =========================================
+
+            if (editId) {
+
+                const response =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/proceedings/${editId}`,
+                        {
+                            method: 'PUT',
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA UPDATE:",
+                    response
+                );
+
+            }
+
+
+            // =========================================
+            // CREAR
+            // =========================================
+
+            else {
+
+                const response =
+                    await apiFetch(
+                        `${BACKEND_BASE}/api/v1/proceedings`,
+                        {
+                            method: 'POST',
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                console.log(
+                    "RESPUESTA CREATE:",
+                    response
+                );
+
+            }
+
+
+            // =========================================
+            // FINALIZAR
+            // =========================================
+
+            setEditId(null);
+
+
+            setTimeout(
+                () =>
+                    window.location.reload(),
+                300
+            );
+
         }
-    );
+        catch (err) {
+
+            console.error(
+                "ERROR AL GUARDAR ACTA:",
+                err
+            );
 
 
-    console.log(
-        "RESPUESTA UPDATE:",
-        response
-    );
+            alert(
+                err instanceof Error
+                    ? err.message
+                    : String(err)
+            );
 
-} else {
-        localStorage.removeItem('acta_edit_id');
-        console.log("ENTRANDO EN CREATE");
-        await apiFetch(`${BACKEND_BASE}/api/v1/proceedings`, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-      }
+        }
 
-      setEditId(null);
-      setTimeout(() => window.location.reload(), 300);
-    } catch (err) {
-      console.error(err);
-      alert(err instanceof Error ? err.message : String(err));
     }
-  });
+);
 
-  
-
-  
 </script>

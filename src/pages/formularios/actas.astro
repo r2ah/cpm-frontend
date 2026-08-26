@@ -5,6 +5,9 @@ import ActaForm from '../../components/forms/ActaForm.astro';
 import FormTabs from "../../components/forms/FormTabs.astro";
 import TablaConVistas from '../../components/TablaConVistas.astro';
 
+import ProceedingDetails from '../../components/details/ProceedingDetails.astro';
+import EntityModal from '../../components/EntityModal.astro';
+
 
 const BACKEND = "http://localhost:8000";
 
@@ -24,7 +27,7 @@ try {
     acciones: ''
   }));
 
-  
+
 
 
 } catch(error) {
@@ -46,7 +49,13 @@ try {
   <Header />
 
   <FormTabs />
+  
+ 
+  <EntityModal title="Detalles del Acta">
 
+    <ProceedingDetails />
+
+</EntityModal>
 
   <main class="page">
 
@@ -56,12 +65,12 @@ try {
       columns={[
   { key: 'date', header: 'Fecha' },
   { key: 'address', header: 'Dirección' },
-  //{ key: 'agenda', header: 'Orden del Día' },
+  //{ key: 'agenda', header: 'Orden del DÃ­a' },
   //{ key: 'approaches', header: 'Intervenciones' },
   //{ key: 'aggreements', header: 'Acuerdos' },
   { key: 'commission_name', header: 'Comisión' },
   //{ key: 'participants', header: 'Participantes' },
-  { key: 'signed_document', header: 'Documento' },
+  //{ key: 'signed_document', header: 'Documento' },
   { key: 'createdAt', header: 'Creado' },
   { key: 'acciones', header: 'Acciones' }
 ]}
@@ -71,7 +80,7 @@ try {
 
     >
 
-      <ActaForm />
+      <ActaForm/>
 
     </TablaConVistas>
 
@@ -165,17 +174,27 @@ const json = await res.json();
         <td class="tabla__td">
           ${acta.commission_name ?? ""}
         </td>
-       <td class="tabla__td">
+      <!-- <td class="tabla__td">
           ${
             acta.signed_document
             ? " Archivo"
             : ""
           }
-        </td>
+        </td>-->
         <td class="tabla__td">
           ${acta.createdAt.substring(0,10) ?? ""}
         </td>
         <td class="tabla__td">
+
+
+        <button
+type="button"
+class="tabla__action tabla__action--detail"
+data-proceeding-detail="${acta.id}"
+>
+Ver
+</button>
+
           <button
             type="button"
             class="tabla__action tabla__action--edit"
@@ -228,54 +247,75 @@ const json = await res.json();
       );
     });
     /*
+
+
+
+/*
+===========================
+   VER DETALLES
+===========================
+*/
+
+document
+.querySelectorAll("[data-proceeding-detail]")
+.forEach(btn=>{
+
+    btn.addEventListener(
+        "click",
+        ()=>{
+
+            const id =
+            btn.dataset.proceedingDetail;
+
+            window.dispatchEvent(
+
+                new CustomEvent(
+
+                    "show-proceeding-details",
+
+                    {
+                        detail:{
+                            id
+                        }
+                    }
+
+                )
+
+            );
+
+        }
+    );
+
+});
+
+/*
     ===========================
        ELIMINAR
     ===========================
     */
 
 
-    document
-    .querySelectorAll("[data-proceeding-delete]")
-    .forEach(btn=>{
-
+    document.querySelectorAll("[data-proceeding-delete]").forEach(btn=>{
 
       btn.addEventListener(
         "click",
         async(e)=>{
 
-
           e.preventDefault();
-
           e.stopPropagation();
-
-
-
-          const id =
-          btn.dataset.proceedingDelete;
-
-
-
+          const id = btn.dataset.proceedingDelete;
           console.log(
             "BORRANDO ACTA ID:",
             id
           );
-
-
-
           if(
             !confirm(
-              "¿Desea eliminar esta acta?"
+              "Â¿Desea eliminar esta acta?"
             )
           ){
             return;
           }
-
-
-
-
           try{
-
-
             const response =
             await fetch(
               `${API}/${id}`,
@@ -297,7 +337,7 @@ const json = await res.json();
 
           localStorage.removeItem("auth_token");
 
-           alert("La sesión ha expirado.");
+           alert("La sesiÃ³n ha expirado.");
 
           window.location.replace("/login");
 
@@ -365,9 +405,6 @@ const json = await res.json();
 };
 
 
-
-
-
 /*
 ===========================
    CARGA INICIAL
@@ -425,7 +462,7 @@ body {
   width: 100%;
 }
 
-/* fallback por si tu Tabla.astro usa tabla clásica */
+/* fallback por si tu Tabla.astro usa tabla clÃ¡sica */
 .tabla {
   width: 100%;
   display: block;
@@ -536,5 +573,12 @@ body {
   .tabla__td {
     font-size: 13px;
   }
+}
+
+.tabla__action--detail{
+
+    background:#04553d;
+    margin-right:6px;
+
 }
 </style>

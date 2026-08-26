@@ -30,19 +30,19 @@ import DetailRow from "../ui/DetailRow.astro";
 <h3>Empresas relacionadas</h3>
 
 
-<DetailRow 
+<DetailRow
 label="Diseñador"
 id="detail-designer"
 />
 
 
-<DetailRow 
+<DetailRow
 label="Inversionista"
 id="detail-investor"
 />
 
 
-<DetailRow 
+<DetailRow
 label="Constructor"
 id="detail-builder"
 />
@@ -58,25 +58,25 @@ id="detail-builder"
 <h3>Comisión</h3>
 
 
-<DetailRow 
+<DetailRow
 label="Comisión"
 id="detail-commission"
 />
 
 
-<DetailRow 
+<DetailRow
 label="Elaborado por"
 id="detail-prepared"
 />
 
 
-<DetailRow 
+<DetailRow
 label="Revisado por"
 id="detail-reviewed"
 />
 
 
-<DetailRow 
+<DetailRow
 label="Aprobado por"
 id="detail-approved"
 />
@@ -94,7 +94,7 @@ id="detail-approved"
 
 
 <DetailRow
-label="Características generales"
+label="Caracterí­sticas generales"
 id="detail-general"
 />
 
@@ -170,177 +170,114 @@ window.addEventListener(
 "show-opinion-details",
 (e)=>{
 
-
 const o = e.detail;
-
-
 console.log(
 "Opinion recibida:",
 o
 );
 
 
-
 function setDetail(id,value){
-
     const element =
     document.getElementById(id);
-
-
     if(element){
-
         element.textContent =
         value ?? "-";
-
     }else{
-
         console.warn(
             "No existe elemento:",
             id
         );
-
     }
-
 }
-
-
-
 // =========================
-// INFORMACIÓN GENERAL
+// INFORMACIÃ“N GENERAL
 // =========================
-
 setDetail(
     "detail-id",
     o.id
 );
-
-
 setDetail(
     "detail-entity",
     o.entity
 );
-
-
 setDetail(
     "detail-address",
     o.address
 );
-
-
 setDetail(
     "detail-state",
     o.state
 );
-
-
 setDetail(
     "detail-date",
-    o.date
+    o.date.substring(0,10)
 );
-
-
 setDetail(
     "detail-document",
     o.issuing_document_code
 );
-
-
-
-
 // =========================
 // EMPRESAS
 // =========================
-
 setDetail(
     "detail-designer",
     o.designer?.name
 );
-
-
 setDetail(
     "detail-investor",
     o.investor?.name
 );
-
-
 setDetail(
     "detail-builder",
     o.builder?.name
 );
-
-
-
-
 // =========================
-// COMISIÓN
+// COMISIÃ“N
 // =========================
-
 setDetail(
     "detail-commission",
     o.commission?.name
 );
-
-
 setDetail(
     "detail-prepared",
     o.prepared_by?.name
 );
-
-
 setDetail(
     "detail-reviewed",
     o.reviewed_by?.name
 );
-
-
 setDetail(
     "detail-approved",
     o.approved_by?.name
 );
-
-
-
-
 // =========================
-// INFORMACIÓN TÉCNICA
+// INFORMACIÃ“N TÃ‰CNICA
 // =========================
-
 setDetail(
     "detail-general",
     o.general_characteristics
 );
-
-
 setDetail(
     "detail-considerations",
     o.considerations
 );
-
-
 setDetail(
     "detail-observations",
     o.observations
 );
-
-
 // =========================
 // INTERVENCIONES
 // =========================
-
 const interventionsElement =
 document.getElementById(
     "detail-interventions"
 );
-
-
 if(interventionsElement){
-
-
     if(
         o.interventions &&
         o.interventions.length
     ){
-
         interventionsElement.innerHTML =
         o.interventions
         .map(
@@ -350,88 +287,94 @@ if(interventionsElement){
             </div>`
         )
         .join("");
-
-
     }else{
-
-
         interventionsElement.textContent =
         "-";
-
-
-    }
-
+ }
 }
-
 //DOCUMENTOS
-
 function setDocuments(documents){
 
     const container =
     document.getElementById("detail-documents");
-
     if(!container) return;
-
     container.innerHTML = "";
-
     if(!documents || documents.length === 0){
-
         container.innerHTML =
         "<p>No hay documentos asociados.</p>";
-
         return;
-
     }
-
     documents.forEach(doc=>{
-
-        const item =
-        document.createElement("div");
-
-        item.className =
-        "document-item";
-
-        item.innerHTML = `
-            <a
-                href="${doc.url}"
-                target="_blank"
-            >
+        const item = document.createElement("div");
+        item.className = "document-item";
+    item.innerHTML = `
+            <span class="document-name">
                 ${doc.name}
-            </a>
-
+            </span>
+            <button
+    class="download-detail-document icon-download"
+    title="Descargar documento"
+    data-id="${doc.id}"
+>
+    <i class="fa-solid fa-download"></i>
+     Download
+</button>
             <small>
                 (${(doc.size/1024).toFixed(1)} KB)
             </small>
-        `;
 
+        `;
         container.appendChild(item);
 
-    });
+item.querySelector(".download-detail-document").addEventListener("click",async()=>{
 
+ try{
+   const response =
+   await fetch(`${BACKEND_BASE}/api/v1/opinion-documents/${doc.id}/download`,
+      {
+        headers:{ Authorization:`Bearer ${localStorage.getItem("auth_token")}`}
+      });
+
+     if(!response.ok){ throw new Error("No se pudo descargar");}
+
+const blob = await response.blob();
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = doc.name;
+document.body.appendChild(a);
+a.click();
+a.remove();
+window.URL.revokeObjectURL(url);
+}
+catch(error)
+{
+console.error(
+"Error descargando documento:",
+error
+);
+
+}
+});
+   });
 }
 setDocuments(
     o.documents
 );
 
-
 // =========================
-// AUDITORÍA
+// AUDITORÃA
 // =========================
 
 setDetail(
     "detail-created",
-    o.createdAt
+    o.createdAt.substring(0,10)
 );
-
 
 setDetail(
     "detail-updated",
-    o.updatedAt
+    o.updatedAt.substring(0,10) 
 );
-
-
-
-
 // abrir modal
 
 window.dispatchEvent(
@@ -449,7 +392,7 @@ window.dispatchEvent(
 
 
 
-<style>
+<style is:global >
 
 .card{
 
@@ -510,4 +453,56 @@ color:#553304;
 
 }
 
+
+.document-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:8px 0;
+
+    border-bottom:1px solid #eee;
+
+}
+
+
+.document-name{
+
+    flex:1;
+
+    font-weight:600;
+
+}
+
+
+.download-detail-document{
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    color:#0066cc;
+
+    font-size:18px;
+
+}
+
+
+.download-detail-document:hover{
+
+    color:#004080;
+
+}
+
+
+.document-item small{
+
+    color:#777;
+
+}
 </style>

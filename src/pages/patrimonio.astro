@@ -1,0 +1,405 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/footer_prueba.astro';
+import PatrimonioCard from '../components/patrimonio/PatrimonioCard.astro';
+
+const BACKEND = 'http://localhost:8000';
+
+const page = Number(Astro.url.searchParams.get('page') || '1');
+const limit = Number(Astro.url.searchParams.get('limit') || '20');
+
+let entidades = [];
+
+let pagination = {
+  page,
+  limit,
+  total: 0,
+  total_pages: 0,
+  next_page: null,
+  previous_page: null
+};
+
+try {
+  const response = await fetch(
+    `${BACKEND}/api/v1/patrimonio?page=${page}&limit=${limit}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const result = await response.json();
+
+  entidades = result.data || [];
+  pagination = result.pagination || pagination;
+
+} catch (error) {
+  console.error('Error cargando patrimonio:', error);
+}
+---
+
+<Layout title="Patrimonio">
+
+  <div class="patrimonio-page">
+
+    <!-- FONDO DE TODA LA PÁGINA -->
+    <div class="patrimonio-background">
+      <img
+        src="/Imágenes/Imagen de pantalla de inicio-fondo.jpg"
+        alt=""
+      />
+    </div>
+
+    <!-- OSCURECIMIENTO -->
+    <div class="patrimonio-overlay"></div>
+
+    <!-- TODO EL CONTENIDO VA ENCIMA -->
+    <div class="patrimonio-content">
+
+      <Header />
+
+      <main class="container">
+
+        <div class="page-header">
+          <h1>Patrimonio</h1>
+
+          <p>
+            Bienes y sitios de valor patrimonial de La Habana
+          </p>
+        </div>
+
+        {entidades.length > 0 ? (
+
+          <div class="patrimonio-grid">
+
+            {entidades.map((entidad) => (
+              <PatrimonioCard patrimonio={entidad} />
+            ))}
+
+          </div>
+
+        ) : (
+
+          <div class="empty">
+            <p>No se encontraron entidades patrimoniales.</p>
+          </div>
+
+        )}
+
+        {pagination.total_pages > 1 && (
+
+          <nav class="pagination">
+
+            {pagination.previous_page && (
+              <a
+                href={`/patrimonio?page=${pagination.previous_page}&limit=${limit}`}
+                class="page-btn"
+              >
+                ← Anterior
+              </a>
+            )}
+
+            <div class="page-info">
+              Página
+              <strong>{pagination.page}</strong>
+              de
+              <strong>{pagination.total_pages}</strong>
+            </div>
+
+            {pagination.next_page && (
+              <a
+                href={`/patrimonio?page=${pagination.next_page}&limit=${limit}`}
+                class="page-btn"
+              >
+                Siguiente →
+              </a>
+            )}
+
+          </nav>
+
+        )}
+
+      </main>
+
+      <Footer />
+
+    </div>
+
+  </div>
+
+</Layout>
+
+
+<style>
+
+/* =========================================
+   PÁGINA
+========================================= */
+
+.patrimonio-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+
+/* =========================================
+   BACKGROUND FIJO
+========================================= */
+
+.patrimonio-background {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 0;
+
+  overflow: hidden;
+}
+
+.patrimonio-background img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center center;
+
+  display: block;
+}
+
+
+/* =========================================
+   OSCURECIMIENTO
+========================================= */
+
+.patrimonio-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 1;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   CONTENIDO
+========================================= */
+
+.patrimonio-content {
+  position: relative;
+
+  z-index: 2;
+
+  min-height: 100vh;
+
+  color: white;
+}
+
+/* =========================================
+   CONTENEDOR
+========================================= */
+
+.container {
+  width: min(1450px, 92%);
+
+  margin: 0 auto;
+
+  padding: 55px 0 70px;
+}
+
+
+/* =========================================
+   TÍTULO
+========================================= */
+
+.page-header {
+  text-align: center;
+
+  margin-bottom: 45px;
+}
+
+.page-header h1 {
+  margin: 0;
+
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+
+  font-weight: 700;
+
+  text-shadow:
+    0 3px 15px rgba(0, 0, 0, 0.5);
+}
+
+.page-header p {
+  margin-top: 12px;
+
+  font-size: 1.15rem;
+
+  color: rgba(255, 255, 255, 0.85);
+}
+
+
+/* =========================================
+   GRID
+========================================= */
+
+.patrimonio-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 25px;
+}
+
+
+/* =========================================
+   CARDS
+========================================= */
+
+.patrimonio-grid :global(.patrimonio-card) {
+  background: rgba(255, 255, 255, 0.13);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  border-radius: 18px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.patrimonio-grid :global(.patrimonio-card:hover) {
+  transform: translateY(-6px);
+
+  background: rgba(255, 255, 255, 0.19);
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================
+   PAGINACIÓN
+========================================= */
+
+.pagination {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 20px;
+
+  margin-top: 50px;
+}
+
+.page-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 20px;
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.14);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  backdrop-filter: blur(8px);
+
+  color: white;
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+  transition: all 0.25s ease;
+}
+
+.page-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+
+  transform: translateY(-2px);
+}
+
+.page-info {
+  padding: 10px 18px;
+
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.3);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  backdrop-filter: blur(8px);
+}
+
+.page-info strong {
+  margin: 0 4px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+  .patrimonio-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .patrimonio-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 550px) {
+
+  .container {
+    width: 90%;
+  }
+
+  .patrimonio-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .pagination {
+    gap: 10px;
+  }
+
+  .page-btn {
+    padding: 9px 13px;
+  }
+}
+
+</style>
