@@ -36,6 +36,50 @@ required
 
 </div>
 
+<div class="form__group">
+
+    <label class="form__label">
+        Localización
+    </label>
+
+    <div class="location-actions">
+
+        <button
+            type="button"
+            class="btn btn--secondary"
+            id="get-opinion-location"
+        >
+            <i class="fa-solid fa-location-crosshairs"></i>
+            Obtener mi ubicación
+        </button>
+
+    </div>
+
+    <div
+        id="opinion-location-status"
+        class="location-status"
+    >
+        Haz clic en el mapa para seleccionar una ubicación.
+    </div>
+
+    <div
+        id="opinion-map"
+        class="opinion-map"
+    ></div>
+
+    <input
+        type="hidden"
+        id="opinion-latitude"
+        name="latitude"
+    />
+
+    <input
+        type="hidden"
+        id="opinion-longitude"
+        name="longitude"
+    />
+
+</div>
 
 
 <div class="form__group">
@@ -721,6 +765,49 @@ Guardar Dictamen
   width: 100%;
 }
 
+
+/* =========================================
+   LOCALIZACIÓN
+========================================= */
+
+.location-actions {
+    display: flex;
+    width: 100%;
+}
+
+.location-actions .btn {
+    width: 100%;
+}
+
+.location-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.opinion-map {
+    width: 100%;
+    height: 380px;
+    margin-top: 8px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    background: #f1f1f1;
+}
+
+@media (max-width: 600px) {
+
+    .opinion-map {
+        height: 300px;
+    }
+
+}
+
 /* ========================= */
 /* RESPONSIVE REAL */
 /* ========================= */
@@ -862,7 +949,31 @@ Guardar Dictamen
 
 </style>
 
-<script is:inline>
+<script>
+
+import 'ol/ol.css';
+
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+
+import TileLayer from 'ol/layer/Tile.js';
+import VectorLayer from 'ol/layer/Vector.js';
+
+import OSM from 'ol/source/OSM.js';
+import VectorSource from 'ol/source/Vector.js';
+
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
+
+import Style from 'ol/style/Style.js';
+import CircleStyle from 'ol/style/Circle.js';
+import Fill from 'ol/style/Fill.js';
+import Stroke from 'ol/style/Stroke.js';
+
+import {
+    fromLonLat,
+    toLonLat
+} from 'ol/proj.js';
 
 const BACKEND_BASE = "http://localhost:8000";
 
@@ -871,6 +982,516 @@ const API_OPINIONS =
 
 let currentOpinionId = null;
 let documentsToDelete = [];
+
+
+// =====================================
+// MAPA / LOCALIZACIÓN
+// =====================================
+
+let opinionMap = null;
+let opinionLocationSource = null;
+let opinionLocationLayer = null;
+let opinionLocationFeature = null;
+
+let pendingOpinionLocation = null;
+
+const DEFAULT_LATITUDE = 23.1379;
+const DEFAULT_LONGITUDE = -82.3487;
+
+const opinionLatitudeInput =
+    document.getElementById(
+        "opinion-latitude"
+    );
+
+const opinionLongitudeInput =
+    document.getElementById(
+        "opinion-longitude"
+    );
+
+const opinionLocationStatus =
+    document.getElementById(
+        "opinion-location-status"
+    );
+
+const getOpinionLocationButton =
+    document.getElementById(
+        "get-opinion-location"
+    );
+
+
+// =====================================
+// ESTILO DEL MARCADOR
+// =====================================
+
+const opinionLocationStyle =
+    new Style({
+
+        image:
+            new CircleStyle({
+
+                radius: 8,
+
+                fill:
+                    new Fill({
+                        color: "#553304"
+                    }),
+
+                stroke:
+                    new Stroke({
+                        color: "#ffffff",
+                        width: 3
+                    })
+
+            })
+
+    });
+
+
+// =====================================
+// INICIALIZAR MAPA
+// =====================================
+
+const initializeOpinionMap = () => {
+
+    const mapElement =
+        document.getElementById(
+            "opinion-map"
+        );
+
+    if (!mapElement) {
+        return;
+    }
+
+    if (opinionMap) {
+        return;
+    }
+
+    opinionLocationSource =
+        new VectorSource();
+
+    opinionLocationLayer =
+        new VectorLayer({
+
+            source:
+                opinionLocationSource,
+
+            style:
+                opinionLocationStyle
+
+        });
+
+    opinionMap =
+        new Map({
+
+            target:
+                mapElement,
+
+            layers: [
+
+                new TileLayer({
+                    source:
+                        new OSM()
+                }),
+
+                opinionLocationLayer
+
+            ],
+
+            view:
+                new View({
+
+                    center:
+                        fromLonLat([
+                            DEFAULT_LONGITUDE,
+                            DEFAULT_LATITUDE
+                        ]),
+
+                    zoom: 16
+
+                })
+
+        });
+
+
+    // =================================
+    // CLICK EN MAPA
+    // =================================
+
+    opinionMap.on(
+        "click",
+        (event) => {
+
+            const [
+                longitude,
+                latitude
+            ] = toLonLat(
+                event.coordinate
+            );
+
+            setOpinionLocation(
+                latitude,
+                longitude,
+                true
+            );
+
+        }
+    );
+
+
+    // =================================
+    // TAMAÑO
+    // =================================
+
+    setTimeout(() => {
+
+        opinionMap.updateSize();
+
+    }, 100);
+
+
+    // =================================
+    // UBICACIÓN PENDIENTE
+    // =================================
+
+    if (pendingOpinionLocation) {
+
+        const {
+            latitude,
+            longitude,
+            centerMap
+        } = pendingOpinionLocation;
+
+        pendingOpinionLocation =
+            null;
+
+        setTimeout(() => {
+
+            opinionMap.updateSize();
+
+            setOpinionLocation(
+                latitude,
+                longitude,
+                centerMap
+            );
+
+        }, 150);
+
+    }
+
+};
+
+
+// =====================================
+// ESTABLECER UBICACIÓN
+// =====================================
+
+const setOpinionLocation = (
+    latitude,
+    longitude,
+    centerMap = true
+) => {
+
+    latitude =
+        Number(latitude);
+
+    longitude =
+        Number(longitude);
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+
+        console.error(
+            "Coordenadas inválidas:",
+            latitude,
+            longitude
+        );
+
+        return;
+    }
+
+
+    // =================================
+    // INPUTS
+    // =================================
+
+    if (opinionLatitudeInput) {
+
+        opinionLatitudeInput.value =
+            latitude;
+
+    }
+
+    if (opinionLongitudeInput) {
+
+        opinionLongitudeInput.value =
+            longitude;
+
+    }
+
+
+    // =================================
+    // MAPA AÚN NO EXISTE
+    // =================================
+
+    if (
+        !opinionMap ||
+        !opinionLocationSource
+    ) {
+
+        pendingOpinionLocation = {
+
+            latitude,
+            longitude,
+            centerMap
+
+        };
+
+        return;
+
+    }
+
+
+    // =================================
+    // WGS84 -> EPSG:3857
+    // =================================
+
+    const coordinate =
+        fromLonLat([
+            longitude,
+            latitude
+        ]);
+
+
+    // =================================
+    // CREAR / MOVER MARCADOR
+    // =================================
+
+    if (!opinionLocationFeature) {
+
+        opinionLocationFeature =
+            new Feature({
+
+                geometry:
+                    new Point(
+                        coordinate
+                    )
+
+            });
+
+        opinionLocationSource.addFeature(
+            opinionLocationFeature
+        );
+
+    }
+    else {
+
+        opinionLocationFeature
+            .getGeometry()
+            .setCoordinates(
+                coordinate
+            );
+
+    }
+
+
+    // =================================
+    // CENTRAR
+    // =================================
+
+    if (centerMap) {
+
+        opinionMap
+            .getView()
+            .animate({
+
+                center:
+                    coordinate,
+
+                zoom: 18,
+
+                duration: 600
+
+            });
+
+    }
+
+
+    // =================================
+    // ESTADO
+    // =================================
+
+    if (opinionLocationStatus) {
+
+        opinionLocationStatus.textContent =
+            `Ubicación seleccionada: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+    }
+
+};
+
+
+// =====================================
+// LIMPIAR UBICACIÓN
+// =====================================
+
+const clearOpinionLocation = () => {
+
+    pendingOpinionLocation = null;
+
+    if (opinionLatitudeInput) {
+        opinionLatitudeInput.value = "";
+    }
+
+    if (opinionLongitudeInput) {
+        opinionLongitudeInput.value = "";
+    }
+
+    if (
+        opinionLocationFeature &&
+        opinionLocationSource
+    ) {
+
+        opinionLocationSource.removeFeature(
+            opinionLocationFeature
+        );
+
+        opinionLocationFeature =
+            null;
+
+    }
+
+    if (opinionMap) {
+
+        opinionMap
+            .getView()
+            .setCenter(
+                fromLonLat([
+                    DEFAULT_LONGITUDE,
+                    DEFAULT_LATITUDE
+                ])
+            );
+
+        opinionMap
+            .getView()
+            .setZoom(16);
+
+        setTimeout(() => {
+
+            opinionMap.updateSize();
+
+        }, 100);
+
+    }
+
+    if (opinionLocationStatus) {
+
+        opinionLocationStatus.textContent =
+            "Haz clic en el mapa para seleccionar una ubicación.";
+
+    }
+
+};
+
+
+getOpinionLocationButton
+    ?.addEventListener(
+        "click",
+        () => {
+
+            if (!navigator.geolocation) {
+
+                opinionLocationStatus.textContent =
+                    "Tu navegador no soporta geolocalización.";
+
+                return;
+            }
+
+            opinionLocationStatus.textContent =
+                "Obteniendo ubicación...";
+
+            getOpinionLocationButton.disabled =
+                true;
+
+            navigator.geolocation.getCurrentPosition(
+
+                (position) => {
+
+                    const latitude =
+                        position.coords.latitude;
+
+                    const longitude =
+                        position.coords.longitude;
+
+                    setOpinionLocation(
+                        latitude,
+                        longitude,
+                        true
+                    );
+
+                    getOpinionLocationButton.disabled =
+                        false;
+
+                },
+
+                (error) => {
+
+                    console.error(
+                        "ERROR GPS:",
+                        error
+                    );
+
+                    getOpinionLocationButton.disabled =
+                        false;
+
+                    switch (error.code) {
+
+                        case error.PERMISSION_DENIED:
+
+                            opinionLocationStatus.textContent =
+                                "Permiso de ubicación denegado.";
+
+                            break;
+
+                        case error.POSITION_UNAVAILABLE:
+
+                            opinionLocationStatus.textContent =
+                                "No se pudo obtener la ubicación.";
+
+                            break;
+
+                        case error.TIMEOUT:
+
+                            opinionLocationStatus.textContent =
+                                "Se agotó el tiempo para obtener la ubicación.";
+
+                            break;
+
+                        default:
+
+                            opinionLocationStatus.textContent =
+                                "No se pudo obtener la ubicación.";
+
+                    }
+
+                },
+
+                {
+                    enableHighAccuracy:
+                        true,
+
+                    timeout:
+                        10000,
+
+                    maximumAge:
+                        0
+                }
+
+            );
+
+        }
+    );
 
 // =====================================
 // FETCH GENERAL CON TOKEN
@@ -1210,6 +1831,40 @@ const formData =
 new FormData(form);
 
 
+// =====================================
+// LOCALIZACIÓN
+// =====================================
+
+formData.delete("latitude");
+formData.delete("longitude");
+
+const latitude =
+    Number(
+        opinionLatitudeInput?.value
+    );
+
+const longitude =
+    Number(
+        opinionLongitudeInput?.value
+    );
+
+if (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+) {
+
+    formData.append(
+        "location[latitude]",
+        String(latitude)
+    );
+
+    formData.append(
+        "location[longitude]",
+        String(longitude)
+    );
+
+}
+
 
 // eliminar campos que no se envÃ­an
 
@@ -1430,6 +2085,33 @@ async function loadOpinions() {
 
 }
 
+
+const startOpinionMap = () => {
+
+    initializeOpinionMap();
+
+};
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        startOpinionMap,
+        {
+            once: true
+        }
+    );
+
+}
+else {
+
+    startOpinionMap();
+
+}
+
+
 // =====================================
 // INICIALIZAR
 // =====================================
@@ -1479,6 +2161,71 @@ const response = await apiFetch(
 
 
 const opinion = response.data;
+
+
+// =====================================
+// LOCALIZACIÓN
+// =====================================
+
+const latitude =
+    opinion.location?.latitude;
+
+const longitude =
+    opinion.location?.longitude;
+
+if (
+    latitude !== null &&
+    latitude !== undefined &&
+    longitude !== null &&
+    longitude !== undefined
+) {
+
+    // Primero cargamos los inputs
+    if (opinionLatitudeInput) {
+
+        opinionLatitudeInput.value =
+            latitude;
+
+    }
+
+    if (opinionLongitudeInput) {
+
+        opinionLongitudeInput.value =
+            longitude;
+
+    }
+
+    // Intentar centrar inmediatamente
+    setOpinionLocation(
+        latitude,
+        longitude,
+        true
+    );
+
+    // Segundo intento cuando el formulario
+    // ya esté visible y el mapa tenga tamaño.
+    setTimeout(() => {
+
+        if (opinionMap) {
+
+            opinionMap.updateSize();
+
+        }
+
+        setOpinionLocation(
+            latitude,
+            longitude,
+            true
+        );
+
+    }, 300);
+
+}
+else {
+
+    clearOpinionLocation();
+
+}
 
 
 console.log(opinion);
@@ -1671,21 +2418,34 @@ alert(
 });
 
 window.addEventListener(
-"dictamen-clear",
-()=>{
+    "dictamen-clear",
+    () => {
 
-    currentOpinionId = null;
-    documentsToDelete = [];
+        currentOpinionId = null;
 
-    const form = document.getElementById("opinionForm");
-    if(form){
-        form.reset();
+        documentsToDelete = [];
+
+        const form =
+            document.getElementById(
+                "opinionForm"
+            );
+
+        if (form) {
+            form.reset();
+        }
+
+        clearOpinionLocation();
+
+        renderCurrentDocuments([]);
+
+        console.log(
+            "Formulario limpio, modo nuevo"
+        );
+
     }
-    renderCurrentDocuments([]);
-    console.log(
-        "Formulario limpio, modo nuevo"
-    );
-});
+);
+
+
 function renderCurrentDocuments(documents){
     const container =
     document.getElementById(

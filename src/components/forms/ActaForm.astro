@@ -29,9 +29,77 @@
         </div>
 
         <div class="form__group">
-          <label class="form__label">Localización</label>
-          <input class="form__input" type="text" name="location" id="location" />
+
+    <label class="form__label">
+        Localización
+    </label>
+
+    <div class="location-actions">
+
+        <button
+            type="button"
+            class="btn btn--secondary"
+            id="get-location"
+        >
+            <i class="fa-solid fa-location-crosshairs"></i>
+            Obtener mi ubicación
+        </button>
+
+    </div>
+
+    <div
+        id="location-status"
+        class="location-status"
+    >
+        Haz clic en el mapa para seleccionar una ubicación.
+    </div>
+
+    <div
+        id="acta-map"
+        class="acta-map"
+    ></div>
+
+    <div class="coordinates-grid">
+
+        <div class="coordinates-field">
+
+           <!--<label class="form__label">
+                Latitud
+            </label> --> 
+
+            <input
+                type="number"
+                id="latitude"
+                name="latitude"
+                step="any"
+                class="form__input"
+                hidden
+                readonly
+            />
+
         </div>
+
+        <div class="coordinates-field">
+
+           <!-- <label class="form__label">
+                Longitud
+            </label> -->
+
+            <input
+                type="number"
+                id="longitude"
+                name="longitude"
+                step="any"
+                class="form__input"
+                hidden
+                readonly
+            />
+
+        </div>
+
+    </div>
+
+</div>
 
 
       </div>
@@ -321,6 +389,67 @@ textarea {
   width: 100%;
 }
 
+
+
+/* =========================================
+   MAPA
+========================================= */
+
+.acta-map {
+    width: 100%;
+    height: 380px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 8px;
+    background: #f1f1f1;
+}
+
+.location-actions {
+    display: flex;
+    width: 100%;
+}
+
+.location-actions .btn {
+    width: 100%;
+}
+
+.location-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.coordinates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.coordinates-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+@media (max-width: 600px) {
+
+    .acta-map {
+        height: 300px;
+    }
+
+    .coordinates-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
 /* TABLET */
 @media (max-width: 900px) {
   .form-card {
@@ -468,6 +597,31 @@ textarea {
 
 }
 
+
+
+/* =========================================
+   LOCALIZACIÓN
+========================================= */
+
+.location-actions {
+    display: flex;
+    width: 100%;
+}
+
+.location-actions .btn {
+    width: 100%;
+}
+
+.location-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 13px;
+    word-break: break-word;
+}
+
 /* =========================================
    DOCUMENTOS
 ========================================= */
@@ -578,6 +732,27 @@ textarea {
 </style>
 
 <script>
+
+import 'ol/ol.css';
+
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+
+import TileLayer from 'ol/layer/Tile.js';
+import VectorLayer from 'ol/layer/Vector.js';
+
+import OSM from 'ol/source/OSM.js';
+import VectorSource from 'ol/source/Vector.js';
+
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
+
+import Style from 'ol/style/Style.js';
+import CircleStyle from 'ol/style/Circle.js';
+import Fill from 'ol/style/Fill.js';
+import Stroke from 'ol/style/Stroke.js';
+
+import { fromLonLat, toLonLat } from 'ol/proj.js';    
 
 document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
 
@@ -703,6 +878,475 @@ const form =
         'acta-form'
     );
 
+// =====================================================
+// LOCALIZACIÓN
+// =====================================================
+
+const locationButton =
+    document.getElementById(
+        'get-location'
+    );
+
+const latitudeInput =
+    document.getElementById(
+        'latitude'
+    );
+
+const longitudeInput =
+    document.getElementById(
+        'longitude'
+    );
+
+const locationStatus =
+    document.getElementById(
+        'location-status'
+    );
+
+    // =====================================================
+// MAPA
+// =====================================================
+
+let actaMap = null;
+let locationSource = null;
+let locationLayer = null;
+let locationFeature = null;
+
+// Ubicación que debe aplicarse cuando el mapa esté disponible
+let pendingMapLocation = null;
+
+
+// =====================================================
+// COORDENADAS INICIALES
+// =====================================================
+
+// Centro aproximado de La Habana Vieja.
+// Solamente sirve como posición inicial cuando
+// el acta todavía no tiene ubicación.
+
+const DEFAULT_LATITUDE = 23.1379;
+
+const DEFAULT_LONGITUDE = -82.3487;
+
+
+// =====================================================
+// ESTILO DEL PUNTO
+// =====================================================
+
+const locationStyle =
+    new Style({
+
+        image:
+            new CircleStyle({
+
+                radius: 8,
+
+                fill:
+                    new Fill({
+                        color: '#553304'
+                    }),
+
+                stroke:
+                    new Stroke({
+                        color: '#ffffff',
+                        width: 3
+                    })
+
+            })
+
+    });
+
+
+// =====================================================
+// CREAR MAPA
+// =====================================================
+
+const initializeActaMap = () => {
+
+    const mapElement =
+        document.getElementById(
+            'acta-map'
+        );
+
+    if (!mapElement) {
+
+        console.error(
+            'No existe #acta-map'
+        );
+
+        return;
+
+    }
+
+    if (actaMap) {
+        return;
+    }
+
+
+    // =============================================
+    // SOURCE DEL MARCADOR
+    // =============================================
+
+    locationSource =
+        new VectorSource();
+
+
+    // =============================================
+    // CAPA DEL MARCADOR
+    // =============================================
+
+    locationLayer =
+        new VectorLayer({
+
+            source: locationSource,
+
+            style:
+                locationStyle
+
+        });
+
+
+    // =============================================
+    // MAPA
+    // =============================================
+
+    actaMap =
+        new Map({
+
+            target:
+                mapElement,
+
+            layers: [
+
+                /*
+                 * Esta capa es solamente
+                 * un fondo de referencia.
+                 *
+                 * Posteriormente pondremos
+                 * aquí las capas oficiales
+                 * de Plan Maestro.
+                 */
+                new TileLayer({
+
+                    source:
+                        new OSM()
+
+                }),
+
+                locationLayer
+
+            ],
+
+            view:
+                new View({
+
+                    center:
+                        fromLonLat([
+                            DEFAULT_LONGITUDE,
+                            DEFAULT_LATITUDE
+                        ]),
+
+                    zoom: 16
+
+                })
+
+        });
+
+
+    // =============================================
+    // CLICK EN MAPA
+    // =============================================
+
+    actaMap.on(
+        'click',
+        (event) => {
+
+            const [
+                longitude,
+                latitude
+            ] = toLonLat(
+                event.coordinate
+            );
+
+            setLocationFromMap(
+                latitude,
+                longitude
+            );
+
+        }
+    );
+
+
+    // =============================================
+    // CORREGIR TAMAÑO
+    // =============================================
+
+    setTimeout(() => {
+
+        actaMap.updateSize();
+
+    }, 100);
+
+};
+
+
+// =====================================================
+// SELECCIONAR UBICACIÓN
+// =====================================================
+
+const setLocationFromMap = (
+    latitude,
+    longitude,
+    centerMap = true
+) => {
+
+    if (!actaMap || !locationSource) {
+        return;
+    }
+
+    latitude =
+        Number(latitude);
+
+    longitude =
+        Number(longitude);
+
+
+    if (
+        Number.isNaN(latitude) ||
+        Number.isNaN(longitude)
+    ) {
+
+        console.error(
+            'Coordenadas inválidas:',
+            latitude,
+            longitude
+        );
+
+        return;
+
+    }
+
+
+    // =============================================
+    // GUARDAR COORDENADAS
+    // =============================================
+
+    latitudeInput.value =
+        latitude;
+
+    longitudeInput.value =
+        longitude;
+
+
+    // =============================================
+    // CONVERTIR A EPSG:3857
+    // =============================================
+
+    const coordinate =
+        fromLonLat([
+            longitude,
+            latitude
+        ]);
+
+
+    // =============================================
+    // CREAR / MOVER PUNTO
+    // =============================================
+
+    if (!locationFeature) {
+
+        locationFeature =
+            new Feature({
+
+                geometry:
+                    new Point(
+                        coordinate
+                    )
+
+            });
+
+        locationSource.addFeature(
+            locationFeature
+        );
+
+    }
+    else {
+
+        locationFeature
+            .getGeometry()
+            .setCoordinates(
+                coordinate
+            );
+
+    }
+
+
+    // =============================================
+    // CENTRAR MAPA
+    // =============================================
+
+    if (centerMap) {
+
+        actaMap
+            .getView()
+            .animate({
+
+                center:
+                    coordinate,
+
+                zoom: 18,
+
+                duration: 500
+
+            });
+
+    }
+
+
+    // =============================================
+    // ESTADO
+    // =============================================
+
+    locationStatus.textContent =
+        `Ubicación seleccionada: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+
+    console.log(
+        'UBICACIÓN SELECCIONADA:',
+        {
+            latitude,
+            longitude
+        }
+    );
+
+};
+
+// =====================================================
+// OBTENER UBICACIÓN
+// =====================================================
+
+locationButton?.addEventListener(
+    'click',
+    () => {
+
+        if (!navigator.geolocation) {
+
+            locationStatus.textContent =
+                'Tu navegador no soporta geolocalización.';
+
+            return;
+        }
+
+        locationStatus.textContent =
+            'Obteniendo ubicación...';
+
+        locationButton.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+
+            (position) => {
+
+                const latitude =
+                    position.coords.latitude;
+
+                const longitude =
+                    position.coords.longitude;
+
+                setLocationFromMap(
+    latitude,
+    longitude
+);
+
+                locationStatus.textContent =
+                    `Ubicación obtenida: ${latitude}, ${longitude}`;
+
+                locationButton.disabled =
+                    false;
+
+                console.log(
+                    'LATITUD:',
+                    latitude
+                );
+
+                console.log(
+                    'LONGITUD:',
+                    longitude
+                );
+            },
+
+            (error) => {
+
+                console.error(
+                    'ERROR DE GEOLOCALIZACIÓN:',
+                    error
+                );
+
+                locationButton.disabled =
+                    false;
+
+                switch (error.code) {
+
+                    case error.PERMISSION_DENIED:
+
+                        locationStatus.textContent =
+                            'Permiso de ubicación denegado.';
+
+                        break;
+
+                    case error.POSITION_UNAVAILABLE:
+
+                        locationStatus.textContent =
+                            'No se pudo obtener la ubicación.';
+
+                        break;
+
+                    case error.TIMEOUT:
+
+                        locationStatus.textContent =
+                            'Se agotó el tiempo para obtener la ubicación.';
+
+                        break;
+
+                    default:
+
+                        locationStatus.textContent =
+                            'No se pudo obtener la ubicación.';
+                }
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+);    
+
+
+const startActaMap = () => {
+
+    initializeActaMap();
+
+};
+
+if (
+    document.readyState === 'loading'
+) {
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        startActaMap,
+        {
+            once: true
+        }
+    );
+
+}
+else {
+
+    startActaMap();
+
+}
 
 // =====================================================
 // PARTICIPANTES
@@ -1448,6 +2092,100 @@ const prefill = async (id) => {
                 p.aggreements ?? "";
 
         }
+// =========================================
+// LOCALIZACIÓN
+// =========================================
+
+const latitudeInput =
+    document.getElementById('latitude');
+
+const longitudeInput =
+    document.getElementById('longitude');
+
+const latitude =
+    Number(p.location?.latitude);
+
+const longitude =
+    Number(p.location?.longitude);
+
+console.log(
+    'UBICACIÓN DEL ACTA:',
+    {
+        latitude,
+        longitude
+    }
+);
+
+// =========================================
+// CARGAR COORDENADAS EN INPUTS
+// =========================================
+
+if (
+    latitudeInput &&
+    p.location?.latitude !== null &&
+    p.location?.latitude !== undefined
+) {
+    latitudeInput.value =
+        p.location.latitude;
+}
+
+if (
+    longitudeInput &&
+    p.location?.longitude !== null &&
+    p.location?.longitude !== undefined
+) {
+    longitudeInput.value =
+        p.location.longitude;
+}
+
+// =========================================
+// CENTRAR MAPA EN UBICACIÓN EXISTENTE
+// =========================================
+
+if (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+) {
+
+    const centerExistingLocation = () => {
+
+        if (!actaMap) {
+            return false;
+        }
+
+        // Importante cuando el formulario estaba oculto
+        actaMap.updateSize();
+
+        setLocationFromMap(
+            latitude,
+            longitude,
+            true
+        );
+
+        return true;
+    };
+
+    // Intento inmediato
+    if (!centerExistingLocation()) {
+
+        // El mapa todavía no estaba inicializado
+        setTimeout(() => {
+
+            centerExistingLocation();
+
+        }, 300);
+
+    } else {
+
+        // El mapa existe, pero el formulario
+        // puede estar terminando de hacerse visible.
+        setTimeout(() => {
+
+            centerExistingLocation();
+
+        }, 300);
+    }
+}
 
 
         // =========================================
@@ -1971,29 +2709,42 @@ console.log(
                     : [];
 
 
-            // =========================================
-            // PAYLOAD
-            // =========================================
+                  const latitudeInput = document.getElementById('latitude');
+const longitudeInput = document.getElementById('longitude');
 
-            const payload = {
+const latitude = latitudeInput
+    ? Number(latitudeInput.value)
+    : null;
 
-                date,
+const longitude = longitudeInput
+    ? Number(longitudeInput.value)
+    : null;
 
-                address,
+console.log("LATITUD A ENVIAR:", latitude);
+console.log("LONGITUD A ENVIAR:", longitude);
 
-                agenda,
+const payload = {
+    date,
+    address,
+    agenda,
+    approaches,
+    aggreements,
+    elaborado_por,
+    documents,
+    participants
+};
 
-                approaches,
-
-                aggreements,
-
-                elaborado_por,
-
-                documents,
-
-                participants
-
-            };
+if (
+    latitudeInput?.value &&
+    longitudeInput?.value &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude)
+) {
+    payload.location = {
+        latitude,
+        longitude
+    };
+}
 
 
             console.log(
