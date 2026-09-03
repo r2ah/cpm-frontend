@@ -199,6 +199,26 @@ function getBackendBase() {
 
 const BACKEND_BASE = getBackendBase();
 
+function getSafeReturnPath() {
+  const referrer = document.referrer;
+
+  if (!referrer) {
+    return '/';
+  }
+
+  try {
+    const url = new URL(referrer);
+
+    if (url.origin !== window.location.origin || url.pathname === '/login') {
+      return '/';
+    }
+
+    return `${url.pathname}${url.search}${url.hash}` || '/';
+  } catch {
+    return '/';
+  }
+}
+
 
 
   function $(sel) {
@@ -206,6 +226,12 @@ const BACKEND_BASE = getBackendBase();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    const savedReturnPath = window.sessionStorage.getItem('login_return_path');
+
+    if (!savedReturnPath || savedReturnPath === '/') {
+      window.sessionStorage.setItem('login_return_path', getSafeReturnPath());
+    }
+
     const form = $('#login-form');
     const btnPrimary = form?.querySelector('.login__primary');
     const btnSubmit = form?.querySelector('button[type="submit"]');
@@ -253,8 +279,11 @@ const BACKEND_BASE = getBackendBase();
         window.localStorage.setItem('auth_user', JSON.stringify(data.user || {}));
 
 
-        // redirige a una ruta protegida (ajusta si tienes otra)
-        window.location.href = '/';
+        const returnPath =
+          window.sessionStorage.getItem('login_return_path') || '/';
+
+        window.sessionStorage.removeItem('login_return_path');
+        window.location.href = returnPath;
       } catch (err) {
         if (errorEl) errorEl.textContent = String(err?.message || err);
       }

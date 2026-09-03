@@ -1,0 +1,1161 @@
+---
+---
+
+<div class="calendar-card">
+
+  <div class="calendar-header">
+
+    <button
+      type="button"
+      id="prev-month"
+      class="calendar-nav"
+      aria-label="Mes anterior"
+    >
+      <span>{'<'}</span>
+    </button>
+
+    <h2 id="calendar-title"></h2>
+
+    <button
+      type="button"
+      id="next-month"
+      class="calendar-nav"
+      aria-label="Mes siguiente"
+    >
+      <span>{'>'}</span>
+    </button>
+
+  </div>
+
+
+  <div class="calendar-weekdays">
+    <div>Dom</div>
+    <div>Lun</div>
+    <div>Mar</div>
+    <div>Mié</div>
+    <div>Jue</div>
+    <div>Vie</div>
+    <div>Sáb</div>
+  </div>
+
+
+  <div
+    id="calendar-days"
+    class="calendar-days"
+  ></div>
+
+  <div class="calendar-legend" aria-label="Estados del calendario">
+    <span><i class="calendar-legend__swatch calendar-legend__swatch--today"></i>Hoy</span>
+    <span><i class="calendar-legend__swatch calendar-legend__swatch--appointments"></i>Con citas</span>
+    <span><i class="calendar-legend__swatch calendar-legend__swatch--sunday"></i>Domingo</span>
+  </div>
+
+</div>
+
+
+<style is:global>
+
+  /* =========================================
+     CALENDARIO CARD
+  ========================================= */
+
+  .calendar-card {
+    background: #fff;
+
+    border-radius: 20px;
+
+    padding: 25px;
+
+    box-shadow:
+      0 4px 20px rgba(90, 53, 6, 0.18);
+
+    box-sizing: border-box;
+  }
+
+
+  /* =========================================
+     CALENDARIO HEADER
+  ========================================= */
+
+  .calendar-header {
+    display: grid;
+
+    grid-template-columns:
+      45px
+      1fr
+      45px;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+  }
+
+  .calendar-header h2 {
+    text-align: center;
+
+    margin: 0;
+
+    color: #5a3506;
+
+    font-size: 24px;
+
+    font-weight: 500;
+
+    text-transform: capitalize;
+  }
+
+  .calendar-nav {
+    width: 40px;
+    height: 40px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f0e5d2;
+
+    color: #553304;
+
+    font-size: 26px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .calendar-nav:hover {
+    background: #e1c595;
+
+    transform: translateY(-1px);
+  }
+
+  .calendar-nav:focus-visible,
+  .calendar-day:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.45);
+    outline-offset: 2px;
+  }
+
+
+  /* =========================================
+     DÍAS DE LA SEMANA
+  ========================================= */
+
+  .calendar-weekdays {
+    display: grid;
+
+    grid-template-columns:
+      repeat(7, 1fr);
+
+    gap: 6px;
+
+    margin-bottom: 6px;
+  }
+
+  .calendar-weekdays div {
+    text-align: center;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #666;
+
+    padding: 8px 0;
+  }
+
+
+  /* =========================================
+     DÍAS
+  ========================================= */
+
+  .calendar-days {
+    display: grid;
+
+    grid-template-columns:
+      repeat(7, 1fr);
+
+    gap: 5px;
+  }
+
+  .calendar-day {
+    min-height: 58px;
+    height: 58px;
+
+    border: 1px solid #d6e3e0;
+
+    border-radius: 10px;
+
+    background: #e7f3f1;
+
+    color: #000;
+
+    cursor: pointer;
+
+    padding: 7px;
+
+    position: relative;
+
+    text-align: left;
+
+    box-sizing: border-box;
+
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+
+  /* =========================================
+     DÍA FUTURO
+  ========================================= */
+
+  .calendar-day.future-day {
+    background: #e7f3f1;
+
+    border-color: #c9dedb;
+
+    color: #000;
+  }
+
+  .calendar-day.future-day:hover {
+    background: #d9ece9;
+
+    border-color: #9fc7c1;
+  }
+
+
+  /* =========================================
+     DÍA PASADO
+  ========================================= */
+
+  .calendar-day.past-day {
+    background: #f8e8d5;
+
+    border-color: #ead1b5;
+
+    color: #8a6845;
+  }
+
+  .calendar-day.past-day:hover {
+    background: #f3dcc1;
+
+    border-color: #dcb78e;
+  }
+
+
+  /* =========================================
+     DÍA CON CITAS
+  ========================================= */
+
+  .calendar-day.has-appointments {
+    background: #d9e9f7;
+
+    border-color: #6fa8d8;
+
+    color: #24577d;
+  }
+
+  .calendar-day.has-appointments:hover {
+    background: #c7def0;
+
+    border-color: #4f91c5;
+  }
+
+  .calendar-day.has-appointments .day-number {
+    color: #24577d;
+
+    font-weight: 800;
+  }
+
+  .calendar-day.has-appointments .appointment-dot {
+    background: #1976b9;
+  }
+
+  .calendar-day.has-appointments .appointment-count {
+    color: #1976b9;
+
+    font-weight: 700;
+  }
+
+
+  /* =========================================
+     HOY
+  ========================================= */
+
+  .calendar-day.today {
+    background: #d7ebe7;
+
+    border: 2px solid #39756d;
+
+    color: #000;
+
+    font-weight: 700;
+
+    box-shadow:
+      0 2px 7px rgba(57, 117, 109, 0.18);
+  }
+
+
+  /* =========================================
+     DÍA SELECCIONADO
+  ========================================= */
+
+  .calendar-day.selected {
+    background: #553304;
+
+    border: 2px solid #553304;
+
+    color: #ffffff;
+
+    font-weight: 700;
+
+    box-shadow:
+      0 3px 10px rgba(85, 51, 4, 0.25);
+  }
+
+  .calendar-day.selected .day-number {
+    color: #ffffff;
+
+    font-weight: 800;
+  }
+
+  .calendar-day.selected .appointment-dot {
+    background: #ffffff;
+  }
+
+  .calendar-day.selected .appointment-count {
+    color: #ffffff;
+
+    font-weight: 700;
+  }
+
+  .calendar-day.has-appointments.selected {
+    background: #553304;
+
+    border-color: #553304;
+
+    color: #ffffff;
+  }
+
+  .calendar-day.has-appointments.selected .day-number,
+  .calendar-day.has-appointments.selected .appointment-count {
+    color: #ffffff;
+  }
+
+  .calendar-day.has-appointments.selected .appointment-dot {
+    background: #ffffff;
+  }
+
+
+  /* =========================================
+     DOMINGO
+  ========================================= */
+
+  .calendar-day.sunday {
+    background: #e5e7eb !important;
+
+    border-color: #c7cbd1 !important;
+  }
+
+  .calendar-day.sunday:hover {
+    background: #d9dde2 !important;
+
+    border-color: #adb3bb !important;
+  }
+
+  .calendar-day.sunday .appointment-dot {
+    background: #9ca3af;
+  }
+
+  .calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .calendar-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .calendar-legend__swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+  }
+
+  .calendar-legend__swatch--today {
+    background: #d7ebe7;
+    border-color: #39756d;
+  }
+
+  .calendar-legend__swatch--appointments {
+    background: #d9e9f7;
+    border-color: #6fa8d8;
+  }
+
+  .calendar-legend__swatch--sunday {
+    background: #e5e7eb;
+    border-color: #c7cbd1;
+  }
+
+
+  /* =========================================
+     OTROS MESES
+  ========================================= */
+
+  .calendar-day.other-month {
+    background: #f5f5f3;
+
+    border-color: #e6e6e2;
+
+    color: #aaa;
+
+    opacity: 0.65;
+  }
+
+  .calendar-day.other-month .day-number {
+    color: #aaa;
+  }
+
+
+  /* =========================================
+     NÚMERO
+  ========================================= */
+
+  .day-number {
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1;
+  }
+
+
+  /* =========================================
+     PUNTO
+  ========================================= */
+
+  .appointment-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #3b716a;
+
+    margin-top: 6px;
+  }
+
+
+  /* =========================================
+     CONTADOR
+  ========================================= */
+
+  .appointment-count {
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color: #000;
+
+    margin-top: 3px;
+  }
+
+
+  /* =========================================
+     RESPONSIVE
+  ========================================= */
+
+  @media (max-width: 700px) {
+
+    .calendar-card {
+      padding: 18px;
+
+      border-radius: 15px;
+    }
+
+    .calendar-day {
+      min-height: 58px;
+
+      padding: 7px;
+
+      border-radius: 9px;
+    }
+
+    .calendar-weekdays div {
+      font-size: 11px;
+    }
+
+    .day-number {
+      font-size: 13px;
+    }
+
+    .appointment-count {
+      display: none;
+    }
+
+  }
+
+
+  @media (max-width: 450px) {
+
+    .calendar-header {
+      grid-template-columns:
+        40px
+        1fr
+        40px;
+    }
+
+    .calendar-header h2 {
+      font-size: 19px;
+    }
+
+    .calendar-nav {
+      width: 36px;
+      height: 36px;
+
+      font-size: 24px;
+    }
+
+    .calendar-days,
+    .calendar-weekdays {
+      gap: 3px;
+    }
+
+    .calendar-day {
+      min-height: 50px;
+
+      padding: 5px;
+    }
+
+    .appointment-dot {
+      width: 6px;
+      height: 6px;
+    }
+
+  }
+
+</style>
+
+
+<script>
+  (() => {
+
+    // =====================================================
+    // ELEMENTOS
+    // =====================================================
+
+    const calendarTitle =
+      document.getElementById(
+        'calendar-title'
+      );
+
+    const calendarDays =
+      document.getElementById(
+        'calendar-days'
+      );
+
+
+    // =====================================================
+    // ESTADO
+    // =====================================================
+
+    let currentMonth =
+      new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+      );
+
+    let selectedDate = null;
+
+    let appointmentsByDate = {};
+
+
+    // =====================================================
+    // FECHA
+    // =====================================================
+
+    const formatDate = (date) => {
+
+      const year =
+        date.getFullYear();
+
+      const month =
+        String(
+          date.getMonth() + 1
+        ).padStart(2, '0');
+
+      const day =
+        String(
+          date.getDate()
+        ).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    };
+
+
+    // =====================================================
+    // HOY
+    // =====================================================
+
+    const getTodayString = () => {
+
+      return formatDate(
+        new Date()
+      );
+
+    };
+
+
+    // =====================================================
+    // RENDER CALENDARIO
+    // =====================================================
+
+    const renderCalendar = () => {
+
+      const year =
+        currentMonth.getFullYear();
+
+      const month =
+        currentMonth.getMonth();
+
+
+      calendarTitle.textContent =
+        currentMonth.toLocaleDateString(
+          'es-ES',
+          {
+            month: 'long',
+            year: 'numeric'
+          }
+        );
+
+
+      const firstDay =
+        new Date(
+          year,
+          month,
+          1
+        );
+
+
+      let startDay =
+        firstDay.getDay();
+
+
+      const daysInMonth =
+        new Date(
+          year,
+          month + 1,
+          0
+        ).getDate();
+
+
+      const daysInPreviousMonth =
+        new Date(
+          year,
+          month,
+          0
+        ).getDate();
+
+
+      calendarDays.innerHTML =
+        '';
+
+
+      const todayString =
+        getTodayString();
+
+
+      // ===============================================
+      // MES ANTERIOR
+      // ===============================================
+
+      for (
+        let i = startDay - 1;
+        i >= 0;
+        i--
+      ) {
+
+        const day =
+          daysInPreviousMonth - i;
+
+
+        const date =
+          new Date(
+            year,
+            month - 1,
+            day
+          );
+
+
+        createCalendarDay(
+          date,
+          true,
+          todayString
+        );
+
+      }
+
+
+      // ===============================================
+      // MES ACTUAL
+      // ===============================================
+
+      for (
+        let day = 1;
+        day <= daysInMonth;
+        day++
+      ) {
+
+        const date =
+          new Date(
+            year,
+            month,
+            day
+          );
+
+
+        createCalendarDay(
+          date,
+          false,
+          todayString
+        );
+
+      }
+
+
+      // ===============================================
+      // MES SIGUIENTE
+      // ===============================================
+
+      const totalCells =
+        calendarDays.children.length;
+
+
+      const remaining =
+        Math.ceil(
+          totalCells / 7
+        ) * 7 -
+        totalCells;
+
+
+      for (
+        let day = 1;
+        day <= remaining;
+        day++
+      ) {
+
+        const date =
+          new Date(
+            year,
+            month + 1,
+            day
+          );
+
+
+        createCalendarDay(
+          date,
+          true,
+          todayString
+        );
+
+      }
+
+    };
+
+
+    // =====================================================
+    // CREAR DÍA
+    // =====================================================
+
+    const createCalendarDay = (
+      date,
+      otherMonth,
+      todayString
+    ) => {
+
+      const dateString =
+        formatDate(date);
+
+
+      const dayAppointments =
+        appointmentsByDate[
+          dateString
+        ] ?? [];
+
+
+      const hasAppointments =
+        dayAppointments.length > 0;
+
+
+      const button =
+        document.createElement(
+          'button'
+        );
+
+
+      button.type =
+        'button';
+
+
+      button.className =
+        'calendar-day';
+
+      button.setAttribute(
+        'aria-label',
+        date.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })
+      );
+
+
+      if (date.getDay() === 0) {
+
+        button.classList.add(
+          'sunday'
+        );
+        button.disabled = true;
+        button.title = 'No se agendan citas los domingos';
+
+      }
+
+
+      // ===============================================
+      // CITAS
+      // ===============================================
+
+      if (hasAppointments) {
+
+        button.classList.add(
+          'has-appointments'
+        );
+
+      }
+
+
+      // ===============================================
+      // CLASIFICAR DÍA
+      // ===============================================
+
+      const todayDate =
+        new Date(
+          `${todayString}T00:00:00`
+        );
+
+      const currentDate =
+        new Date(
+          `${dateString}T00:00:00`
+        );
+
+
+      if (!otherMonth) {
+
+        if (
+          currentDate < todayDate
+        ) {
+
+          button.classList.add(
+            'past-day'
+          );
+
+        } else {
+
+          button.classList.add(
+            'future-day'
+          );
+
+        }
+
+      }
+
+
+      if (otherMonth) {
+
+        button.classList.add(
+          'other-month'
+        );
+
+      }
+
+
+      // ===============================================
+      // HOY
+      // ===============================================
+
+      if (
+        dateString === todayString
+      ) {
+
+        button.classList.add(
+          'today'
+        );
+
+      }
+
+
+      // ===============================================
+      // SELECCIONADO
+      // ===============================================
+
+      if (
+        selectedDate === dateString
+      ) {
+
+        button.classList.add(
+          'selected'
+        );
+
+      }
+
+
+      // ===============================================
+      // HTML DEL DÍA
+      // ===============================================
+
+      button.innerHTML = `
+
+        <div class="day-number">
+          ${date.getDate()}
+        </div>
+
+        ${
+          hasAppointments
+            ? `
+              <div class="appointment-dot"></div>
+
+              <div class="appointment-count">
+                ${dayAppointments.length}
+                ${
+                  dayAppointments.length === 1
+                    ? 'cita'
+                    : 'citas'
+                }
+              </div>
+            `
+            : ''
+        }
+
+      `;
+
+
+      // ===============================================
+      // CLICK
+      // ===============================================
+
+      button.addEventListener(
+        'click',
+        () => {
+
+          if (date.getDay() === 0) return;
+
+          // =============================================
+          // FECHA
+          // =============================================
+
+          selectedDate =
+            dateString;
+
+
+          // =============================================
+          // ACTUALIZAR CALENDARIO
+          // =============================================
+
+          renderCalendar();
+
+
+          // =============================================
+          // NOTIFICAR A LA PÁGINA
+          // =============================================
+
+          document.dispatchEvent(
+            new CustomEvent(
+              'appointment:day-selected',
+              {
+                detail: {
+                  date: dateString
+                }
+              }
+            )
+          );
+
+        }
+      );
+
+
+      calendarDays.appendChild(
+        button
+      );
+
+    };
+
+
+    // =====================================================
+    // MES ANTERIOR
+    // =====================================================
+
+    document
+      .getElementById(
+        'prev-month'
+      )
+      ?.addEventListener(
+        'click',
+        () => {
+
+          currentMonth =
+            new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() - 1,
+              1
+            );
+
+          renderCalendar();
+
+        }
+      );
+
+
+    // =====================================================
+    // MES SIGUIENTE
+    // =====================================================
+
+    document
+      .getElementById(
+        'next-month'
+      )
+      ?.addEventListener(
+        'click',
+        () => {
+
+          currentMonth =
+            new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() + 1,
+              1
+            );
+
+          renderCalendar();
+
+        }
+      );
+
+
+    // =====================================================
+    // EVENTOS ENTRANTES
+    // =====================================================
+
+    // La página notifica cuando cambian las citas
+    document.addEventListener(
+      'appointments:updated',
+      (event) => {
+
+        const detail =
+          event.detail || {};
+
+
+        if (detail.appointmentsByDate) {
+
+          appointmentsByDate =
+            detail.appointmentsByDate;
+
+        }
+
+
+        if (detail.selectedDate !== undefined) {
+
+          selectedDate =
+            detail.selectedDate;
+
+        }
+
+
+        renderCalendar();
+
+      }
+    );
+
+
+    // La página pide ir al mes de hoy
+    document.addEventListener(
+      'calendar:goto-today',
+      () => {
+
+        const today =
+          new Date();
+
+        currentMonth =
+          new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+          );
+
+        selectedDate =
+          getTodayString();
+
+        renderCalendar();
+
+      }
+    );
+
+
+    // La página pide saltar a un mes concreto
+    document.addEventListener(
+      'calendar:set-month',
+      (event) => {
+
+        const { year, month } =
+          event.detail || {};
+
+
+        if (
+          year !== undefined &&
+          month !== undefined
+        ) {
+
+          currentMonth =
+            new Date(
+              year,
+              month,
+              1
+            );
+
+          renderCalendar();
+
+        }
+
+      }
+    );
+
+
+    // =====================================================
+    // INICIALIZAR
+    // =====================================================
+
+    renderCalendar();
+
+  })();
+</script>

@@ -29,6 +29,12 @@ const {
 
     <Tabla columns={columns} rows={rows} />
 
+        <nav class="tabla-vistas__pagination" data-pagination hidden aria-label="Paginación">
+            <button type="button" data-page-previous disabled>Anterior</button>
+            <span data-page-info></span>
+            <button type="button" data-page-next disabled>Siguiente</button>
+        </nav>
+
   </div>
 
   <div
@@ -53,6 +59,60 @@ const {
 
 <script>
 (() => {
+
+    function initPagination() {
+        const table = document.querySelector("#tabla-vista .tabla__table");
+        const pagination = document.querySelector("[data-pagination]");
+        const previous = document.querySelector("[data-page-previous]");
+        const next = document.querySelector("[data-page-next]");
+        const info = document.querySelector("[data-page-info]");
+
+        if (!table || !pagination || !previous || !next || !info) return;
+
+        const rows = () => Array.from(table.querySelectorAll("tbody tr"));
+        const pageSize = 7;
+        let currentPage = 1;
+
+        function renderPage() {
+            const allRows = rows();
+            const totalPages = Math.max(1, Math.ceil(allRows.length / pageSize));
+
+            currentPage = Math.min(currentPage, totalPages);
+
+            allRows.forEach((row, index) => {
+                row.hidden = index < (currentPage - 1) * pageSize || index >= currentPage * pageSize;
+            });
+
+            pagination.hidden = allRows.length <= pageSize;
+            previous.disabled = currentPage === 1;
+            next.disabled = currentPage === totalPages;
+            info.textContent = `Página ${currentPage} de ${totalPages}`;
+        }
+
+        previous.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage -= 1;
+                renderPage();
+            }
+        });
+
+        next.addEventListener("click", () => {
+            const totalPages = Math.ceil(rows().length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage += 1;
+                renderPage();
+            }
+        });
+
+        const observer = new MutationObserver(() => {
+            currentPage = 1;
+            renderPage();
+        });
+
+        const tbody = table.querySelector("tbody");
+        if (tbody) observer.observe(tbody, { childList: true });
+        renderPage();
+    }
 
     function initTablaConVistas(){
 
@@ -227,6 +287,12 @@ const {
 
     }
 
+    if(document.readyState==="loading"){
+        document.addEventListener("DOMContentLoaded", initPagination);
+    }else{
+        initPagination();
+    }
+
 })();
 </script>
 
@@ -255,6 +321,28 @@ const {
     cursor:pointer;
     font-weight:800;
 
+}
+
+.tabla-vistas__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.tabla-vistas__pagination button {
+    padding: 8px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #111827;
+    cursor: pointer;
+}
+
+.tabla-vistas__pagination button:disabled {
+    cursor: not-allowed;
+    opacity: .45;
 }
 
 .tabla-vistas__add{

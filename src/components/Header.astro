@@ -42,9 +42,9 @@ import HamburgerButton from './HamburgerButton.astro';
           <span class="site-header__btn-text" id="header-auth-link-text">Acceder</span>
         </a>
 
-        <div class="site-header__profile" id="site-header-profile" style="display:none; flex-direction:column; align-items:center; gap:4px;">
+        <div class="site-header__profile" id="site-header-profile">
           <ProfileButton />
-          <span id="site-header-user-email" style="font-size:12px; opacity:0.85; margin-top:-2px;"></span>
+          <span id="site-header-user-email" class="site-header__user-name"></span>
         </div>
 
         <div class="site-header__hamburger" id="menu-toggle">
@@ -179,6 +179,25 @@ import HamburgerButton from './HamburgerButton.astro';
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.site-header__profile {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.site-header__user-name {
+  max-width: 150px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 /* =========================

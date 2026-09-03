@@ -227,6 +227,23 @@ const documentsContainer =
         "detail-proceeding-documents"
     );
 
+const formatFileSize = (bytes) => {
+    if (!Number.isFinite(Number(bytes)) || Number(bytes) < 0) {
+        return "Tamaño no disponible";
+    }
+
+    const units = ["B", "KB", "MB", "GB"];
+    let size = Number(bytes);
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+    }
+
+    return `${size >= 10 || unitIndex === 0 ? size.toFixed(0) : size.toFixed(1)} ${units[unitIndex]}`;
+};
+
 if (
     Array.isArray(acta.documents) &&
     acta.documents.length
@@ -245,11 +262,8 @@ if (
         row.innerHTML = `
 
             <span class="detail-document-name">
-
                 <i class="fa-solid fa-file"></i>
-
-                ${documento.name}
-
+                <span class="detail-document-title">${documento.name}</span>
             </span>
 
             <button
@@ -262,6 +276,8 @@ if (
                 <i class="fa-solid fa-download"></i>
 
             </button>
+
+            <small class="detail-document-size">(${formatFileSize(documento.size)})</small>
 
         `;
 
@@ -391,7 +407,7 @@ error
 });
 </script>
 
-<style>
+<style is:global>
 
 .download-detail-document{
     border:none;
@@ -456,6 +472,20 @@ error
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.detail-document-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-document-size {
+    flex-shrink: 0;
+    margin-left: 10px;
+    color: #777;
+    font-size: 12px;
 }
 
 .detail-document-name i {

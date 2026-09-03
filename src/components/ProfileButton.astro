@@ -17,8 +17,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 44px;
-		height: 44px;
+		width: 38px;
+		height: 38px;
+		overflow: hidden;
 		border-radius: 999px;
 		border: 1.5px solid rgba(255, 255, 255, 0.55);
 		background: rgba(255, 255, 255, 0.06);
@@ -27,8 +28,14 @@
 
 	.profile-btn img {
 		display: block;
-		width: 22px;
-		height: 22px;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.profile-btn:hover {
+		border-color: rgba(255, 255, 255, 0.95);
+		background: rgba(255, 255, 255, 0.16);
 	}
 </style>
 

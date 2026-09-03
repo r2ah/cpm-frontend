@@ -1,5 +1,6 @@
 ---
 import Header from '../../components/Header.astro';
+import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
 ---
 <head>
     <meta charset="UTF-8" />
@@ -40,50 +41,7 @@ import Header from '../../components/Header.astro';
     <!-- CALENDARIO -->
     <!-- ========================================= -->
 
-    <div class="calendar-card">
-
-      <div class="calendar-header">
-
-        <button
-          type="button"
-          id="prev-month"
-          class="calendar-nav"
-          aria-label="Mes anterior"
-        >
-          <span>&lt;</span>
-        </button>
-
-        <h2 id="calendar-title"></h2>
-
-        <button
-          type="button"
-          id="next-month"
-          class="calendar-nav"
-          aria-label="Mes siguiente"
-        >
-          <span>&gt;</span>
-        </button>
-
-      </div>
-
-
-      <div class="calendar-weekdays">
-        <div>Lun</div>
-        <div>Mar</div>
-        <div>Mié</div>
-        <div>Jue</div>
-        <div>Vie</div>
-        <div>Sáb</div>
-        <div>Dom</div>
-      </div>
-
-
-      <div
-        id="calendar-days"
-        class="calendar-days"
-      ></div>
-
-    </div>
+    <AppointmentsCalendar />
 
 
     <!-- ========================================= -->
@@ -101,7 +59,7 @@ import Header from '../../components/Header.astro';
         <div>
 
           <h2 id="selected-date-title">
-            Seleccione un dÃ­a
+            Seleccione un día
           </h2>
 
           <p id="appointments-count"></p>
@@ -125,7 +83,7 @@ import Header from '../../components/Header.astro';
         class="appointments-list"
       >
         <p class="empty-message">
-          Seleccione un dí­a del calendario.
+          Seleccione un día del calendario.
         </p>
       </div>
 
@@ -149,15 +107,9 @@ import Header from '../../components/Header.astro';
         Nueva cita
       </h2>
 
-
       <form id="appointment-form">
 
-        <!-- ===================================== -->
-        <!-- PERSONA -->
-        <!-- ===================================== -->
-
         <div class="form__group">
-
           <label
             class="form__label"
             for="appointment-person"
@@ -175,16 +127,10 @@ import Header from '../../components/Header.astro';
               Seleccione una persona
             </option>
           </select>
-
-          <small class="form__hint">
-            Seleccione una persona registrada en el sistema.
-          </small>
-
         </div>
 
-
         <!-- ===================================== -->
-        <!-- COMISIÃ“N -->
+        <!-- COMISIÓN -->
         <!-- ===================================== -->
 
         <div class="form__group">
@@ -193,7 +139,7 @@ import Header from '../../components/Header.astro';
             class="form__label"
             for="appointment-commission"
           >
-            ComisiÃ³n
+            Comisión
           </label>
 
           <select
@@ -203,7 +149,7 @@ import Header from '../../components/Header.astro';
             required
           >
             <option value="">
-              Seleccione una comisiÃ³n
+              Seleccione una comisión
             </option>
           </select>
 
@@ -430,7 +376,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�AS DE LA SEMANA
+    DÍAS DE LA SEMANA
   ========================================= */
 
   .calendar-weekdays {
@@ -458,7 +404,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�AS
+    DÍAS
   ========================================= */
 
   .calendar-days {
@@ -501,7 +447,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�A FUTURO
+    DÍA FUTURO
   ========================================= */
 
   .calendar-day.future-day {
@@ -520,7 +466,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�A PASADO
+    DÍA PASADO
   ========================================= */
 
   .calendar-day.past-day {
@@ -539,7 +485,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�A CON CITAS
+    DÍA CON CITAS
   ========================================= */
 
   .calendar-day.has-appointments {
@@ -592,7 +538,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     DÃ�A SELECCIONADO
+    DÍA SELECCIONADO
   ========================================= */
 
   .calendar-day.selected {
@@ -662,7 +608,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     NÃšMERO
+    NÚMERO
   ========================================= */
 
   .day-number {
@@ -1118,7 +1064,7 @@ import Header from '../../components/Header.astro';
 
 
   /* =========================================
-     MENSAJE VACÃ�O
+    MENSAJE VACÍO
   ========================================= */
 
   .empty-message {
@@ -1339,7 +1285,7 @@ import Header from '../../components/Header.astro';
 
 
     // ===============================================
-    // SESIÃ“N EXPIRADA
+    // SESIÓN EXPIRADA
     // ===============================================
 
     if (res.status === 401) {
@@ -1349,7 +1295,7 @@ import Header from '../../components/Header.astro';
       );
 
       alert(
-        'La sesiÃ³n ha expirado.'
+        'La sesión ha expirado.'
       );
 
       window.location.href =
@@ -1508,6 +1454,35 @@ import Header from '../../components/Header.astro';
 
   let editingAppointmentId = null;
 
+  document.addEventListener(
+    'appointment:day-selected',
+    async (event) => {
+      const date = event.detail?.date;
+      if (!date) return;
+
+      selectedDate = date;
+      resetAppointmentForm();
+      appointmentDate.value = date;
+      appointmentsCard.hidden = false;
+      formCard.hidden = true;
+
+      await loadAppointmentsForDay(date);
+
+      requestAnimationFrame(() => {
+        const offset = 20;
+        const cardPosition =
+          appointmentsCard.getBoundingClientRect().top +
+          window.scrollY -
+          offset;
+
+        window.scrollTo({
+          top: cardPosition,
+          behavior: 'smooth'
+        });
+      });
+    }
+  );
+
 
   // =====================================================
   // FECHA
@@ -1613,7 +1588,7 @@ import Header from '../../components/Header.astro';
 
 
   // =====================================================
-  // FECHA MÃ�NIMA
+  // FECHA MÍNIMA
   // =====================================================
 
   const setDateMinimum = () => {
@@ -1625,7 +1600,7 @@ import Header from '../../components/Header.astro';
 
 
   // =====================================================
-  // HORA MÃ�NIMA
+  // HORA MÍNIMA
   // =====================================================
 
   const updateTimeMinimum = () => {
@@ -1712,7 +1687,7 @@ import Header from '../../components/Header.astro';
     ) {
 
       alert(
-        'No puede agendar una cita a una hora que ya pasÃ³.'
+        'No puede agendar una cita a una hora que ya pasó.'
       );
 
       appointmentTime.focus();
@@ -1823,7 +1798,7 @@ import Header from '../../components/Header.astro';
 
       commissionSelect.innerHTML = `
         <option value="">
-          Seleccione una comisiÃ³n
+          Seleccione una comisión
         </option>
       `;
 
@@ -1921,7 +1896,7 @@ import Header from '../../components/Header.astro';
     if (!selectedDate) {
 
       alert(
-        'Primero seleccione un dÃ­a del calendario.'
+          'Primero seleccione un día del calendario.'
       );
 
       return;
@@ -1996,7 +1971,7 @@ import Header from '../../components/Header.astro';
       if (!appointment) {
 
         throw new Error(
-          'No se encontrÃ³ la cita.'
+          'No se encontró la cita.'
         );
 
       }
@@ -2009,7 +1984,7 @@ import Header from '../../components/Header.astro';
 
 
       // ===============================================
-      // MODO EDICIÃ“N
+      // MODO EDICIÓN
       // ===============================================
 
       editingAppointmentId =
@@ -2035,7 +2010,7 @@ import Header from '../../components/Header.astro';
 
 
       // ===============================================
-      // COMISIÃ“N
+      // COMISIÓN
       // ===============================================
 
       commissionSelect.value =
@@ -2134,7 +2109,7 @@ import Header from '../../components/Header.astro';
 
     const confirmed =
       confirm(
-        'Â¿EstÃ¡ seguro de que desea eliminar esta cita?'
+          '¿Está seguro de que desea eliminar esta cita?'
       );
 
 
@@ -2299,6 +2274,17 @@ import Header from '../../components/Header.astro';
 
   const renderCalendar = () => {
 
+    document.dispatchEvent(
+      new CustomEvent('appointments:updated', {
+        detail: {
+          appointmentsByDate,
+          selectedDate
+        }
+      })
+    );
+
+    return;
+
     const year =
       currentMonth.getFullYear();
 
@@ -2457,7 +2443,7 @@ import Header from '../../components/Header.astro';
 
 
   // =====================================================
-  // CREAR DÃ�A
+  // CREAR DÍA
   // =====================================================
 
   const createCalendarDay = (
@@ -2508,7 +2494,7 @@ import Header from '../../components/Header.astro';
 
 
     // ===============================================
-    // CLASIFICAR DÃ�A
+    // CLASIFICAR DÍA
     // ===============================================
 
     const todayDate =
@@ -2583,7 +2569,7 @@ import Header from '../../components/Header.astro';
 
 
     // ===============================================
-    // HTML DEL DÃ�A
+    // HTML DEL DÍA
     // ===============================================
 
     button.innerHTML = `
@@ -2629,7 +2615,7 @@ import Header from '../../components/Header.astro';
 
 
         // =============================================
-        // SALIR DE EDICIÃ“N
+        // SALIR DE EDICIÓN
         // =============================================
 
         resetAppointmentForm();
@@ -2676,7 +2662,7 @@ import Header from '../../components/Header.astro';
 
 
         // =============================================
-        // SCROLL AUTOMÃ�TICO
+        // SCROLL AUTOMÁTICO
         // =============================================
 
         const offset = 20;
@@ -2704,7 +2690,7 @@ import Header from '../../components/Header.astro';
 
 
   // =====================================================
-  // CARGAR CITAS DE UN DÃ�A
+  // CARGAR CITAS DE UN DÍA
   // =====================================================
 
   const loadAppointmentsForDay = async (
@@ -2748,7 +2734,7 @@ import Header from '../../components/Header.astro';
     catch (error) {
 
       console.error(
-        'ERROR CARGANDO CITAS DEL DÃ�A:',
+        'ERROR CARGANDO CITAS DEL DÍA:',
         error
       );
 
@@ -2804,7 +2790,7 @@ import Header from '../../components/Header.astro';
       appointmentsList.innerHTML = `
 
         <p class="empty-message">
-          No hay citas para este dÃ­a.
+          No hay citas para este día.
         </p>
 
       `;
@@ -2889,12 +2875,12 @@ import Header from '../../components/Header.astro';
 
 
         // =============================================
-        // COMISIÃ“N
+        // COMISIÓN
         // =============================================
 
         const commissionName =
           appointment.commission?.name ??
-          'Sin comisiÃ³n';
+          'Sin comisión';
 
 
         // =============================================
@@ -2916,7 +2902,7 @@ import Header from '../../components/Header.astro';
             </div>
 
             <div class="appointment-detail">
-              <strong>ComisiÃ³n:</strong>
+              <strong>Comisión:</strong>
               ${commissionName}
             </div>
 
@@ -2935,7 +2921,7 @@ import Header from '../../components/Header.astro';
               personPhone
                 ? `
                   <div class="appointment-detail">
-                    <strong>TelÃ©fono:</strong>
+                    <strong>Teléfono:</strong>
                     ${personPhone}
                   </div>
                 `
@@ -3103,14 +3089,14 @@ import Header from '../../components/Header.astro';
         appointmentsList.innerHTML = `
 
           <p class="empty-message">
-            Seleccione un dÃ­a del calendario.
+            Seleccione un día del calendario.
           </p>
 
         `;
 
 
         selectedDateTitle.textContent =
-          'Seleccione un dÃ­a';
+          'Seleccione un día';
 
 
         appointmentsCount.textContent =
@@ -3161,14 +3147,14 @@ import Header from '../../components/Header.astro';
         appointmentsList.innerHTML = `
 
           <p class="empty-message">
-            Seleccione un dÃ­a del calendario.
+            Seleccione un día del calendario.
           </p>
 
         `;
 
 
         selectedDateTitle.textContent =
-          'Seleccione un dÃ­a';
+          'Seleccione un día';
 
 
         appointmentsCount.textContent =
@@ -3190,7 +3176,7 @@ import Header from '../../components/Header.astro';
 
 
   // =====================================================
-  // BOTÃ“N HOY
+  // BOTÓN HOY
   // =====================================================
 
   document
@@ -3284,13 +3270,13 @@ import Header from '../../components/Header.astro';
 
 
       // ===============================================
-      // VALIDAR COMISIÃ“N
+      // VALIDAR COMISIÓN
       // ===============================================
 
       if (!commissionSelect.value) {
 
         alert(
-          'Seleccione una comisiÃ³n.'
+          'Seleccione una comisión.'
         );
 
         commissionSelect.focus();

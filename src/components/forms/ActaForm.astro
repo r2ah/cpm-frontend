@@ -131,53 +131,28 @@
     <input type="hidden" name="commission_id" id="acta-commission-id" value="1" />
     <input type="hidden" name="signed_document" id="acta-signed-document" value="" />
 
-    <!-- DOCUMENTOS -->
-<div class="form-card">
+        <!-- DOCUMENTOS -->
+        <div class="form-card">
+            <div class="form__group">
+                <label class="form__label" for="documentos">
+                    Documentos asociados
+                </label>
 
-  <h2 class="form-card__title">
-    Documentos asociados
-  </h2>
+                <input
+                    type="file"
+                    id="documentos"
+                    multiple
+                    class="form__input"
+                    accept=".pdf,.doc,.docx,.txt,.odt,.rtf,.xls,.xlsx,.csv,.ppt,.pptx,image/*"
+                />
 
-  <div class="form__group">
+                <small>
+                    Puede seleccionar uno o varios archivos.
+                </small>
 
-    <label class="form__label">
-      Documentos
-    </label>
-
-    <input
-      type="file"
-      id="documentos"
-      multiple
-      class="form__input"
-      accept="
-        .pdf,
-        .doc,
-        .docx,
-        .txt,
-        .odt,
-        .rtf,
-        .xls,
-        .xlsx,
-        .csv,
-        .ppt,
-        .pptx,
-        image/*
-      "
-    />
-
-    <small>
-      Puede seleccionar uno o varios archivos.
-    </small>
-
-    <!-- AQUÃ SE MOSTRARÃN LOS DOCUMENTOS -->
-    <div
-    id="current-documents"
-    class="current-documents"
-  ></div>
-
-  </div>
-
-</div>
+                <div id="current-documents" class="current-documents"></div>
+            </div>
+        </div>
 
 
     <!-- PARTICIPANTES -->
@@ -729,6 +704,78 @@ textarea {
 
   color: white;
 }
+</style>
+
+<style is:global>
+    .current-documents {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .current-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 48px;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .current-document .document-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        color: #444;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .current-document .document-actions {
+        display: flex;
+        flex-shrink: 0;
+        gap: 8px;
+        margin-left: 15px;
+    }
+
+    .current-document .icon-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .current-document .download-document {
+        background: #e6f0ff;
+        color: #0066cc;
+    }
+
+    .current-document .download-document:hover {
+        background: #0066cc;
+        color: #fff;
+    }
+
+    .current-document .btn-remove-document {
+        background: #ffe6e6;
+        color: #d60000;
+    }
+
+    .current-document .btn-remove-document:hover {
+        background: #d60000;
+        color: #fff;
+    }
 </style>
 
 <script>
