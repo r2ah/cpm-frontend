@@ -23,7 +23,12 @@
       Guardar
     </button>
 
-    <p id="autoridad-status"></p>
+    <p
+      id="autoridad-status"
+      class="form-status"
+      role="status"
+      aria-live="polite"
+    ></p>
 
   </form>
 
@@ -31,6 +36,11 @@
 
 <script type="module">
 const API = "http://localhost:8000/api/v1/authorities";
+
+const authHeaders = () => ({
+  Accept: "application/json",
+  Authorization: `Bearer ${localStorage.getItem("auth_token") ?? ""}`
+});
 
 function getEditId() {
   return localStorage.getItem("authority_edit_id");
@@ -43,28 +53,60 @@ function setEditId(id) {
 
 const form = document.getElementById("autoridad-form");
 const statusEl = document.getElementById("autoridad-status");
+const submitBtn = form.querySelector("button[type='submit']");
+const titleEl = form.closest(".form-card")?.querySelector(".form-card__title");
+
+function resetForm() {
+  setEditId(null);
+  form.reset();
+  submitBtn.textContent = "Guardar";
+  submitBtn.disabled = false;
+  titleEl.textContent = "Registrar Autoridad";
+  setStatus("");
+}
+
+function setStatus(message, type = "") {
+  statusEl.textContent = message;
+  statusEl.className = `form-status${type ? ` form-status--${type}` : ""}`;
+}
 
 // 🔥 CARGAR DATOS EN EDIT
 async function prefill(id) {
   if (!id) return;
 
-  const res = await fetch(`${API}/${id}`);
+  const res = await fetch(`${API}/${id}`, {
+    headers: authHeaders()
+  });
   const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json?.message || "No se pudo cargar la autoridad.");
+  }
+
   const a = json?.data;
 
   form.querySelector("input[name='name']").value = a?.name ?? "";
   form.querySelector("input[name='email']").value = a?.email ?? "";
   form.querySelector("input[name='phone']").value = a?.phone ?? "";
 
-  const btn = form.querySelector("button[type='submit']");
-  btn.textContent = "Actualizar";
+  submitBtn.textContent = "Actualizar";
+  titleEl.textContent = "Editar Autoridad";
 }
 
 // escuchar evento edit
 window.addEventListener("authority-edit", (ev) => {
   const id = ev.detail.id;
   setEditId(id);
-  prefill(id);
+  prefill(id).catch((error) => {
+    setStatus(error.message, "error");
+  });
+});
+
+window.addEventListener("authority-new", () => {
+  resetForm();
+});
+
+window.addEventListener("authority-clear", () => {
+  resetForm();
 });
 
 // SUBMIT (CREATE / UPDATE)
@@ -87,6 +129,11 @@ form.addEventListener("submit", async (e) => {
 
   const method = editId ? "PUT" : "POST";
 
+  setStatus("");
+  submitBtn.disabled = true;
+  submitBtn.textContent = editId ? "Actualizando..." : "Guardando...";
+
+  try {
   const res = await fetch(url, {
     method,
     headers: {
@@ -99,16 +146,41 @@ form.addEventListener("submit", async (e) => {
   const data = await res.json();
 
   if (!res.ok) {
-    statusEl.textContent = data?.message || "Error";
-    return;
+    const validationMessages = data?.errors
+      ? Object.values(data.errors).flat().join(" ")
+      : "";
+
+    throw new Error(
+      validationMessages ||
+      data?.message ||
+      "No se pudo guardar la autoridad."
+    );
   }
 
-  statusEl.textContent = editId ? "Actualizado ✅" : "Creado ✅";
+  setStatus(
+    editId
+      ? "La autoridad se actualizó correctamente."
+      : "La autoridad se creó correctamente.",
+    "success"
+  );
 
   setEditId(null);
   form.reset();
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Guardar";
+  titleEl.textContent = "Registrar Autoridad";
 
-  setTimeout(() => window.location.reload(), 300);
+  setTimeout(() => window.location.reload(), 800);
+  } catch (error) {
+    setStatus(
+      error instanceof Error
+        ? error.message
+        : "Ocurrió un error al guardar la autoridad.",
+      "error"
+    );
+    submitBtn.disabled = false;
+    submitBtn.textContent = editId ? "Actualizar" : "Guardar";
+  }
 });
 </script>
 
@@ -198,6 +270,26 @@ form.addEventListener("submit", async (e) => {
 
 .btn--primary:hover {
   opacity: 0.9;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.form-status {
+  min-height: 20px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-status--success {
+  color: #1e6b35;
+}
+
+.form-status--error {
+  color: #b42318;
 }
 
 </style>

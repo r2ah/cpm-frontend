@@ -264,7 +264,20 @@ const {
 
 
     // LIMPIAR MODO EDICIÓN
-    localStorage.removeItem("opinion_edit_id");
+    [
+        "acta_edit_id",
+        "persona_edit_id",
+        "authority_edit_id",
+        "user_edit_id",
+        "intervention_edit_id",
+        "dictamen_edit_id"
+    ].forEach(key => {
+        localStorage.removeItem(key);
+    });
+
+    window.dispatchEvent(
+        new Event("authority-clear")
+    );
 
     window.dispatchEvent(
         new Event("dictamen-clear")

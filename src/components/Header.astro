@@ -270,41 +270,38 @@ import HamburgerButton from './HamburgerButton.astro';
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+function initializeHeader() {
   const btn = document.getElementById('menu-toggle');
 
-  btn?.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('toggle-menu'));
-  });
+  if (btn && btn.dataset.ready !== '1') {
+    btn.dataset.ready = '1';
+    btn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('toggle-menu'));
+    });
+  }
 
   const authLink = document.getElementById('header-auth-link');
   const authText = document.getElementById('header-auth-link-text');
-
-  const authToken = window.localStorage.getItem('auth_token');
+  const profileWrap = document.getElementById('site-header-profile');
   const authUserRaw = window.localStorage.getItem('auth_user');
   const authUser = authUserRaw ? (() => { try { return JSON.parse(authUserRaw); } catch { return null; } })() : null;
-
   const emailEl = document.getElementById('site-header-user-email');
+  const authToken = window.localStorage.getItem('auth_token');
 
-  if (authToken && authText && authLink) {
-    if (emailEl && authUser?.email) {
-      emailEl.textContent = authUser.email;
-    } else if (emailEl) {
-      emailEl.textContent = '';
-    }
+  if (!authLink || !authText) return;
 
-    const profileWrap = document.getElementById('site-header-profile');
+  if (authToken) {
     if (profileWrap) profileWrap.style.display = 'flex';
-    if (emailEl && authUser?.email) {
-      emailEl.textContent = authUser.name;
-    }
+    if (emailEl) emailEl.textContent = authUser?.name || authUser?.email || '';
     authLink.href = '#';
     authText.textContent = 'Cerrar Sesión';
 
+    if (authLink.dataset.ready === '1') return;
+    authLink.dataset.ready = '1';
     authLink.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
-fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/v1/logout`,
+        await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/v1/logout`,
           {
             method: 'POST',
             headers: {
@@ -321,6 +318,25 @@ fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/v1/logo
         window.location.href = '/';
       }
     }, { once: true });
+  } else {
+    authLink.href = '/login';
+    authText.textContent = 'Acceder';
+    if (profileWrap) profileWrap.style.display = 'none';
+    if (emailEl) emailEl.textContent = '';
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeHeader, { once: true });
+} else {
+  initializeHeader();
+}
+
+document.addEventListener('astro:page-load', initializeHeader);
+window.addEventListener('pageshow', initializeHeader);
+window.addEventListener('storage', (event) => {
+  if (event.key === 'auth_token' || event.key === 'auth_user') {
+    initializeHeader();
   }
 });
 </script>

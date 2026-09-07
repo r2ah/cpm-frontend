@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/footer_prueba.astro';
 import PatrimonioCard from '../components/patrimonio/PatrimonioCard.astro';
+import PatrimonioModal from '../components/patrimonio/PatrimonioModal.astro';
 
 const BACKEND = 'http://localhost:8000';
 
@@ -76,7 +77,16 @@ try {
           <div class="patrimonio-grid">
 
             {entidades.map((entidad) => (
-              <PatrimonioCard patrimonio={entidad} />
+              <PatrimonioCard
+                patrimonio={entidad}
+                nombre={entidad.nombre_actual || entidad.nombre_original || 'Entidad patrimonial'}
+                direccion={entidad.direccion || 'Dirección no disponible'}
+                descripcion={entidad.descripcion || ''}
+                codigo={entidad.codigo || entidad.codigo_gis || ''}
+                lat={entidad.lat || entidad.latitude || ''}
+                lng={entidad.long || entidad.lng || entidad.longitude || ''}
+                imagenes={entidad.imagenes || entidad.imagen || []}
+              />
             ))}
 
           </div>
@@ -123,6 +133,8 @@ try {
         )}
 
       </main>
+
+      <PatrimonioModal />
 
       <Footer />
 

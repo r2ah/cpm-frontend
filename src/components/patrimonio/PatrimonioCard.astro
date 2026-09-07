@@ -1,9 +1,18 @@
 ---
 const BACKEND = "http://apps.planmaestro.ohc.cu/Servicio/v1";
 
-const { patrimonio } = Astro.props;
+const {
+  patrimonio,
+  nombre: cardNombre,
+  direccion: cardDireccion,
+  descripcion: cardDescripcion,
+  codigo: cardCodigo,
+  lat,
+  lng,
+  imagenes
+} = Astro.props;
 
-const codigo = patrimonio?.codigo;
+const codigo = cardCodigo || patrimonio?.codigo;
 
 async function getImagen(codigo) {
   if (!codigo) return null;
@@ -79,20 +88,37 @@ const imagen = await getImagen(codigo);
 // =========================================
 
 const nombre =
+  cardNombre ||
   patrimonio?.nombre_actual ||
   patrimonio?.nombre_original ||
   "Entidad patrimonial";
 
 const direccion =
+  cardDireccion ||
   patrimonio?.direccion ||
   "Dirección no disponible";
 
 const declaratoria =
   patrimonio?.declaratoria ||
   "Sin declaratoria";
+
+const descripcion = cardDescripcion || patrimonio?.descripcion || '';
 ---
 
-<article class="patrimonio-card">
+<article
+  class="patrimonio-card"
+  tabindex="0"
+  role="button"
+  aria-label={`Ver detalles de ${nombre}`}
+  data-nombre={nombre}
+  data-direccion={direccion}
+  data-descripcion={descripcion}
+  data-declaratoria={declaratoria}
+  data-codigo={codigo || ''}
+  data-lat={lat || patrimonio?.lat || patrimonio?.latitude || ''}
+  data-lng={lng || patrimonio?.long || patrimonio?.lng || patrimonio?.longitude || ''}
+  data-imagenes={JSON.stringify(imagenes ?? patrimonio?.imagenes ?? patrimonio?.imagen ?? [])}
+>
 
   <div class="card-image">
 

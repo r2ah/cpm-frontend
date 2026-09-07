@@ -233,6 +233,55 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
 
     </div>
 
+    <div
+      id="appointment-status-form-card"
+      class="form-card"
+      hidden
+    >
+      <h2 class="form-card__title">
+        Actualizar estado de la cita
+      </h2>
+
+      <form id="appointment-status-form">
+        <div class="form__group">
+          <label
+            class="form__label"
+            for="appointment-status"
+          >
+            Estado
+          </label>
+
+          <select
+            class="form__input"
+            id="appointment-status"
+            name="status"
+            required
+          >
+            <option value="pendiente">Pendiente</option>
+            <option value="confirmada">Confirmada</option>
+            <option value="cancelada">Cancelada</option>
+            <option value="atendida">Atendida</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            id="cancel-status-btn"
+            class="btn btn--secondary"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+          >
+            Actualizar estado
+          </button>
+        </div>
+      </form>
+    </div>
+
   </div>
 
 </section>
@@ -1397,9 +1446,19 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
       'appointment-form-card'
     );
 
+  const statusFormCard =
+    document.getElementById(
+      'appointment-status-form-card'
+    );
+
   const appointmentForm =
     document.getElementById(
       'appointment-form'
+    );
+
+  const appointmentStatusForm =
+    document.getElementById(
+      'appointment-status-form'
     );
 
   const personSelect =
@@ -1420,6 +1479,11 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
   const appointmentTime =
     document.getElementById(
       'appointment-time'
+    );
+
+  const appointmentStatus =
+    document.getElementById(
+      'appointment-status'
     );
 
   const appointmentFormTitle =
@@ -1453,6 +1517,8 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
   let people = [];
 
   let editingAppointmentId = null;
+
+  let editingStatusAppointmentId = null;
 
   document.addEventListener(
     'appointment:day-selected',
@@ -1587,118 +1653,139 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
   };
 
 
-  // =====================================================
-  // FECHA MÍNIMA
-  // =====================================================
+// =====================================================
+// FECHA MÍNIMA
+// =====================================================
+const setDateMinimum = () => {
+  appointmentDate.min = getTodayString();
+};
 
-  const setDateMinimum = () => {
+// =====================================================
+// HORA MÍNIMA
+// =====================================================
+const updateTimeMinimum = () => {
+  const today = getTodayString();
+  const selectedDate = appointmentDate.value;
 
-    appointmentDate.min =
-      getTodayString();
+  if (selectedDate === today) {
+    appointmentTime.min = getCurrentTimeString();
 
-  };
-
-
-  // =====================================================
-  // HORA MÍNIMA
-  // =====================================================
-
-  const updateTimeMinimum = () => {
-
-    const today =
-      getTodayString();
-
-    const currentDate =
-      appointmentDate.value;
-
-
-    if (currentDate === today) {
-
-      appointmentTime.min =
-        getCurrentTimeString();
-
-    } else {
-
-      appointmentTime.removeAttribute(
-        'min'
-      );
-
+    // Si la hora seleccionada ya pasó, eliminarla
+    if (
+      appointmentTime.value &&
+      appointmentTime.value < appointmentTime.min
+    ) {
+      appointmentTime.value = '';
     }
+  } else {
+    // Para cualquier fecha futura no hay límite de hora
+    appointmentTime.removeAttribute('min');
+  }
+};
 
-  };
+// =====================================================
+// VALIDAR FECHA / HORA
+// =====================================================
+const validateAppointmentDateTime = () => {
+  const date = appointmentDate.value;
+  const time = appointmentTime.value;
 
+  if (!date) {
+    alert('Seleccione una fecha.');
+    appointmentDate.focus();
+    return false;
+  }
 
-  // =====================================================
-  // VALIDAR FECHA / HORA
-  // =====================================================
+  if (!time) {
+    alert('Seleccione una hora.');
+    appointmentTime.focus();
+    return false;
+  }
 
-  const validateAppointmentDateTime = () => {
+  const today = getTodayString();
 
-    const date =
-      appointmentDate.value;
+  // -----------------------------------------------
+  // FECHA PASADA
+  // -----------------------------------------------
+  if (date < today) {
+    alert(
+      'No puede agendar una cita en una fecha pasada.'
+    );
 
-    const time =
-      appointmentTime.value;
+    appointmentDate.focus();
+    return false;
+  }
 
+  // -----------------------------------------------
+  // HOY + HORA PASADA
+  // -----------------------------------------------
+  if (
+    date === today &&
+    time < getCurrentTimeString()
+  ) {
+    alert(
+      'No puede agendar una cita a una hora que ya pasó.'
+    );
 
-    if (!date) {
+    appointmentTime.focus();
+    return false;
+  }
 
+  return true;
+};
+
+// =====================================================
+// CAMBIO DE FECHA
+// =====================================================
+appointmentDate.addEventListener(
+  'change',
+  () => {
+    updateTimeMinimum();
+
+    // Si la fecha seleccionada es pasada
+    if (
+      appointmentDate.value &&
+      appointmentDate.value < getTodayString()
+    ) {
       alert(
-        'Seleccione una fecha.'
+        'No puede seleccionar una fecha pasada.'
       );
 
-      appointmentDate.focus();
+      appointmentDate.value = getTodayString();
 
-      return false;
+      updateTimeMinimum();
+    }
+  }
+);
+
+// =====================================================
+// CAMBIO DE HORA
+// =====================================================
+appointmentTime.addEventListener(
+  'change',
+  () => {
+    const date = appointmentDate.value;
+    const time = appointmentTime.value;
+
+    if (!date || !time) {
+      return;
     }
 
-
-    if (!time) {
-
-      alert(
-        'Seleccione una hora.'
-      );
-
-      appointmentTime.focus();
-
-      return false;
-    }
-
-
-    const today =
-      getTodayString();
-
-
-    if (date < today) {
-
-      alert(
-        'No puede agendar una cita en una fecha pasada.'
-      );
-
-      appointmentDate.focus();
-
-      return false;
-    }
-
+    const today = getTodayString();
 
     if (
       date === today &&
       time < getCurrentTimeString()
     ) {
-
       alert(
-        'No puede agendar una cita a una hora que ya pasó.'
+        'No puede seleccionar una hora que ya pasó.'
       );
 
+      appointmentTime.value = '';
       appointmentTime.focus();
-
-      return false;
     }
-
-
-    return true;
-  };
-
+  }
+);
 
   // =====================================================
   // CARGAR PERSONAS
@@ -1905,6 +1992,9 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
 
     resetAppointmentForm();
 
+    statusFormCard.hidden =
+      true;
+
 
     appointmentDate.value =
       selectedDate;
@@ -1931,6 +2021,9 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
 
   const showEditAppointmentForm = () => {
 
+    statusFormCard.hidden =
+      true;
+
     formCard.hidden =
       false;
 
@@ -1939,6 +2032,62 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
       behavior: 'smooth',
       block: 'start'
     });
+
+  };
+
+
+  const editAppointmentStatus = async (id) => {
+
+    try {
+
+      const response =
+        await apiFetch(
+          `${BACKEND_BASE}/api/v1/appointments/${id}`
+        );
+
+      const appointment =
+        response?.data ??
+        response;
+
+      if (!appointment) {
+        throw new Error(
+          'No se encontró la cita.'
+        );
+      }
+
+      editingStatusAppointmentId =
+        appointment.id;
+
+      appointmentStatus.value =
+        appointment.status ??
+        'pendiente';
+
+      formCard.hidden =
+        true;
+
+      statusFormCard.hidden =
+        false;
+
+      statusFormCard.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+
+    }
+    catch (error) {
+
+      console.error(
+        'ERROR CARGANDO ESTADO DE CITA:',
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : String(error)
+      );
+
+    }
 
   };
 
@@ -2937,6 +3086,14 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
               ${appointment.status ?? 'pendiente'}
             </span>
 
+            <button
+              type="button"
+              class="btn btn--status"
+              data-id="${appointment.id}"
+            >
+              Cambiar estado
+            </button>
+
 
             <button
               type="button"
@@ -2971,6 +3128,29 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
     // ===============================================
     // EVENTOS EDITAR
     // ===============================================
+
+    appointmentsList
+      .querySelectorAll(
+        '.btn--status'
+      )
+      .forEach(
+        (button) => {
+
+          button.addEventListener(
+            'click',
+            () => {
+
+              const id =
+                button.dataset.id;
+
+              editAppointmentStatus(id);
+
+            }
+          );
+
+        }
+      );
+
 
     appointmentsList
       .querySelectorAll(
@@ -3242,6 +3422,88 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
     );
 
 
+  document
+    .getElementById(
+      'cancel-status-btn'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        editingStatusAppointmentId =
+          null;
+
+        appointmentStatusForm.reset();
+
+        statusFormCard.hidden =
+          true;
+
+      }
+    );
+
+
+  appointmentStatusForm?.addEventListener(
+    'submit',
+    async (event) => {
+
+      event.preventDefault();
+
+      if (editingStatusAppointmentId === null) {
+        return;
+      }
+
+      try {
+
+        await apiFetch(
+          `${BACKEND_BASE}/api/v1/appointments/${editingStatusAppointmentId}`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              status: appointmentStatus.value
+            })
+          }
+        );
+
+        alert(
+          'Estado de la cita actualizado correctamente.'
+        );
+
+        editingStatusAppointmentId =
+          null;
+
+        appointmentStatusForm.reset();
+
+        statusFormCard.hidden =
+          true;
+
+        await loadAppointments();
+
+        if (selectedDate) {
+          await loadAppointmentsForDay(
+            selectedDate
+          );
+        }
+
+      }
+      catch (error) {
+
+        console.error(
+          'ERROR ACTUALIZANDO ESTADO DE CITA:',
+          error
+        );
+
+        alert(
+          error instanceof Error
+            ? error.message
+            : String(error)
+        );
+
+      }
+
+    }
+  );
+
+
   // =====================================================
   // CREAR / EDITAR
   // =====================================================
@@ -3318,9 +3580,6 @@ import AppointmentsCalendar from '../../components/AppointmentsCalendar.astro';
 
         time:
           appointmentTime.value,
-
-        status:
-          'pendiente'
 
       };
 

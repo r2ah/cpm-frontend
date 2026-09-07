@@ -47,7 +47,7 @@
   <div class="calendar-legend" aria-label="Estados del calendario">
     <span><i class="calendar-legend__swatch calendar-legend__swatch--today"></i>Hoy</span>
     <span><i class="calendar-legend__swatch calendar-legend__swatch--appointments"></i>Con citas</span>
-    <span><i class="calendar-legend__swatch calendar-legend__swatch--sunday"></i>Domingo</span>
+    <span><i class="calendar-legend__swatch calendar-legend__swatch--sunday"></i>Días no laborables</span>
   </div>
 
 </div>
@@ -361,20 +361,36 @@
      DOMINGO
   ========================================= */
 
-  .calendar-day.sunday {
+  .calendar-day.sunday,
+  .calendar-day.saturday {
     background: #e5e7eb !important;
 
     border-color: #c7cbd1 !important;
   }
 
-  .calendar-day.sunday:hover {
+  .calendar-day.sunday:hover,
+  .calendar-day.saturday:hover {
     background: #d9dde2 !important;
 
     border-color: #adb3bb !important;
   }
 
-  .calendar-day.sunday .appointment-dot {
+  .calendar-day.sunday .appointment-dot,
+  .calendar-day.saturday .appointment-dot {
     background: #9ca3af;
+  }
+
+  .calendar-day.sunday .day-number,
+  .calendar-day.sunday .appointment-count,
+  .calendar-day.saturday .day-number,
+  .calendar-day.saturday .appointment-count {
+    color: #6b7280;
+  }
+
+  .calendar-day.sunday,
+  .calendar-day.saturday {
+    color: #6b7280;
+    cursor: not-allowed;
   }
 
   .calendar-legend {
@@ -417,6 +433,7 @@
     background: #e5e7eb;
     border-color: #c7cbd1;
   }
+
 
 
   /* =========================================
@@ -843,6 +860,12 @@
 
       }
 
+      if (date.getDay() === 6) {
+        button.classList.add('saturday');
+        button.disabled = true;
+        button.title = 'No se agendan citas los sábados';
+      }
+
 
       // ===============================================
       // CITAS
@@ -970,7 +993,7 @@
         'click',
         () => {
 
-          if (date.getDay() === 0) return;
+          if (date.getDay() === 0 || date.getDay() === 6) return;
 
           // =============================================
           // FECHA

@@ -1004,6 +1004,11 @@ const opinionLongitudeInput =
         "opinion-longitude"
     );
 
+const opinionAddressInput =
+    document.getElementById(
+        "address"
+    );
+
 const opinionLocationStatus =
     document.getElementById(
         "opinion-location-status"
@@ -1128,6 +1133,11 @@ const initializeOpinionMap = () => {
                 latitude,
                 longitude,
                 true
+            );
+
+            reverseGeocodeOpinionLocation(
+                latitude,
+                longitude
             );
 
         }
@@ -1329,6 +1339,285 @@ const setOpinionLocation = (
 
 
 // =====================================
+// OBTENER DIRECCIÓN DESDE LAS COORDENADAS
+// =====================================
+
+const getIntersectingOpinionStreetNames = async (
+    latitude,
+    longitude,
+    mainStreet
+) => {
+
+    const query = `
+        [out:json];
+        way(around:35,${latitude},${longitude})["highway"]["name"];
+        out tags geom;
+    `;
+
+    const response =
+        await fetch(
+            `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
+
+    if (!response.ok) {
+        throw new Error(
+            "No se pudieron obtener las calles laterales."
+        );
+    }
+
+    const data =
+        await response.json();
+
+    const normalizeStreet = (street) =>
+        street
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLowerCase();
+
+    const normalizedMainStreet =
+        normalizeStreet(mainStreet || "");
+
+    const toMeters = (pointLatitude, pointLongitude) => ({
+        x: pointLongitude *
+            111320 *
+            Math.cos(latitude * Math.PI / 180),
+        y: pointLatitude * 110540
+    });
+
+    const selectedPoint =
+        toMeters(latitude, longitude);
+
+    const distanceToSegment = (
+        firstPoint,
+        secondPoint
+    ) => {
+
+        const first =
+            toMeters(
+                firstPoint.lat,
+                firstPoint.lon
+            );
+
+        const second =
+            toMeters(
+                secondPoint.lat,
+                secondPoint.lon
+            );
+
+        const deltaX =
+            second.x - first.x;
+
+        const deltaY =
+            second.y - first.y;
+
+        const segmentLengthSquared =
+            deltaX * deltaX +
+            deltaY * deltaY;
+
+        const position =
+            segmentLengthSquared === 0
+                ? 0
+                : (
+                    (selectedPoint.x - first.x) * deltaX +
+                    (selectedPoint.y - first.y) * deltaY
+                ) / segmentLengthSquared;
+
+        const clampedPosition =
+            Math.max(0, Math.min(1, position));
+
+        const closestX =
+            first.x + clampedPosition * deltaX;
+
+        const closestY =
+            first.y + clampedPosition * deltaY;
+
+        return Math.hypot(
+            selectedPoint.x - closestX,
+            selectedPoint.y - closestY
+        );
+
+    };
+
+    return data.elements
+        .map((element) => {
+
+            const name =
+                element.tags?.name;
+
+            const geometry =
+                element.geometry || [];
+
+            let distance =
+                Number.POSITIVE_INFINITY;
+
+            for (
+                let index = 1;
+                index < geometry.length;
+                index += 1
+            ) {
+
+                distance = Math.min(
+                    distance,
+                    distanceToSegment(
+                        geometry[index - 1],
+                        geometry[index]
+                    )
+                );
+
+            }
+
+            return {
+                name,
+                distance
+            };
+
+        })
+        .filter((street) =>
+            street.name &&
+            street.distance <= 25 &&
+            normalizeStreet(street.name) !== normalizedMainStreet
+        )
+        .sort((firstStreet, secondStreet) =>
+            firstStreet.distance - secondStreet.distance
+        )
+        .map((street) => street.name)
+        .filter((street, index, streets) =>
+            streets.indexOf(street) === index
+        )
+        .slice(0, 2);
+
+};
+
+
+const reverseGeocodeOpinionLocation = async (
+    latitude,
+    longitude
+) => {
+
+    if (!opinionAddressInput) {
+        return;
+    }
+
+    opinionAddressInput.value =
+        "Obteniendo dirección...";
+
+    try {
+
+        const response =
+            await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&accept-language=es`,
+                {
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "No se pudo obtener la dirección."
+            );
+        }
+
+        const data =
+            await response.json();
+
+        const address =
+            data.address || {};
+
+        const municipality =
+            address.municipality ||
+            address.city ||
+            address.town ||
+            address.village;
+
+        const province =
+            address.state ||
+            address.region ||
+            address.province;
+
+        const mainStreet =
+            address.road ||
+            address.residential ||
+            address.pedestrian;
+
+        const baseAddressParts = [
+            mainStreet,
+            address.house_number,
+            municipality,
+            province
+        ].filter(
+            (part, index, parts) =>
+                part &&
+                parts.indexOf(part) === index
+        );
+
+        opinionAddressInput.value =
+            baseAddressParts.join(", ") ||
+            data.display_name ||
+            "Dirección no encontrada";
+
+        try {
+
+            const intersectingStreets =
+                await getIntersectingOpinionStreetNames(
+                    latitude,
+                    longitude,
+                    mainStreet
+                );
+
+            if (intersectingStreets.length) {
+
+                opinionAddressInput.value = [
+                    mainStreet,
+                    address.house_number,
+                    `entre: ${intersectingStreets.join(" y ")}`,
+                    municipality,
+                    province
+                ].filter(
+                    (part, index, parts) =>
+                        part &&
+                        parts.indexOf(part) === index
+                ).join(", ");
+
+            }
+
+        }
+        catch (streetError) {
+
+            console.warn(
+                "No se pudieron obtener las calles laterales:",
+                streetError
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "ERROR OBTENIENDO DIRECCIÓN:",
+            error
+        );
+
+        opinionAddressInput.value =
+            "";
+
+        opinionLocationStatus.textContent =
+            "Ubicación seleccionada, pero no se pudo obtener la dirección.";
+
+    }
+
+};
+
+
+// =====================================
 // LIMPIAR UBICACIÓN
 // =====================================
 
@@ -1424,6 +1713,11 @@ getOpinionLocationButton
                         latitude,
                         longitude,
                         true
+                    );
+
+                    reverseGeocodeOpinionLocation(
+                        latitude,
+                        longitude
                     );
 
                     getOpinionLocationButton.disabled =
