@@ -67,6 +67,19 @@ required
         class="opinion-map"
     ></div>
 
+    <div
+        id="opinion-gis-layers"
+        class="gis-layers"
+    >
+        Cargando capas GIS...
+    </div>
+
+    <div
+        id="opinion-gis-building-details"
+        class="gis-building-details"
+        aria-live="polite"
+    ></div>
+
     <input
         type="hidden"
         id="opinion-latitude"
@@ -528,6 +541,10 @@ Observaciones
 
 <div class="form__group">
 
+<label class="form__label" for="considerations">
+Consideraciones
+</label>
+
 
 <textarea
 
@@ -549,6 +566,10 @@ class="form__input textarea auto-grow">
 
 
 <div class="form__group">
+
+<label class="form__label" for="observations">
+Observaciones
+</label>
 
 
 <textarea
@@ -970,6 +991,7 @@ import {
     fromLonLat,
     toLonLat
 } from 'ol/proj.js';
+import { addGisLayers } from '../../lib/gisLayers.js';
 
 const BACKEND_BASE = "http://localhost:8000";
 
@@ -2380,26 +2402,53 @@ const startOpinionMap = () => {
 
     initializeOpinionMap();
 
+    if (!opinionMap) {
+        return;
+    }
+
+    addGisLayers(
+        opinionMap,
+        document.getElementById('opinion-gis-layers'),
+        document.getElementById('opinion-gis-building-details'),
+        (address, building) => {
+            if (!opinionAddressInput) return;
+            opinionAddressInput.value = address;
+            opinionAddressInput.dispatchEvent(new Event('input', { bubbles: true }));
+            opinionAddressInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+            const entityInput = document.getElementById('entity');
+            const gisCode = building?.codigo;
+            if (entityInput && gisCode !== null && gisCode !== undefined) {
+                entityInput.value = String(gisCode);
+                entityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                entityInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    ).catch((error) => {
+        console.error('ERROR CARGANDO CAPAS GIS DEL DICTAMEN:', error);
+        const controls = document.getElementById('opinion-gis-layers');
+        if (controls) {
+            controls.textContent =
+                error.message ||
+                'No se pudieron cargar las capas GIS. Verifique su sesión.';
+        }
+    });
+
 };
 
-if (
-    document.readyState === "loading"
-) {
+let opinionMapStarted = false;
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        startOpinionMap,
-        {
-            once: true
-        }
-    );
+const startOpinionMapOnce = () => {
+    if (opinionMapStarted) {
+        return;
+    }
 
-}
-else {
-
+    opinionMapStarted = true;
     startOpinionMap();
+};
 
-}
+window.addEventListener('dictamen-new', startOpinionMapOnce);
+window.addEventListener('opinion-edit', startOpinionMapOnce);
 
 
 // =====================================

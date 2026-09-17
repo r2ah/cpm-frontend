@@ -59,6 +59,19 @@
         class="acta-map"
     ></div>
 
+    <div
+        id="acta-gis-layers"
+        class="gis-layers"
+    >
+        Cargando capas GIS...
+    </div>
+
+    <div
+        id="acta-gis-building-details"
+        class="gis-building-details"
+        aria-live="polite"
+    ></div>
+
     <div class="coordinates-grid">
 
         <div class="coordinates-field">
@@ -800,6 +813,7 @@ import Fill from 'ol/style/Fill.js';
 import Stroke from 'ol/style/Stroke.js';
 
 import { fromLonLat, toLonLat } from 'ol/proj.js';    
+import { addGisLayers } from '../../lib/gisLayers.js';
 
 document.querySelectorAll('textarea.auto-grow').forEach((textarea) => {
 
@@ -1471,26 +1485,45 @@ const startActaMap = () => {
 
     initializeActaMap();
 
+    if (!actaMap) {
+        return;
+    }
+
+    addGisLayers(
+        actaMap,
+        document.getElementById('acta-gis-layers'),
+        document.getElementById('acta-gis-building-details'),
+        (address) => {
+            if (!addressInput) return;
+            addressInput.value = address;
+            addressInput.dispatchEvent(new Event('input', { bubbles: true }));
+            addressInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    ).catch((error) => {
+        console.error('ERROR CARGANDO CAPAS GIS DEL ACTA:', error);
+        const controls = document.getElementById('acta-gis-layers');
+        if (controls) {
+            controls.textContent =
+                error.message ||
+                'No se pudieron cargar las capas GIS. Verifique su sesión.';
+        }
+    });
+
 };
 
-if (
-    document.readyState === 'loading'
-) {
+let actaMapStarted = false;
 
-    document.addEventListener(
-        'DOMContentLoaded',
-        startActaMap,
-        {
-            once: true
-        }
-    );
+const startActaMapOnce = () => {
+    if (actaMapStarted) {
+        return;
+    }
 
-}
-else {
+    actaMapStarted = true;
+    setTimeout(startActaMap, 0);
+};
 
-    startActaMap();
-
-}
+window.addEventListener('acta-new', startActaMapOnce);
+window.addEventListener('acta-edit', startActaMapOnce);
 
 // =====================================================
 // PARTICIPANTES
@@ -2597,20 +2630,12 @@ window.addEventListener(
         resetForm();
 
 
-        setTimeout(
-            async () => {
+        currentParticipants = [];
 
-                currentParticipants =
-                    [];
-
-
-                await loadUsers();
-
-                await loadElaboradoPor();
-
-            },
-            100
-        );
+        await Promise.all([
+            loadUsers(),
+            loadElaboradoPor()
+        ]);
 
     }
 );
@@ -2656,9 +2681,10 @@ window.addEventListener(
         );
 
 
-        await loadUsers();
-
-        await loadElaboradoPor();
+        await Promise.all([
+            loadUsers(),
+            loadElaboradoPor()
+        ]);
 
         await prefill(id);
 
