@@ -25,12 +25,21 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
   { key: "address", header: "Dirección" },
   { key: "entity", header: "Entidad" },
   { key: "state", header: "Estado" },
-  { key: "issuing_document_code", header: "Documento" },
+  { key: "document_folio", header: "Código" },
   { key: "createdAt", header: "Creado" },
   { key: "acciones", header: "Acciones" }
 ]}
      rows={[]}
     >
+      <div slot="filters" class="opinions-filters" role="search" aria-label="Buscar dictámenes">
+        <input type="search" data-opinion-filter="date" placeholder="Filtrar por fecha" />
+        <input type="search" data-opinion-filter="address" placeholder="Filtrar por dirección" />
+        <input type="search" data-opinion-filter="entity" placeholder="Filtrar por entidad" />
+        <input type="search" data-opinion-filter="state" placeholder="Filtrar por estado" />
+        <input type="search" data-opinion-filter="document_folio" placeholder="Filtrar por código" />
+        <input type="search" data-opinion-filter="createdAt" placeholder="Filtrar por fecha de creación" />
+        <button type="button" class="opinions-filters__clear" data-opinion-filters-clear>Limpiar</button>
+      </div>
       <DictamenForm />
       
     </TablaConVistas>
@@ -47,7 +56,7 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
 
 </Layout>
 
-<style>
+<style is:global>
 
 
 .page {
@@ -57,6 +66,89 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
  
 
   padding: 40px 24px;
+}
+
+.opinions-filters {
+  display: grid;
+  grid-template-columns: 11% 24% 15% 12% 13% 12% 10%;
+  gap: 4px;
+  margin: 0 0;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fafafa;
+  overflow-x: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.opinions-filters input,
+.opinions-filters__clear {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.opinions-filters__clear {
+  cursor: pointer;
+  background: #553304;
+  color: #fff;
+}
+
+.opinion-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.opinion-actions__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #553304;
+  border-radius: 7px;
+  padding: 6px 9px;
+  background: #553304;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.opinion-actions__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 10;
+  display: none;
+  min-width: 120px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+
+.opinion-actions__menu.is-open {
+  display: flex;
+}
+
+.tabla__td:has(.opinion-actions) {
+  overflow: visible;
+}
+
+.opinion-actions__menu .tabla__action {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 
   body {
@@ -69,6 +161,39 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
 <script type="module">
 
 const API = "http://localhost:8000/api/v1/opinions";
+let opinions = [];
+
+const normalizeSearchValue = (value) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const getOpinionValue = (opinion, field) => {
+  if (field === "document_folio") {
+    return opinion?.document_folio
+      ?? [opinion?.issuing_document_code, opinion?.document_number]
+        .filter(Boolean)
+        .join("-");
+  }
+  const value = opinion?.[field];
+  return field === "date" || field === "createdAt"
+    ? String(value ?? "").substring(0, 10)
+    : value;
+};
+
+const getFilteredOpinions = () => {
+  const filters = [...document.querySelectorAll("[data-opinion-filter]")]
+    .map((input) => [input.dataset.opinionFilter, normalizeSearchValue(input.value)])
+    .filter(([, value]) => value);
+
+  return opinions.filter((opinion) =>
+    filters.every(([field, value]) =>
+      normalizeSearchValue(getOpinionValue(opinion, field)).includes(value)
+    )
+  );
+};
 
 window.loadOpinions = async function () {
 
@@ -99,7 +224,8 @@ window.loadOpinions = async function () {
 
     const json = await res.json();
 
-    const items = json?.data ?? [];
+    opinions = json?.data ?? [];
+    const items = getFilteredOpinions();
 
     const tbody =
       document.querySelector(".tabla__table tbody");
@@ -130,7 +256,7 @@ window.loadOpinions = async function () {
         </td>
 
         <td class="tabla__td">
-          ${opinion.issuing_document_code ?? ""}
+          ${getOpinionValue(opinion, "document_folio")}
         </td>
 
         <td class="tabla__td">
@@ -138,33 +264,47 @@ window.loadOpinions = async function () {
         </td>
 
         <td class="tabla__td">
-
-        <button
-             type="button"
-             class="tabla__action tabla__action--view"
-             data-opinion-view="${opinion.id}">
-             Ver
-          </button>
-
-          <button
-            type="button"
-            class="tabla__action tabla__action--edit"
-            data-opinion-edit="${opinion.id}">
-            Editar
-          </button>
-
-          <button
-            type="button"
-            class="tabla__action tabla__action--delete"
-            data-opinion-delete="${opinion.id}">
-            Eliminar
-          </button>
-
+          <div class="opinion-actions">
+            <button type="button" class="opinion-actions__toggle" data-opinion-menu-toggle>
+              Opciones <span aria-hidden="true">▾</span>
+            </button>
+            <div class="opinion-actions__menu">
+              <button
+                type="button"
+                class="tabla__action tabla__action--view"
+                data-opinion-view="${opinion.id}">
+                Ver
+              </button>
+              <button
+                type="button"
+                class="tabla__action tabla__action--edit"
+                data-opinion-edit="${opinion.id}">
+                Editar
+              </button>
+              <button
+                type="button"
+                class="tabla__action tabla__action--delete"
+                data-opinion-delete="${opinion.id}">
+                Eliminar
+              </button>
+            </div>
+          </div>
         </td>
 
       </tr>
 
     `).join("");
+
+    document.querySelectorAll("[data-opinion-menu-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const menu = toggle.parentElement?.querySelector(".opinion-actions__menu");
+        document.querySelectorAll(".opinion-actions__menu.is-open").forEach((openMenu) => {
+          if (openMenu !== menu) openMenu.classList.remove("is-open");
+        });
+        menu?.classList.toggle("is-open");
+      });
+    });
 
     // EDITAR
     document
@@ -301,8 +441,28 @@ window.loadOpinions = async function () {
     );
 
   }
-
 };
+
+document.querySelectorAll("[data-opinion-filter]").forEach((input) => {
+  input.addEventListener("input", () => {
+    window.loadOpinions();
+  });
+});
+
+document.querySelector("[data-opinion-filters-clear]")?.addEventListener("click", () => {
+  document.querySelectorAll("[data-opinion-filter]").forEach((input) => {
+    input.value = "";
+  });
+  window.loadOpinions();
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (target?.closest(".opinion-actions")) return;
+  document.querySelectorAll(".opinion-actions__menu.is-open").forEach((menu) => {
+    menu.classList.remove("is-open");
+  });
+}, true);
 
 if(document.readyState === "loading"){
 
@@ -353,13 +513,49 @@ body {
 .tabla {
   width: 100%;
   display: block;
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .tabla__table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   background: transparent;
+}
+
+.tabla__table th:nth-child(1),
+.tabla__table td:nth-child(1) {
+  width: 12%;
+}
+
+.tabla__table th:nth-child(2),
+.tabla__table td:nth-child(2) {
+  width: 24%;
+}
+
+.tabla__table th:nth-child(3),
+.tabla__table td:nth-child(3) {
+  width: 15%;
+}
+
+.tabla__table th:nth-child(4),
+.tabla__table td:nth-child(4) {
+  width: 12%;
+}
+
+.tabla__table th:nth-child(5),
+.tabla__table td:nth-child(5) {
+  width: 15%;
+}
+
+.tabla__table th:nth-child(6),
+.tabla__table td:nth-child(6) {
+  width: 12%;
+}
+
+.tabla__table th:nth-child(7),
+.tabla__table td:nth-child(7) {
+  width: 10%;
 }
 
 .tabla__tr:hover {

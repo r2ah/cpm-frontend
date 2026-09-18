@@ -27,6 +27,8 @@ const {
       </button>
     </div>
 
+    <slot name="filters" />
+
     <Tabla columns={columns} rows={rows} />
 
         <nav class="tabla-vistas__pagination" data-pagination hidden aria-label="Paginación">

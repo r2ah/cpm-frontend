@@ -245,7 +245,8 @@ export const addGisLayers = async (
               ${loading ? 'disabled' : ''}
             >
             ${definition.label}${loading ? ' (cargando...)' : ''}
-            ${unavailable ? `<button type="button" data-gis-retry="${definition.id}">Reintentar</button>` : ''}
+            ${unavailable ? ` <span class="gis-layer-error">no disponible</span>
+              <button type="button" data-gis-retry="${definition.id}">Reintentar</button>` : ''}
           </label>
         `;
       }).join('')}

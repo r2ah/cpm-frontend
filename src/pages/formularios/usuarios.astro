@@ -34,21 +34,55 @@ import TablaConVistas from '../../components/TablaConVistas.astro';
 </Layout>
 
 <script type="module">
-const API = "http://localhost:8000/api/v1/users";
+const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+const API = `${BACKEND_BASE}/api/v1/users`;
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("auth_token");
+  return token
+    ? { Authorization: `Bearer ${token}`, Accept: "application/json" }
+    : {};
+};
+const nativeFetch = window.fetch.bind(window);
+window.fetch = (input, init = {}) => {
+  const url = typeof input === "string" ? input : input.url;
+  if (url.startsWith(BACKEND_BASE)) {
+    init.headers = { ...(init.headers || {}), ...getAuthHeaders() };
+  }
+  return nativeFetch(input, init);
+};
+const redirectIfUnauthorized = (response, requestToken = null) => {
+  if (response.status !== 401) return false;
+  if (requestToken && localStorage.getItem("auth_token") !== requestToken) {
+    return false;
+  }
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("auth_user");
+  window.location.href = "/login";
+  return true;
+};
 
 window.loadUsers = async function () {
+  const requestToken = localStorage.getItem("auth_token");
+  const currentUserResponse = await fetch(`${BACKEND_BASE}/api/v1/user`, {
+    headers: { Authorization: `******"auth_token")}` }
+  });
+  if (redirectIfUnauthorized(currentUserResponse, requestToken)) return;
+  const currentUser = (await currentUserResponse.json())?.data;
+  const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
+  const roles = currentUser?.roles ?? storedUser?.roles ?? [];
+  const isAdmin = (Array.isArray(roles) ? roles : [roles])
+    .some((role) => String(role?.name ?? role).toLowerCase() === "admin");
+  const addButton = document.querySelector("[data-add]");
+  if (addButton) {
+    addButton.textContent = isAdmin ? "Agregar" : "Cambiar contraseña";
+  }
+
   const res = await fetch(API, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("auth_token")}`
     }
   });
-  if (res.status === 401) {
-
-    localStorage.removeItem("auth_token");
-
-    alert("Debe autenticarse.");
-
-    window.location.href = "/login";
+  if (redirectIfUnauthorized(res, requestToken)) {
 
     return;
 }
@@ -82,13 +116,14 @@ window.loadUsers = async function () {
     </td>
 
     <td class="tabla__td">
-      <button class="tabla__action tabla__action--edit" data-edit="${u.id}">
-        Editar
-      </button>
-
-      <button class="tabla__action tabla__action--delete" data-delete="${u.id}">
-        Eliminar
-      </button>
+      ${isAdmin ? `
+        <button class="tabla__action tabla__action--edit" data-edit="${u.id}">
+          Editar
+        </button>
+        <button class="tabla__action tabla__action--delete" data-delete="${u.id}">
+          Eliminar
+        </button>
+      ` : "Solo puede cambiar su contraseña"}
     </td>
   </tr>
 `).join("");
@@ -146,13 +181,7 @@ window.dispatchEvent(
     }
 });
 
-if (response.status === 401) {
-
-    localStorage.removeItem("auth_token");
-
-    alert("La sesión ha expirado.");
-
-    window.location.replace("/login");
+if (redirectIfUnauthorized(response, localStorage.getItem("auth_token"))) {
 
     return;
 }

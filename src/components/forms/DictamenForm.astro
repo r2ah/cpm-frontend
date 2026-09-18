@@ -356,7 +356,29 @@ Micro
 
 </select>
 
+</div>
 
+<div class="form__group">
+<label class="form__label" for="document-folio">
+Código del documento
+</label>
+<div class="inline-actions">
+  <input
+    id="document-folio"
+    class="form__input"
+    type="text"
+    placeholder="Ej. 428-2026-0362"
+  />
+  <button type="button" class="btn btn--secondary" id="validate-document">
+    Validar código
+  </button>
+</div>
+<div
+  id="document-verification-status"
+  class="form-status"
+  tabindex="-1"
+  aria-live="polite"
+></div>
 </div>
 
 
@@ -817,6 +839,52 @@ Guardar Dictamen
     background: #f1f1f1;
 }
 
+.form-status {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid #b8c7d9;
+    border-radius: 10px;
+    background: #eef6ff;
+    color: #174a7c;
+    font-weight: 700;
+    line-height: 1.45;
+    white-space: pre-line;
+}
+
+#document-verification-status:empty {
+    display: none;
+}
+
+#document-verification-status.is-success {
+    border-color: #86c79a;
+    background: #edf9f0;
+    color: #176b2c;
+}
+
+#document-verification-status.is-error {
+    border-color: #e2a1a1;
+    background: #fff0f0;
+    color: #8a1c1c;
+}
+
+#document-verification-status.is-pending {
+    border-color: #e5c477;
+    background: #fff9e8;
+    color: #765400;
+}
+
+#document-verification-status.submit-attention {
+    animation: document-validation-attention 0.8s ease-in-out;
+    outline: 3px solid rgba(176, 28, 28, 0.35);
+    outline-offset: 3px;
+}
+
+@keyframes document-validation-attention {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
 @media (max-width: 600px) {
 
     .opinion-map {
@@ -986,6 +1054,8 @@ import Style from 'ol/style/Style.js';
 import CircleStyle from 'ol/style/Circle.js';
 import Fill from 'ol/style/Fill.js';
 import Stroke from 'ol/style/Stroke.js';
+import WKT from 'ol/format/WKT.js';
+import { getCenter } from 'ol/extent.js';
 
 import {
     fromLonLat,
@@ -1000,6 +1070,11 @@ const API_OPINIONS =
 
 let currentOpinionId = null;
 let documentsToDelete = [];
+let authoritiesById = new Map();
+let inmuebleData = null;
+let inmuebleEncontrado = false;
+let documentoValidado = false;
+let documentoData = null;
 
 
 // =====================================
@@ -1016,6 +1091,44 @@ let pendingOpinionLocation = null;
 const DEFAULT_LATITUDE = 23.1379;
 const DEFAULT_LONGITUDE = -82.3487;
 
+const toWebMercator = (x, y) => {
+    const eccentricitySquared = 0.00669438;
+    const zone = 17;
+    const k0 = 0.9996;
+    const ePrimeSquared = eccentricitySquared / (1 - eccentricitySquared);
+    const e1 = (1 - Math.sqrt(1 - eccentricitySquared))
+        / (1 + Math.sqrt(1 - eccentricitySquared));
+    const xFromOrigin = x - 500000;
+    const meridionalArc = y / k0;
+    const mu = meridionalArc /
+        (6378137 * (1 - eccentricitySquared / 4
+            - 3 * eccentricitySquared ** 2 / 64));
+    const phi1 = mu
+        + (3 * e1 / 2 - 27 * e1 ** 3 / 32) * Math.sin(2 * mu)
+        + (21 * e1 ** 2 / 16 - 55 * e1 ** 4 / 32) * Math.sin(4 * mu)
+        + (151 * e1 ** 3 / 96) * Math.sin(6 * mu);
+    const sinPhi = Math.sin(phi1);
+    const cosPhi = Math.cos(phi1);
+    const tanPhi = Math.tan(phi1);
+    const n = 6378137 / Math.sqrt(1 - eccentricitySquared * sinPhi ** 2);
+    const t = tanPhi ** 2;
+    const c = ePrimeSquared * cosPhi ** 2;
+    const r = 6378137 * (1 - eccentricitySquared)
+        / (1 - eccentricitySquared * sinPhi ** 2) ** 1.5;
+    const d = xFromOrigin / (n * k0);
+    const latitude = phi1 - (n * tanPhi / r) * (
+        d ** 2 / 2
+        - (5 + 3 * t + 10 * c - 4 * c ** 2 - 9 * ePrimeSquared) * d ** 4 / 24
+    );
+    const longitude = ((zone - 1) * 6 - 180 + 3) * Math.PI / 180
+        + (d - (1 + 2 * t + c) * d ** 3 / 6) / cosPhi;
+
+    return fromLonLat([
+        longitude * 180 / Math.PI,
+        latitude * 180 / Math.PI
+    ]);
+};
+
 const opinionLatitudeInput =
     document.getElementById(
         "opinion-latitude"
@@ -1030,6 +1143,11 @@ const opinionAddressInput =
     document.getElementById(
         "address"
     );
+
+const entityInput = document.getElementById("entity");
+const documentFolioInput = document.getElementById("document-folio");
+const documentButton = document.getElementById("validate-document");
+const documentStatus = document.getElementById("document-verification-status");
 
 const opinionLocationStatus =
     document.getElementById(
@@ -1835,15 +1953,26 @@ async function apiFetch(url, options = {}) {
 
     }
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
-    const response =
-    await fetch(url, {
+    let response;
+    try {
+        response = await fetch(url, {
 
-        ...options,
+            ...options,
 
-        headers
-
-    });
+            headers,
+            signal: controller.signal
+        });
+    } catch (error) {
+        if (error?.name === "AbortError") {
+            throw new Error("La consulta a Plan Maestro tardó demasiado.");
+        }
+        throw error;
+    } finally {
+        window.clearTimeout(timeoutId);
+    }
 
 
     const json =
@@ -1865,6 +1994,213 @@ async function apiFetch(url, options = {}) {
     return json;
 
 }
+
+const normalizeRecords = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.records)) return payload.records;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.data?.records)) return payload.data.records;
+    if (Array.isArray(payload?.data?.data?.records)) return payload.data.data.records;
+    return [];
+};
+
+const selectedAuthorityIsPm = () => {
+    const authoritySelect = document.getElementById("issuing_company");
+    const authorityId = authoritySelect?.value;
+    const authority = authoritiesById.get(String(authorityId));
+    const authorityName = authority?.name
+        ?? authority?.code
+        ?? authoritySelect?.selectedOptions?.[0]?.textContent
+        ?? "";
+
+    const normalizedName = authorityName.trim().toUpperCase();
+    return normalizedName === "PM"
+        || normalizedName.startsWith("PM ")
+        || normalizedName.includes("PLAN MAESTRO");
+};
+
+const resetDocumentVerification = () => {
+    inmuebleData = null;
+    inmuebleEncontrado = false;
+    documentoValidado = false;
+    documentoData = null;
+    if (documentStatus) documentStatus.textContent = "";
+};
+
+const setDocumentStatus = (message, state = "error") => {
+    if (!documentStatus) return;
+    documentStatus.textContent = message;
+    documentStatus.className = `form-status is-${state}`;
+};
+
+const focusDocumentValidation = (message) => {
+    if (!documentStatus) return;
+    documentStatus.textContent = message;
+    documentStatus.className = "form-status is-error";
+    documentStatus.classList.remove("submit-attention");
+    void documentStatus.offsetWidth;
+    documentStatus.classList.add("submit-attention");
+    documentStatus.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+    documentStatus.focus({ preventScroll: true });
+};
+
+const loadProperty = async (codigo) => {
+    const payload = await apiFetch(
+        `${BACKEND_BASE}/api/v1/plan-maestro/entities?codigo=${encodeURIComponent(codigo)}`
+    );
+    const property = normalizeRecords(payload)[0];
+    if (!property) {
+        return false;
+    }
+
+    inmuebleData = property;
+    inmuebleEncontrado = true;
+    const address = property.direccion_completa
+        ?? property.direccion
+        ?? [property.calle, property.numero].filter(Boolean).join(" ");
+    if (address && opinionAddressInput) opinionAddressInput.value = address;
+    return true;
+};
+
+const geocodeOpinionAddress = async (address) => {
+    if (!address) return;
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=cu&accept-language=es&q=${encodeURIComponent(`${address}, La Habana, Cuba`)}`
+        );
+        if (!response.ok) return;
+
+        const results = await response.json();
+        const location = results?.[0];
+        if (location?.lat && location?.lon) {
+            setOpinionLocation(location.lat, location.lon, true);
+        }
+    } catch (error) {
+        console.warn("No se pudo ubicar automáticamente la dirección del documento.", error);
+    }
+};
+
+const locateGisBuilding = async (codigo) => {
+    if (!codigo) return false;
+
+    const payload = await apiFetch(
+        `${BACKEND_BASE}/api/v1/gis/buildings/${encodeURIComponent(codigo)}`
+    );
+    const building = payload?.data?.building?.[0] ?? payload?.data?.building;
+    const wkt = building?.geo_wkt;
+    if (!wkt) return false;
+
+    const feature = new WKT().readFeature(wkt);
+    const coordinate = getCenter(feature.getGeometry().getExtent());
+    const [longitude, latitude] = toLonLat(toWebMercator(coordinate[0], coordinate[1]));
+    setOpinionLocation(latitude, longitude, true);
+    return true;
+};
+
+const validateDocument = async () => {
+    if (!selectedAuthorityIsPm()) {
+        setDocumentStatus("No se puede verificar codigo");
+        return;
+    }
+
+    documentoValidado = false;
+    documentoData = null;
+    const codigo = entityInput?.value.trim();
+    const documentPrefix = document.getElementById("issuing_document_code")?.value.trim();
+    const documentNumber = documentFolioInput?.value.trim() ?? "";
+    const folio = [documentPrefix, documentNumber].filter(Boolean).join("-");
+    if (!documentPrefix || !documentNumber) {
+        setDocumentStatus("Introduzca el código del documento.");
+        return;
+    }
+
+    try {
+        resetDocumentVerification();
+        setDocumentStatus("Validando código...", "pending");
+        const query = codigo
+            ? `codigo=${encodeURIComponent(codigo)}`
+            : `folio=${encodeURIComponent(folio)}`;
+        const payload = await apiFetch(
+            `${BACKEND_BASE}/api/v1/plan-maestro/inscriptions?tipo=inscripciones&${query}`
+        );
+        const inscription = normalizeRecords(payload).find((item) => {
+            const returnedDocumentCode = String(
+                item.folio
+                ?? item.codigo_documento
+                ?? item.codigo_documental
+                ?? item.documento
+                ?? item.codigo
+                ?? ""
+            ).trim().toUpperCase();
+            const returnedEntityCode = item.codigo_entidad
+                ?? item.entity
+                ?? item.entidad_codigo
+                ?? item.codigo_inmueble;
+
+            return returnedDocumentCode === folio.toUpperCase()
+                && (!item.estado_tramitado
+                    || String(item.estado_tramitado).trim().toLowerCase() === "aprobado")
+                && (!codigo || !returnedEntityCode
+                    || String(returnedEntityCode) === String(codigo));
+        });
+
+        if (!inscription) {
+            setDocumentStatus("El código no pertenece al inmueble seleccionado o no está aprobado.");
+            return;
+        }
+
+        const resolvedEntityCode = inscription.codigo
+            ?? inscription.codigo_entidad
+            ?? inscription.entity
+            ?? inscription.entidad_codigo
+            ?? inscription.codigo_inmueble;
+        const inscriptionAddress = inscription.direccion
+            ?? inscription.direccion_completa
+            ?? [inscription.calle, inscription.numero].filter(Boolean).join(" ");
+
+        if (!codigo && resolvedEntityCode && entityInput) {
+            entityInput.value = String(resolvedEntityCode);
+            entityInput.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        if (inscriptionAddress && opinionAddressInput) {
+            opinionAddressInput.value = inscriptionAddress;
+            opinionAddressInput.dispatchEvent(new Event("input", { bubbles: true }));
+            opinionAddressInput.dispatchEvent(new Event("change", { bubbles: true }));
+            const located = await locateGisBuilding(resolvedEntityCode).catch(() => false);
+            if (!located) {
+                await geocodeOpinionAddress(inscriptionAddress);
+            }
+        }
+
+        documentoData = inscription;
+        documentoValidado = true;
+        if (documentFolioInput) {
+            documentFolioInput.dataset.validatedFolio = folio;
+        }
+        setDocumentStatus("✓ Código de documento válido\nEstado: Aprobado", "success");
+    } catch (error) {
+        setDocumentStatus(
+            error?.message || "No se pudo validar el código en Plan Maestro."
+        );
+    }
+};
+
+documentButton?.addEventListener("click", validateDocument);
+entityInput?.addEventListener("input", resetDocumentVerification);
+documentFolioInput?.addEventListener("input", () => {
+    documentoValidado = false;
+    documentoData = null;
+    delete documentFolioInput.dataset.validatedFolio;
+    if (documentStatus) documentStatus.textContent = "";
+    if (documentStatus) documentStatus.className = "form-status";
+});
+document.getElementById("issuing_company")?.addEventListener("change", () => {
+    resetDocumentVerification();
+});
 
 // =====================================
 // CARGAR PERSONAS
@@ -1950,7 +2286,6 @@ async function loadInterventions(){
     }
 
 }
-loadInterventions();
 
 // =====================================
 // CARGAR USUARIOS
@@ -2023,7 +2358,9 @@ async function loadAuthorities(){
         const authorities =
         response.data ?? response;
 
-
+        authoritiesById = new Map(
+            authorities.map(authority => [String(authority.id), authority])
+        );
 
         fillSelect(
             "issuing_company",
@@ -2137,10 +2474,22 @@ async(e)=>{
 
 e.preventDefault();
 
-
+if (selectedAuthorityIsPm() && !documentoValidado) {
+    focusDocumentValidation(
+        "Debe validar un código de documento aprobado antes de guardar."
+    );
+    return;
+}
 
 const formData =
 new FormData(form);
+
+if (documentoValidado) {
+    const validatedFolio = documentFolioInput?.dataset.validatedFolio;
+    if (validatedFolio) {
+        formData.append("document_folio", validatedFolio);
+    }
+}
 
 
 // =====================================
@@ -2458,13 +2807,12 @@ window.addEventListener('opinion-edit', startOpinionMapOnce);
 
 async function initDictamen(){
 
-    await loadPeople();
-
-    await loadUsers();
-
-    await loadAuthorities();
-
-    await loadInterventions();
+    await Promise.all([
+        loadPeople(),
+        loadUsers(),
+        loadAuthorities(),
+        loadInterventions()
+    ]);
 
 
     console.log(
@@ -2633,6 +2981,16 @@ document.getElementById("issuing_company").value =
 document.getElementById("issuing_document_code").value =
     opinion.issuing_document_code ?? "";
 
+if (documentFolioInput) {
+    const savedFolio = opinion.document_folio ?? "";
+    const savedPrefix = opinion.issuing_document_code
+        ? `${opinion.issuing_document_code}-`
+        : "";
+    documentFolioInput.value = savedFolio.startsWith(savedPrefix)
+        ? savedFolio.slice(savedPrefix.length)
+        : savedFolio;
+}
+
 /*
 ==============================
  INTERVENCIONES
@@ -2771,6 +3129,13 @@ window.addEventListener(
 
         if (form) {
             form.reset();
+        }
+
+        resetDocumentVerification();
+
+        const buildingDetails = document.getElementById("opinion-gis-building-details");
+        if (buildingDetails) {
+            buildingDetails.replaceChildren();
         }
 
         clearOpinionLocation();

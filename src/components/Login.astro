@@ -32,14 +32,19 @@
       </div>
 
       <div class="field">
-        <input
-          class="field__input"
-          name="password"
-          type="password"
-          placeholder="Contraseña"
-          autocomplete="current-password"
-          required
-        />
+        <div class="password-field">
+          <input
+            class="field__input"
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            autocomplete="current-password"
+            required
+          />
+          <button class="password-toggle" type="button" id="login-password-toggle">
+            Mostrar
+          </button>
+        </div>
       </div>
 
       <div class="login__actions">
@@ -114,6 +119,28 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field .field__input {
+  padding-right: 82px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #5a3506;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* INPUTS */
@@ -236,6 +263,15 @@ function getSafeReturnPath() {
     const btnPrimary = form?.querySelector('.login__primary');
     const btnSubmit = form?.querySelector('button[type="submit"]');
     const errorEl = $('#login-error');
+    const passwordInput = form?.querySelector('[name="password"]');
+    const passwordToggle = $('#login-password-toggle');
+
+    passwordToggle?.addEventListener('click', () => {
+      if (!passwordInput) return;
+      const visible = passwordInput.type === 'text';
+      passwordInput.type = visible ? 'password' : 'text';
+      passwordToggle.textContent = visible ? 'Mostrar' : 'Ocultar';
+    });
 
     btnPrimary?.addEventListener('click', () => {
       // Aún no hay registro en la UI: dejamos placeholder
@@ -290,4 +326,3 @@ function getSafeReturnPath() {
     });
   });
 </script>
-

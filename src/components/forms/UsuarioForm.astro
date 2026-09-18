@@ -3,26 +3,34 @@
 
   <form id="user-form" class="form">
 
-    <input name="name" placeholder="Nombre" class="form__input" required />
-    <input name="email" placeholder="Email" class="form__input" required />
-    <input name="phone" placeholder="Teléfono" class="form__input" maxlength="8"  pattern="[0-9]{8}" title="Solo números." />
+    <div class="admin-only admin-fields">
+      <input name="name" placeholder="Nombre" class="form__input" required />
+      <input name="email" placeholder="Email" class="form__input" required />
+      <input name="phone" placeholder="Teléfono" class="form__input" maxlength="8" pattern="[0-9]{8}" title="Solo números." />
+    </div>
 
 
     
 
     <!-- UI SOLO (NO SE ENVÍA AL BACKEND) -->
-    <select name="role" class="form__input">
+    <select name="role" class="form__input admin-only">
       <option value="">Rol (solo visual)</option>
       <option value="admin">Admin</option>
       <option value="editor">Editor</option>
     </select>
-    <select id="commission_id" name="commission_id" class="form__input">
+    <select id="commission_id" name="commission_id" class="form__input admin-only">
   <option value="">Comisión</option>
    </select>
 
     
-      <input name="password" type="password" placeholder="Contraseña" class="form__input " />
-      <input name="password_confirmation" type="password" placeholder="Confirmar contraseña" class="form__input " />
+      <div class="password-field">
+        <input name="password" type="password" placeholder="Contraseña nueva" class="form__input " />
+        <button type="button" class="password-toggle" data-password-toggle="password">Mostrar</button>
+      </div>
+      <div class="password-field">
+        <input name="password_confirmation" type="password" placeholder="Confirmar contraseña" class="form__input " />
+        <button type="button" class="password-toggle" data-password-toggle="password_confirmation">Mostrar</button>
+      </div>
   <div id="password-block">  </div>
 
     <button type="submit" class="btn btn--primary">Guardar</button>
@@ -32,12 +40,48 @@
 </section>
 
 <script type="module">
-const API = "http://localhost:8000/api/v1/users";
+const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+const API = `${BACKEND_BASE}/api/v1/users`;
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("auth_token");
+  return token
+    ? { Authorization: `Bearer ${token}`, Accept: "application/json" }
+    : {};
+};
+const nativeFetch = window.fetch.bind(window);
+window.fetch = (input, init = {}) => {
+  const url = typeof input === "string" ? input : input.url;
+  if (url.startsWith(BACKEND_BASE)) {
+    init.headers = { ...(init.headers || {}), ...getAuthHeaders() };
+  }
+  return nativeFetch(input, init);
+};
 
 const form = document.getElementById("user-form");
 const status = document.getElementById("user-status");
+const redirectIfUnauthorized = (response, requestToken = null) => {
+  if (response.status !== 401) return false;
+  if (requestToken && localStorage.getItem("auth_token") !== requestToken) {
+    return false;
+  }
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("auth_user");
+  window.location.href = "/login";
+  return true;
+};
 
 let editId = null;
+let isAdmin = false;
+
+document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = form.querySelector(`[name="${button.dataset.passwordToggle}"]`);
+    if (!input) return;
+    const visible = input.type === "text";
+    input.type = visible ? "password" : "text";
+    button.textContent = visible ? "Mostrar" : "Ocultar";
+  });
+});
 
 
 
@@ -47,7 +91,7 @@ const commissionSelect =
 async function loadCommissions(){
 
   const res = await fetch(
-    "http://localhost:8000/api/v1/commissions?all=true",
+    `${BACKEND_BASE}/api/v1/commissions?all=true`,
     {
       headers:{
         Authorization:
@@ -91,21 +135,57 @@ function clearForm() {
   form.querySelectorAll("input").forEach(el => {
     el.value = "";
 });
-
 form.querySelectorAll("select").forEach(el => {
     if(el.name !== "commission_id"){
         el.value = "";
     }
 });
-  status.textContent = "";
+status.textContent = "";
+}
+
+function applyPermissions() {
+document.querySelectorAll(".admin-only").forEach((element) => {
+  element.hidden = !isAdmin;
+  element.classList.toggle("is-visible", isAdmin);
+});
+document.querySelectorAll(".admin-only input, .admin-only select").forEach((element) => {
+  element.required = isAdmin && (element.name === "name" || element.name === "email");
+});
+document.querySelectorAll(".password-only").forEach((element) => {
+  element.hidden = true;
+  element.required = false;
+});
+form.querySelector("[name='password']").placeholder =
+  isAdmin ? "Contraseña (opcional)" : "Contraseña nueva";
+form.querySelector("[name='password_confirmation']").placeholder =
+  isAdmin ? "Confirmar contraseña (opcional)" : "Confirmar contraseña nueva";
+}
+
+async function loadCurrentUser() {
+      const res = await fetch(`${BACKEND_BASE}/api/v1/user`, {
+        headers: { Authorization: `******"auth_token")}` }
+      });
+      if (redirectIfUnauthorized(res, localStorage.getItem("auth_token"))) return;
+      if (!res.ok) return;
+      const json = await res.json();
+      const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
+      const roles = json?.data?.roles
+        ?? json?.roles
+        ?? storedUser?.roles
+        ?? [];
+      isAdmin = (Array.isArray(roles) ? roles : [roles])
+        .some((role) => String(role?.name ?? role).toLowerCase() === "admin");
+      applyPermissions();
 }
 
 /* =========================
    NUEVO
 ========================= */
+loadCurrentUser();
 loadCommissions();
 window.addEventListener("user-new", () => {
   editId = null;
+  applyPermissions();
   clearForm();
 });
 
@@ -125,6 +205,7 @@ window.addEventListener("user-edit", async (e) => {
       `Bearer ${localStorage.getItem("auth_token")}`
     }
   });
+  if (redirectIfUnauthorized(res, localStorage.getItem("auth_token"))) return;
 
 
   const json = await res.json();
@@ -169,6 +250,33 @@ form.addEventListener("submit", async (e) => {
   const fd = new FormData(form);
   const payload = Object.fromEntries(fd);
  console.log("PAYLOAD:", payload);
+  if (!isAdmin) {
+    const passwordPayload = {
+      password: payload.password,
+      password_confirmation: payload.password_confirmation
+    };
+    const passwordResponse = await fetch(`${API}/password`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `******"auth_token")}`
+      },
+      body: JSON.stringify(passwordPayload)
+    });
+    const passwordData = await passwordResponse.json();
+    if (redirectIfUnauthorized(passwordResponse, localStorage.getItem("auth_token"))) return;
+    status.textContent = passwordResponse.ok
+      ? "Contraseña actualizada ✔"
+      : passwordData.message || "No se pudo actualizar la contraseña.";
+    if (passwordResponse.ok) {
+      clearForm();
+      setTimeout(() => {
+        document.querySelector("[data-back]")?.click();
+      }, 1200);
+    }
+    return;
+  }
+
   const isEdit = !!editId;
 
   const url = isEdit
@@ -179,7 +287,7 @@ form.addEventListener("submit", async (e) => {
 
   
 
-  // 🔥 password opcional en edición
+  // La contraseña es opcional al editar como administrador.
   if (isEdit && !payload.password) {
     delete payload.password;
     delete payload.password_confirmation;
@@ -195,6 +303,7 @@ form.addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
+  if (redirectIfUnauthorized(res, localStorage.getItem("auth_token"))) return;
 
   if (!res.ok) {
     status.textContent = data.message || "Error";
@@ -239,12 +348,56 @@ form.addEventListener("submit", async (e) => {
 }
 
 .form__input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(0,0,0,0.15);
   font-size: 15px;
   outline: none;
 }
+
+.admin-only input,
+.admin-only select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field .form__input {
+  width: 100%;
+  padding-right: 78px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: #5a3506;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-only {
+  display: none;
+}
+
+.admin-only.is-visible {
+  display: block;
+}
+
+.admin-fields.is-visible {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .w-100{
   width:95%;
 }
