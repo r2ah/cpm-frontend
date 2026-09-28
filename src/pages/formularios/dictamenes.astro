@@ -25,7 +25,7 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
   { key: "address", header: "Dirección" },
   { key: "entity", header: "Entidad" },
   { key: "state", header: "Estado" },
-  { key: "document_folio", header: "Código" },
+  { key: "document_folio",  header: "Código" },
   { key: "createdAt", header: "Creado" },
   { key: "acciones", header: "Acciones" }
 ]}
@@ -74,7 +74,7 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
   gap: 4px;
   margin: 0 0;
   padding: 0;
-  border: 1px solid #ddd;
+  border: 0px solid #ddd;
   border-radius: 12px;
   background: #fafafa;
   overflow-x: auto;
@@ -92,6 +92,7 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
   border-radius: 8px;
   font: inherit;
   font-size: 13px;
+  margin:2px;
 }
 
 .opinions-filters__clear {
@@ -256,6 +257,7 @@ window.loadOpinions = async function () {
         </td>
 
         <td class="tabla__td">
+        ${"("+opinion.issuing_company.name + ")" ?? ""}
           ${getOpinionValue(opinion, "document_folio")}
         </td>
 

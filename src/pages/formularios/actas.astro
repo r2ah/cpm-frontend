@@ -12,7 +12,7 @@ import EntityModal from '../../components/EntityModal.astro';
 const BACKEND = "http://localhost:8000";
 
 
-let actas = [];
+let actas: Record<string, unknown>[] = [];
 
 try {
 
@@ -22,7 +22,7 @@ try {
 
   const json = await response.json();
 
-  actas = (json.data ?? []).map((acta) => ({
+  actas = (json.data ?? []).map((acta: Record<string, unknown>) => ({
     ...acta,
     acciones: ''
   }));
@@ -79,6 +79,13 @@ try {
       rows={actas}
 
     >
+      <div slot="filters" class="proceedings-filters" role="search" aria-label="Buscar actas">
+        <input type="search" data-proceeding-filter="date" placeholder="Filtrar por fecha" />
+        <input type="search" data-proceeding-filter="address" placeholder="Filtrar por dirección" />
+        <input type="search" data-proceeding-filter="commission_name" placeholder="Filtrar por comisión" />
+        <input type="search" data-proceeding-filter="createdAt" placeholder="Filtrar por fecha de creación" />
+        <button type="button" class="proceedings-filters__clear" data-proceeding-filters-clear>Limpiar</button>
+      </div>
 
       <ActaForm/>
 
@@ -108,6 +115,39 @@ try {
 
 }
 
+.proceedings-filters {
+  display: grid;
+  grid-template-columns: 10% 30% 25% 15% 10%;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0px solid #ddd;
+  border-radius: 12px;
+  background: #fafafa;
+  overflow-x: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.proceedings-filters input,
+.proceedings-filters__clear {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  margin: 2px auto;
+}
+
+.proceedings-filters__clear {
+  cursor: pointer;
+  background: #553304;
+  color: #fff;
+}
+
 
 body {
 
@@ -124,6 +164,37 @@ body {
 <script type="module">
 
 const API = "http://localhost:8000/api/v1/proceedings";
+
+let actas: Record<string, unknown>[] = [];
+
+const normalizeSearchValue = (value) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const getProceedingValue = (acta, field) => {
+  const value = acta?.[field];
+  return field === "date" || field === "createdAt"
+    ? String(value ?? "").substring(0, 10)
+    : value;
+};
+
+const getFilteredProceedings = () => {
+  const filters = [...document.querySelectorAll("[data-proceeding-filter]")]
+    .map((input) => [
+      input.dataset.proceedingFilter,
+      normalizeSearchValue(input.value)
+    ])
+    .filter(([, value]) => value);
+
+  return actas.filter((acta) =>
+    filters.every(([field, value]) =>
+      normalizeSearchValue(getProceedingValue(acta, field)).includes(value)
+    )
+  );
+};
 
 
 window.loadProceedings = async function () {
@@ -150,7 +221,8 @@ if (res.status === 401) {
 
 const json = await res.json();
 
-    const items = json?.data ?? [];
+    actas = json?.data ?? [];
+    const items = getFilteredProceedings();
     const tbody =
       document.querySelector(
         ".tabla__table tbody"
@@ -161,12 +233,12 @@ const json = await res.json();
       return;
     }
 
-    tbody.innerHTML = items.map(acta => `
+    tbody.innerHTML = items.map((acta: Record<string, unknown>) => `
 
       <tr class="tabla__tr">
 
         <td class="tabla__td">
-          ${acta.date.substring(0,10) ?? ""}
+          ${String(acta.date ?? "").substring(0,10)}
         </td>
         <td class="tabla__td">
           ${acta.address ?? ""}
@@ -182,36 +254,61 @@ const json = await res.json();
           }
         </td>-->
         <td class="tabla__td">
-          ${acta.createdAt.substring(0,10) ?? ""}
+          ${String(acta.createdAt ?? "").substring(0,10)}
         </td>
         <td class="tabla__td">
-
-
-        <button
-type="button"
-class="tabla__action tabla__action--detail"
-data-proceeding-detail="${acta.id}"
->
-Ver
-</button>
-
-          <button
-            type="button"
-            class="tabla__action tabla__action--edit"
-            data-proceeding-edit="${acta.id}"
-          >
-            Editar
-          </button>
-          <button
-            type="button"
-            class="tabla__action tabla__action--delete"
-            data-proceeding-delete="${acta.id}"
-          >
-            Eliminar
-          </button>
+          <div class="proceeding-actions">
+            <button
+              type="button"
+              class="proceeding-actions__toggle"
+              data-proceeding-menu-toggle
+              aria-expanded="false"
+            >
+              Opciones <span aria-hidden="true">▾</span>
+            </button>
+            <div class="proceeding-actions__menu">
+              <button
+                type="button"
+                class="tabla__action tabla__action--detail"
+                data-proceeding-detail="${acta.id}"
+              >
+                Ver
+              </button>
+              <button
+                type="button"
+                class="tabla__action tabla__action--edit"
+                data-proceeding-edit="${acta.id}"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="tabla__action tabla__action--delete"
+                data-proceeding-delete="${acta.id}"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
         </td>
       </tr>
     `).join("");
+
+    document.querySelectorAll("[data-proceeding-menu-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const menu = toggle.parentElement?.querySelector(".proceeding-actions__menu");
+        document.querySelectorAll(".proceeding-actions__menu.is-open").forEach((openMenu) => {
+          if (openMenu !== menu) {
+            openMenu.classList.remove("is-open");
+            openMenu.parentElement?.querySelector("[data-proceeding-menu-toggle]")
+              ?.setAttribute("aria-expanded", "false");
+          }
+        });
+        const isOpen = menu?.classList.toggle("is-open") ?? false;
+        toggle.setAttribute("aria-expanded", String(isOpen));
+      });
+    });
 
     /*
     ===========================
@@ -404,6 +501,30 @@ document
 
 };
 
+document.querySelectorAll("[data-proceeding-filter]").forEach((input) => {
+  input.addEventListener("input", () => {
+    window.loadProceedings();
+  });
+});
+
+document.querySelector("[data-proceeding-filters-clear]")?.addEventListener("click", () => {
+  document.querySelectorAll("[data-proceeding-filter]").forEach((input) => {
+    input.value = "";
+  });
+  window.loadProceedings();
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (target?.closest(".proceeding-actions")) return;
+
+  document.querySelectorAll(".proceeding-actions__menu.is-open").forEach((menu) => {
+    menu.classList.remove("is-open");
+    menu.parentElement?.querySelector("[data-proceeding-menu-toggle]")
+      ?.setAttribute("aria-expanded", "false");
+  });
+}, true);
+
 
 /*
 ===========================
@@ -578,7 +699,56 @@ body {
 .tabla__action--detail{
 
     background:#04553d;
-    margin-right:6px;
+}
 
+.proceeding-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.proceeding-actions__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #553304;
+  border-radius: 7px;
+  padding: 6px 9px;
+  background: #553304;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.proceeding-actions__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 10;
+  display: none;
+  min-width: 120px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+
+.proceeding-actions__menu.is-open {
+  display: flex;
+}
+
+.tabla__td:has(.proceeding-actions) {
+  overflow: visible;
+}
+
+.proceeding-actions__menu .tabla__action {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 </style>

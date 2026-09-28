@@ -589,16 +589,28 @@ img {
   import { Fill, Stroke, Style, Circle } from 'ol/style.js';
   import { fromLonLat } from 'ol/proj.js';
 
-  const modal = document.getElementById('patrimonio-modal');
-  const titleEl = document.getElementById('patrimonio-modal-title');
-  const addressEl = document.getElementById('patrimonio-modal-address');
-  const descriptionEl = document.getElementById('patrimonio-modal-description');
-  const metaEl = document.getElementById('patrimonio-modal-meta');
-  const galleryEl = document.getElementById('patrimonio-modal-gallery');
-  const mapEl = document.getElementById('patrimonio-modal-map');
-  const lightbox = document.getElementById('patrimonio-lightbox');
-  const lightboxImage = document.getElementById('patrimonio-lightbox-image');
+  let modal;
+  let titleEl;
+  let addressEl;
+  let descriptionEl;
+  let metaEl;
+  let galleryEl;
+  let mapEl;
+  let lightbox;
+  let lightboxImage;
   const BACKEND_BASE = 'http://localhost:8000';
+
+  function resolveModalElements() {
+    modal = document.getElementById('patrimonio-modal');
+    titleEl = document.getElementById('patrimonio-modal-title');
+    addressEl = document.getElementById('patrimonio-modal-address');
+    descriptionEl = document.getElementById('patrimonio-modal-description');
+    metaEl = document.getElementById('patrimonio-modal-meta');
+    galleryEl = document.getElementById('patrimonio-modal-gallery');
+    mapEl = document.getElementById('patrimonio-modal-map');
+    lightbox = document.getElementById('patrimonio-lightbox');
+    lightboxImage = document.getElementById('patrimonio-lightbox-image');
+  }
 
   function closeLightbox() {
     if (!lightbox) return;
@@ -860,16 +872,24 @@ img {
   }
 
   function initPatrimonioModal() {
+    resolveModalElements();
     closeModal();
 
-    document.querySelectorAll('.patrimonio-card').forEach((card) => {
-      card.addEventListener('click', () => openPatrimonioModal(card));
-      card.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          openPatrimonioModal(card);
-        }
-      });
+    document.addEventListener('click', (event) => {
+      const card = event.target instanceof Element
+        ? event.target.closest('.patrimonio-card')
+        : null;
+      if (card) openPatrimonioModal(card);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const card = event.target instanceof Element
+        ? event.target.closest('.patrimonio-card')
+        : null;
+      if (card && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        openPatrimonioModal(card);
+      }
     });
 
     document.querySelectorAll('[data-close-modal="true"]').forEach((button) => {
@@ -903,4 +923,5 @@ img {
   } else {
     initPatrimonioModal();
   }
+  document.addEventListener('astro:page-load', initPatrimonioModal);
 </script>
