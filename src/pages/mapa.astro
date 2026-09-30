@@ -1,0 +1,410 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import { addGisLayers } from '../lib/gisLayers.js';
+---
+
+<Layout title="Mapa de dictámenes" bodyClass="body--light">
+  <Header />
+  <main class="map-page">
+    <header class="map-page__heading">
+      <a class="map-back-button" href="/formularios/dictamenes">
+         Listado de dictámenes
+      </a>
+      <h1>Mapa del Plan Maestro</h1>
+      <p>Inmuebles con dictámenes abiertos y capas geográficas.</p>
+    </header>
+
+    <div class="map-layout">
+      <aside class="map-sidebar">
+        <section class="map-panel">
+          <h2>Capas</h2>
+          <label class="map-layer-toggle">
+            <input type="checkbox" id="opinions-layer-toggle" checked />
+            Dictámenes abiertos
+          </label>
+          <div id="gis-layer-controls" class="gis-layer-controls"></div>
+        </section>
+        <section class="map-panel">
+          <h2>Dictamen seleccionado</h2>
+          <div id="map-details" aria-live="polite">Seleccione un marcador para ver sus datos.</div>
+          <p id="map-status" role="status" aria-live="polite">Cargando dictámenes...</p>
+        </section>
+      </aside>
+      <div id="master-map" class="master-map" aria-label="Mapa de inmuebles y dictámenes"></div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import 'ol/ol.css';
+  import Map from 'ol/Map.js';
+  import View from 'ol/View.js';
+  import TileLayer from 'ol/layer/Tile.js';
+  import VectorLayer from 'ol/layer/Vector.js';
+  import VectorSource from 'ol/source/Vector.js';
+  import OSM from 'ol/source/OSM.js';
+  import Feature from 'ol/Feature.js';
+  import Point from 'ol/geom/Point.js';
+  import WKT from 'ol/format/WKT.js';
+  import Style from 'ol/style/Style.js';
+  import CircleStyle from 'ol/style/Circle.js';
+  import Fill from 'ol/style/Fill.js';
+  import Stroke from 'ol/style/Stroke.js';
+  import Text from 'ol/style/Text.js';
+  import { fromLonLat } from 'ol/proj.js';
+  import { addGisLayers, transformPlanMaestroCoordinates } from '../lib/gisLayers.js';
+
+  const backendBase = `${window.location.protocol}//${window.location.hostname}:8000`;
+  const token = window.localStorage.getItem('auth_token');
+  const headers = {
+    Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  const statusElement = document.getElementById('map-status');
+  const detailsElement = document.getElementById('map-details');
+  const requestedOpinionId = new URLSearchParams(window.location.search).get('dictamen');
+  const opinionSource = new VectorSource();
+  const selectedSource = new VectorSource();
+  const opinionLayer = new VectorLayer({
+    source: opinionSource,
+    visible: true,
+    style: (feature) => new Style({
+      image: new CircleStyle({
+        radius: feature.get('isRequested') ? 10 : 8,
+        fill: new Fill({ color: feature.get('isRequested') ? '#f59e0b' : '#b42318' }),
+        stroke: new Stroke({ color: '#fff', width: 2 })
+      }),
+      text: new Text({
+        text: String(feature.get('entity') ?? ''),
+        offsetY: -17,
+        font: 'bold 11px sans-serif',
+        fill: new Fill({ color: '#111' }),
+        stroke: new Stroke({ color: '#fff', width: 3 })
+      })
+    })
+  });
+  opinionLayer.set('mapLayerId', 'opinions');
+
+  const selectedLayer = new VectorLayer({
+    source: selectedSource,
+    style: new Style({
+      image: new CircleStyle({
+        radius: 14,
+        fill: new Fill({ color: 'rgba(245, 158, 11, 0.3)' }),
+        stroke: new Stroke({ color: '#f59e0b', width: 3 })
+      }),
+      fill: new Fill({ color: 'rgba(245, 158, 11, 0.2)' }),
+      stroke: new Stroke({ color: '#f59e0b', width: 4 })
+    })
+  });
+  selectedLayer.set('mapLayerId', 'selected-opinion');
+
+  const map = new Map({
+    target: 'master-map',
+    layers: [
+      new TileLayer({ source: new OSM() }),
+      opinionLayer,
+      selectedLayer
+    ],
+    view: new View({
+      center: fromLonLat([-82.3487, 23.1379]),
+      zoom: 15
+    })
+  });
+
+  const showOpinion = (opinion) => {
+    detailsElement.replaceChildren();
+    [
+      ['Dirección', opinion.address],
+      ['Inmueble', opinion.entity],
+      ['Estado', opinion.state],
+      ['Código', opinion.document_folio ?? opinion.issuing_document_code],
+      ['Fecha', opinion.date?.substring(0, 10)]
+    ].forEach(([label, value]) => {
+      const line = document.createElement('p');
+      const strong = document.createElement('strong');
+      strong.textContent = `${label}: `;
+      line.append(strong, document.createTextNode(value || '-'));
+      detailsElement.appendChild(line);
+    });
+  };
+
+  const validLocation = (location) => {
+    const rawLatitude = location?.latitude;
+    const rawLongitude = location?.longitude;
+    if (rawLatitude === null || rawLatitude === undefined || rawLatitude === ''
+      || rawLongitude === null || rawLongitude === undefined || rawLongitude === '') {
+      return null;
+    }
+
+    const latitude = Number(rawLatitude);
+    const longitude = Number(rawLongitude);
+    return Number.isFinite(latitude)
+      && Number.isFinite(longitude)
+      && Math.abs(latitude) <= 90
+      && Math.abs(longitude) <= 180
+      ? [longitude, latitude]
+      : null;
+  };
+
+  const focusOpinion = async (opinion) => {
+    showOpinion(opinion);
+    selectedSource.clear();
+
+    const coordinates = validLocation(opinion.location);
+    if (coordinates) {
+      const feature = new Feature({
+        geometry: new Point(fromLonLat(coordinates)),
+        opinion
+      });
+      selectedSource.addFeature(feature);
+      map.getView().animate({
+        center: feature.getGeometry().getCoordinates(),
+        zoom: 19,
+        duration: 500
+      });
+      return;
+    }
+
+    if (!opinion.entity) {
+      statusElement.textContent = 'Este dictamen no tiene una ubicación ni un código de inmueble.';
+      return;
+    }
+
+    statusElement.textContent = 'Buscando el inmueble en el Plan Maestro...';
+    const response = await fetch(
+      `${backendBase}/api/v1/gis/buildings/${encodeURIComponent(opinion.entity)}`,
+      { headers }
+    );
+    const payload = await response.json();
+
+    if (response.status === 401) {
+      window.localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+      return;
+    }
+
+    const building = payload?.data?.building?.[0] ?? payload?.data?.building;
+    if (!response.ok || payload?.success !== true || !building?.geo_wkt) {
+      throw new Error(payload?.message ?? 'No se encontró la ubicación de este inmueble en el Plan Maestro.');
+    }
+
+    const feature = new WKT().readFeature(building.geo_wkt);
+    const geometry = feature.getGeometry();
+    geometry.setCoordinates(transformPlanMaestroCoordinates(geometry.getCoordinates()));
+    feature.set('opinion', opinion);
+    selectedSource.addFeature(feature);
+    map.getView().fit(geometry.getExtent(), {
+      padding: [50, 50, 50, 50],
+      maxZoom: 19,
+      duration: 500
+    });
+    statusElement.textContent = '';
+  };
+
+  const loadOpinions = async () => {
+    const response = await fetch(`${backendBase}/api/v1/opinions?all=true`, { headers });
+    const payload = await response.json();
+
+    if (response.status === 401) {
+      window.localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+      return [];
+    }
+
+    if (!response.ok || payload?.success !== true || !Array.isArray(payload.data)) {
+      throw new Error(payload?.message ?? 'No se pudieron cargar los dictámenes.');
+    }
+
+    return payload.data;
+  };
+
+  map.on('singleclick', (event) => {
+    map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+      if (layer === opinionLayer) {
+        showOpinion(feature.get('opinion'));
+      }
+    });
+  });
+
+  document.getElementById('opinions-layer-toggle').addEventListener('change', (event) => {
+    opinionLayer.setVisible(event.currentTarget.checked);
+  });
+
+  try {
+    const opinions = await loadOpinions();
+    const openOpinions = opinions.filter((opinion) =>
+      ['elaborado', 'revisado'].includes(String(opinion.state ?? '').trim().toLowerCase())
+    );
+    const requestedOpinion = requestedOpinionId
+      ? opinions.find((opinion) => String(opinion.id) === requestedOpinionId)
+      : null;
+
+    const mappedOpinions = [...openOpinions, ...(requestedOpinion && !openOpinions.includes(requestedOpinion) ? [requestedOpinion] : [])];
+    mappedOpinions
+      .forEach((opinion) => {
+        const coordinates = validLocation(opinion.location);
+        if (!coordinates) return;
+
+        opinionSource.addFeature(new Feature({
+          geometry: new Point(fromLonLat(coordinates)),
+          opinion,
+          entity: opinion.entity,
+          isRequested: String(opinion.id) === requestedOpinionId
+        }));
+      });
+
+    if (requestedOpinion) {
+      await focusOpinion(requestedOpinion);
+    } else if (opinionSource.getFeatures().length) {
+      map.getView().fit(opinionSource.getExtent(), {
+        padding: [60, 60, 60, 60],
+        maxZoom: 18
+      });
+    }
+
+    const locatedOpenCount = openOpinions.filter((opinion) => validLocation(opinion.location)).length;
+    statusElement.textContent = `${locatedOpenCount} de ${openOpinions.length} dictamen(es) abierto(s) tienen ubicación.`;
+    void addGisLayers(
+      map,
+      document.getElementById('gis-layer-controls'),
+      null,
+      null,
+      { visibleEndpoints: ['edificios'] }
+    ).catch((error) => {
+      console.error('No se pudieron cargar las capas del Plan Maestro:', error);
+    });
+  } catch (error) {
+    console.error('No se pudo cargar el mapa de dictámenes:', error);
+    statusElement.textContent = error instanceof Error
+      ? error.message
+      : 'No se pudo cargar el mapa.';
+  }
+</script>
+
+<style is:global>
+  body.body--light {
+    background: #f5f5f5;
+    color: #222;
+  }
+
+  .map-page {
+    width: min(1500px, 96%);
+    margin: 0 auto;
+    padding: 120px 0 36px;
+  }
+
+  .map-page__heading {
+    margin-bottom: 18px;
+  }
+
+  .map-page__heading h1 {
+    margin: 0;
+    color: #553304;
+  }
+
+  .map-back-button {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: #553304;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .map-back-button:hover {
+    background: #704605;
+  }
+
+  .map-page__heading p {
+    margin: 6px 0 0;
+  }
+
+  .map-layout {
+    display: grid;
+    grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
+    gap: 16px;
+    min-height: 70vh;
+  }
+
+  .map-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .map-panel {
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+  }
+
+  .map-panel h2 {
+    margin: 0 0 12px;
+    color: #553304;
+    font-size: 18px;
+  }
+
+  .map-layer-toggle,
+  .gis-layer-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 9px 0;
+    font-size: 14px;
+  }
+
+  .map-layer-toggle input,
+  .gis-layer-controls input {
+    width: auto;
+    margin: 0;
+  }
+
+  .gis-layer-controls > strong {
+    display: block;
+    margin-top: 14px;
+  }
+
+  .gis-layer-error {
+    color: #b42318;
+  }
+
+  #map-details p {
+    margin: 7px 0;
+    overflow-wrap: anywhere;
+  }
+
+  #map-status {
+    color: #555;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .master-map {
+    width: 100%;
+    min-height: 70vh;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e7e7e7;
+  }
+
+  @media (max-width: 760px) {
+    .map-page {
+      padding-top: 100px;
+    }
+
+    .map-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .master-map {
+      min-height: 60vh;
+    }
+  }
+</style>

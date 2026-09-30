@@ -160,9 +160,19 @@ import OpinionDetails from '../../components/details/OpinionDetails.astro';
 </style>
 
 <script type="module">
+import { jsPDF } from 'jspdf';
 
 const API = "http://localhost:8000/api/v1/opinions";
 let opinions = [];
+
+const escapeHtml = (value) =>
+  String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
 
 const normalizeSearchValue = (value) =>
   String(value ?? "")
@@ -225,7 +235,11 @@ window.loadOpinions = async function () {
 
     const json = await res.json();
 
-    opinions = json?.data ?? [];
+    if (!res.ok || !Array.isArray(json?.data)) {
+      throw new Error(json?.message ?? "No se pudieron cargar los dictámenes.");
+    }
+
+    opinions = json.data;
     const items = getFilteredOpinions();
 
     const tbody =
@@ -236,33 +250,44 @@ window.loadOpinions = async function () {
       return;
     }
 
+    if (items.length === 0) {
+      tbody.innerHTML = `
+        <tr class="tabla__tr">
+          <td class="tabla__td" colspan="7">
+            ${opinions.length ? "No hay dictámenes que coincidan con los filtros." : "No hay dictámenes registrados."}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
     tbody.innerHTML = items.map(opinion => `
 
       <tr class="tabla__tr">
 
         <td class="tabla__td">
-          ${opinion.date.substring(0,10) ?? ""}
+          ${escapeHtml(getOpinionValue(opinion, "date") || "-")}
         </td>
 
         <td class="tabla__td">
-          ${opinion.address ?? ""}
+          ${escapeHtml(opinion.address || "-")}
         </td>
 
         <td class="tabla__td">
-          ${opinion.entity ?? ""}
+          ${escapeHtml(opinion.entity ?? "-")}
         </td>
 
         <td class="tabla__td">
-          ${opinion.state ?? ""}
+          ${escapeHtml(opinion.state || "-")}
         </td>
 
         <td class="tabla__td">
-        ${"("+opinion.issuing_company.name + ")" ?? ""}
-          ${getOpinionValue(opinion, "document_folio")}
+          ${escapeHtml(opinion.issuing_company?.name ? `(${opinion.issuing_company.name}) ` : "")}
+          ${escapeHtml(getOpinionValue(opinion, "document_folio") || "-")}
         </td>
 
         <td class="tabla__td">
-          ${opinion.createdAt.substring(0,10) ?? ""}
+          ${escapeHtml(getOpinionValue(opinion, "createdAt") || "-")}
         </td>
 
         <td class="tabla__td">
@@ -274,19 +299,31 @@ window.loadOpinions = async function () {
               <button
                 type="button"
                 class="tabla__action tabla__action--view"
-                data-opinion-view="${opinion.id}">
+                data-opinion-view="${escapeHtml(opinion.id)}">
                 Ver
               </button>
               <button
                 type="button"
+                class="tabla__action tabla__action--location"
+                data-opinion-location="${escapeHtml(opinion.id)}">
+                Ubicación
+              </button>
+              <button
+                type="button"
+                class="tabla__action tabla__action--pdf"
+                data-opinion-pdf="${escapeHtml(opinion.id)}">
+                Generar PDF
+              </button>
+              <button
+                type="button"
                 class="tabla__action tabla__action--edit"
-                data-opinion-edit="${opinion.id}">
+                data-opinion-edit="${escapeHtml(opinion.id)}">
                 Editar
               </button>
               <button
                 type="button"
                 class="tabla__action tabla__action--delete"
-                data-opinion-delete="${opinion.id}">
+                data-opinion-delete="${escapeHtml(opinion.id)}">
                 Eliminar
               </button>
             </div>
@@ -305,6 +342,22 @@ window.loadOpinions = async function () {
           if (openMenu !== menu) openMenu.classList.remove("is-open");
         });
         menu?.classList.toggle("is-open");
+      });
+    });
+
+    document.querySelectorAll("[data-opinion-location]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.opinionLocation;
+        window.location.href = `/mapa?dictamen=${encodeURIComponent(id)}`;
+      });
+    });
+
+    document.querySelectorAll("[data-opinion-pdf]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const opinion = opinions.find(
+          (item) => String(item.id) === button.dataset.opinionPdf
+        );
+        if (opinion) generateOpinionPdf(opinion);
       });
     });
 
@@ -442,8 +495,109 @@ window.loadOpinions = async function () {
       error
     );
 
+    const tbody = document.querySelector(".tabla__table tbody");
+    if (tbody) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.className = "tabla__td";
+      cell.colSpan = 7;
+      cell.textContent = error instanceof Error
+        ? `No se pudo cargar el listado: ${error.message}`
+        : "No se pudo cargar el listado de dictámenes.";
+      row.appendChild(cell);
+      tbody.replaceChildren(row);
+    }
+
   }
 };
+
+function generateOpinionPdf(opinion) {
+  const pdf = new jsPDF();
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 18;
+  const lineWidth = pageWidth - margin * 2;
+  let y = 22;
+
+  const ensureSpace = (height) => {
+    if (y + height > pageHeight - margin) {
+      pdf.addPage();
+      y = margin;
+    }
+  };
+
+  const addHeading = (text) => {
+    ensureSpace(12);
+    y += 5;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(13);
+    pdf.text(text, margin, y);
+    y += 7;
+  };
+
+  const addField = (label, value) => {
+    const text = `${label}: ${String(value ?? '').trim() || '-'}`;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    const lines = pdf.splitTextToSize(text, lineWidth);
+    lines.forEach((line) => {
+      ensureSpace(7);
+      pdf.text(line, margin, y);
+      y += 5;
+    });
+    y += 2;
+  };
+
+  pdf.setProperties({
+    title: `Dictamen ${getOpinionValue(opinion, 'document_folio') || opinion.id}`,
+    subject: 'Dictamen de SEINA'
+  });
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(18);
+  pdf.text('Dictamen', margin, y);
+  y += 12;
+
+  addHeading('Información general');
+  addField('Código', getOpinionValue(opinion, 'document_folio'));
+  addField('Fecha', opinion.date?.substring(0, 10));
+  addField('Dirección', opinion.address);
+  addField('Código del inmueble', opinion.entity);
+  addField(
+    'Coordenadas',
+    opinion.location
+      ? `${opinion.location.latitude}, ${opinion.location.longitude}`
+      : ''
+  );
+  addField('Estado', opinion.state);
+  addField('Entidad emisora', opinion.issuing_company?.name);
+  addField('Tipo de documento', opinion.issuing_document_code);
+
+  addHeading('Participantes y empresas');
+  addField('Proyectista', opinion.designer?.name);
+  addField('Inversionista', opinion.investor?.name);
+  addField('Contratista', opinion.builder?.name);
+  addField('Comisión', opinion.commission?.name);
+  addField('Elaborado por', opinion.prepared_by?.name);
+  addField('Revisado por', opinion.reviewed_by?.name);
+  addField('Aprobado por', opinion.approved_by?.name);
+
+  addHeading('Contenido');
+  addField('Características generales', opinion.general_characteristics);
+  addField('Consideraciones', opinion.considerations);
+  addField('Observaciones', opinion.observations);
+  addField(
+    'Intervenciones',
+    opinion.interventions?.map((item) => item.name).filter(Boolean).join(', ')
+  );
+  addField(
+    'Documentos asociados',
+    opinion.documents?.map((item) => item.name).filter(Boolean).join(', ')
+  );
+
+  const folio = String(getOpinionValue(opinion, 'document_folio') || opinion.id)
+    .replace(/[^\w-]+/g, '_');
+  pdf.save(`Dictamen_${folio}.pdf`);
+}
 
 document.querySelectorAll("[data-opinion-filter]").forEach((input) => {
   input.addEventListener("input", () => {
@@ -601,6 +755,14 @@ body {
 
 .tabla__action--view{
   background: #04553d;
+}
+
+.tabla__action--location {
+  background: #1d4ed8;
+}
+
+.tabla__action--pdf {
+  background: #6b3a00;
 }
 
 .tabla__action--edit {

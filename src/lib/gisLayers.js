@@ -116,12 +116,12 @@ const toWebMercator = (x, y) => {
   ]);
 };
 
-const transformCoordinates = (coordinates) => {
+export const transformPlanMaestroCoordinates = (coordinates) => {
   if (typeof coordinates[0] === 'number') {
     return toWebMercator(coordinates[0], coordinates[1]);
   }
 
-  return coordinates.map(transformCoordinates);
+  return coordinates.map(transformPlanMaestroCoordinates);
 };
 
 const createLayer = (definition, rows, visible = false) => {
@@ -134,7 +134,7 @@ const createLayer = (definition, rows, visible = false) => {
         const feature = format.readFeature(row.geo_wkt);
         const geometry = feature.getGeometry();
         geometry.setCoordinates(
-          transformCoordinates(geometry.getCoordinates())
+          transformPlanMaestroCoordinates(geometry.getCoordinates())
         );
         feature.setProperties({
           ...row,
@@ -215,7 +215,8 @@ export const addGisLayers = async (
   map,
   controlsContainer,
   detailsContainer,
-  onBuildingSelected = null
+  onBuildingSelected = null,
+  options = {}
 ) => {
   if (!map) {
     throw new Error('El mapa GIS todavía no está disponible.');
@@ -234,7 +235,8 @@ export const addGisLayers = async (
         const loaded = Boolean(entry?.layer);
         const loading = entry?.loading === true;
         const unavailable = entry?.error;
-        const visible = entry?.visible === true;
+        const visible = entry?.visible === true
+          || options.visibleEndpoints?.includes(definition.endpoint) === true;
 
         return `
           <label>
@@ -363,4 +365,10 @@ export const addGisLayers = async (
   });
 
   renderControls();
+
+  await Promise.all(
+    layerDefinitions
+      .filter(({ endpoint }) => options.visibleEndpoints?.includes(endpoint))
+      .map((definition) => loadLayer(definition, true))
+  );
 };
