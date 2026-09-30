@@ -187,8 +187,13 @@
   id="participants"
   class="form__input"
   multiple
+  aria-required="true"
+  aria-describedby="participants-error"
  >
 </select>
+    <small id="participants-error" class="field-error" role="alert" hidden>
+      Debe seleccionar al menos un participante.
+    </small>
 
 
 
@@ -213,7 +218,9 @@
     <select
       id="elaborado_por"
       class="form__input"
+      required
     >
+      <option value="" selected>Seleccione un usuario</option>
     </select>
 
   </div>
@@ -294,6 +301,16 @@
 .form__label {
   font-size: 13px;
   color: #444;
+}
+
+.field-error {
+  color: #b42318;
+  font-size: 13px;
+}
+
+.form__input.is-invalid {
+  border-color: #b42318;
+  box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.15);
 }
 
 /* INPUTS */
@@ -938,6 +955,25 @@ const form =
     document.getElementById(
         'acta-form'
     );
+
+const participantsSelect =
+    document.getElementById('participants');
+const participantsError =
+    document.getElementById('participants-error');
+
+const validateParticipants = () => {
+    const hasParticipants = Array.from(
+        participantsSelect.selectedOptions
+    ).some(option => option.value.trim() !== "");
+
+    participantsSelect.classList.toggle('is-invalid', !hasParticipants);
+    participantsSelect.setAttribute('aria-invalid', String(!hasParticipants));
+    participantsError.hidden = hasParticipants;
+
+    return hasParticipants;
+};
+
+participantsSelect?.addEventListener('change', validateParticipants);
 
 // =====================================================
 // LOCALIZACIÓN
@@ -1665,6 +1701,16 @@ const loadElaboradoPor = async () => {
 
         select.innerHTML = "";
 
+        const placeholder =
+            document.createElement("option");
+
+        placeholder.value = "";
+        placeholder.textContent = "Seleccione un usuario";
+        placeholder.defaultSelected = true;
+        placeholder.selected = true;
+
+        select.appendChild(placeholder);
+
 
         users.forEach(user => {
 
@@ -1693,6 +1739,10 @@ const loadElaboradoPor = async () => {
 
             select.value =
                 currentElaboradoPor;
+
+        } else {
+
+            select.value = "";
 
         }
 
@@ -2538,6 +2588,13 @@ const resetForm = () => {
 
     form.reset();
 
+    const elaboradoSelect =
+        document.getElementById("elaborado_por");
+
+    if (elaboradoSelect) {
+        elaboradoSelect.value = "";
+    }
+
 
     renderDocuments();
 
@@ -2637,6 +2694,13 @@ window.addEventListener(
             loadElaboradoPor()
         ]);
 
+        const elaboradoSelect =
+            document.getElementById("elaborado_por");
+
+        if (elaboradoSelect) {
+            elaboradoSelect.value = "";
+        }
+
     }
 );
 
@@ -2706,6 +2770,13 @@ form?.addEventListener(
 
 
         e.preventDefault();
+
+        if (!validateParticipants()) {
+            participantsSelect.focus();
+            return;
+        }
+
+        if (!form.reportValidity()) return;
 
 
         try {
@@ -2860,22 +2931,13 @@ console.log(
             // PARTICIPANTES
             // =========================================
 
-            const participantsSelect =
-                document.getElementById(
-                    'participants'
-                );
-
-
             const participants =
                 participantsSelect
                     ? Array.from(
                         participantsSelect.selectedOptions
-                    ).map(
-                        option =>
-                            Number(
-                                option.value
-                            )
                     )
+                        .map(option => Number(option.value))
+                        .filter(id => Number.isInteger(id) && id > 0)
                     : [];
 
 

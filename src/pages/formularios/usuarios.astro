@@ -69,8 +69,11 @@ window.loadUsers = async function () {
   if (redirectIfUnauthorized(currentUserResponse, requestToken)) return;
   const currentUser = (await currentUserResponse.json())?.data;
   const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
+  const currentUserId = currentUser?.id ?? storedUser?.id;
   const roles = currentUser?.roles ?? storedUser?.roles ?? [];
   const isAdmin = (Array.isArray(roles) ? roles : [roles])
+    .some((role) => String(role?.name ?? role).toLowerCase() === "admin");
+  const isAdminUser = (user) => (user.roles || [])
     .some((role) => String(role?.name ?? role).toLowerCase() === "admin");
   const addButton = document.querySelector("[data-add]");
   if (addButton) {
@@ -89,11 +92,20 @@ window.loadUsers = async function () {
 
   const json = await res.json();
   const items = json?.data ?? [];
+  const adminCount = items.filter(isAdminUser).length;
 
   const tbody = document.querySelector(".tabla__table tbody");
   if (!tbody) return;
 
-  tbody.innerHTML = items.map(u => `
+  tbody.innerHTML = items.map(u => {
+    const isSelf = Number(u.id) === Number(currentUserId);
+    const isLastAdmin = isAdminUser(u) && adminCount <= 1;
+    const deleteDisabled = isSelf || isLastAdmin;
+    const deleteReason = isSelf
+      ? "No puedes eliminar tu propio usuario"
+      : "Debe existir otro administrador";
+
+    return `
   <tr class="tabla__tr">
     <td class="tabla__td">${u.name}</td>
     <td class="tabla__td">${u.email}</td>
@@ -120,13 +132,14 @@ window.loadUsers = async function () {
         <button class="tabla__action tabla__action--edit" data-edit="${u.id}">
           Editar
         </button>
-        <button class="tabla__action tabla__action--delete" data-delete="${u.id}">
+        <button class="tabla__action tabla__action--delete" data-delete="${u.id}" ${deleteDisabled ? `disabled title="${deleteReason}"` : ""}>
           Eliminar
         </button>
       ` : "Solo puede cambiar su contraseña"}
     </td>
   </tr>
-`).join("");
+`;
+}).join("");
 
   // EDITAR
 document.querySelectorAll("[data-edit]").forEach(btn => {
@@ -284,6 +297,11 @@ body {
 
 .tabla__action:hover {
   opacity: .9;
+}
+
+.tabla__action:disabled {
+  cursor: not-allowed;
+  opacity: .5;
 }
 
 .tabla__action--edit {
