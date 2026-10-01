@@ -12,7 +12,7 @@ import { addGisLayers } from '../lib/gisLayers.js';
          Listado de dictámenes
       </a>
       <h1>Mapa del Plan Maestro</h1>
-      <p>Inmuebles con dictámenes abiertos y capas geográficas.</p>
+      <p>Inmuebles con dictámenes y capas geográficas del Plan Maestro.</p>
     </header>
 
     <div class="map-layout">
@@ -21,8 +21,14 @@ import { addGisLayers } from '../lib/gisLayers.js';
           <h2>Capas</h2>
           <label class="map-layer-toggle">
             <input type="checkbox" id="opinions-layer-toggle" checked />
-            Dictámenes abiertos
+            Todos los dictámenes
           </label>
+          <ul class="opinion-legend" aria-label="Estados de los dictámenes">
+            <li><span class="opinion-legend__marker is-elaborado"></span>Elaborado</li>
+            <li><span class="opinion-legend__marker is-revisado"></span>Revisado</li>
+            <li><span class="opinion-legend__marker is-aprobado"></span>Aprobado</li>
+            <li><span class="opinion-legend__marker is-denegado"></span>Denegado</li>
+          </ul>
           <div id="gis-layer-controls" class="gis-layer-controls"></div>
         </section>
         <section class="map-panel">
@@ -52,6 +58,7 @@ import { addGisLayers } from '../lib/gisLayers.js';
   import Fill from 'ol/style/Fill.js';
   import Stroke from 'ol/style/Stroke.js';
   import Text from 'ol/style/Text.js';
+  import { getCenter } from 'ol/extent.js';
   import { fromLonLat } from 'ol/proj.js';
   import { addGisLayers, transformPlanMaestroCoordinates } from '../lib/gisLayers.js';
 
@@ -64,6 +71,12 @@ import { addGisLayers } from '../lib/gisLayers.js';
   const statusElement = document.getElementById('map-status');
   const detailsElement = document.getElementById('map-details');
   const requestedOpinionId = new URLSearchParams(window.location.search).get('dictamen');
+  const stateColors = {
+    elaborado: '#2563eb',
+    revisado: '#d97706',
+    aprobado: '#15803d',
+    denegado: '#b42318'
+  };
   const opinionSource = new VectorSource();
   const selectedSource = new VectorSource();
   const opinionLayer = new VectorLayer({
@@ -72,8 +85,13 @@ import { addGisLayers } from '../lib/gisLayers.js';
     style: (feature) => new Style({
       image: new CircleStyle({
         radius: feature.get('isRequested') ? 10 : 8,
-        fill: new Fill({ color: feature.get('isRequested') ? '#f59e0b' : '#b42318' }),
-        stroke: new Stroke({ color: '#fff', width: 2 })
+        fill: new Fill({
+          color: stateColors[String(feature.get('state') ?? '').trim().toLowerCase()] ?? '#6b7280'
+        }),
+        stroke: new Stroke({
+          color: feature.get('isRequested') ? '#f59e0b' : '#fff',
+          width: feature.get('isRequested') ? 4 : 2
+        })
       }),
       text: new Text({
         text: String(feature.get('entity') ?? ''),
@@ -146,6 +164,33 @@ import { addGisLayers } from '../lib/gisLayers.js';
       && Math.abs(longitude) <= 180
       ? [longitude, latitude]
       : null;
+  };
+
+  const getOpinionCoordinates = async (opinion) => {
+    const coordinates = validLocation(opinion.location);
+    if (coordinates) return fromLonLat(coordinates);
+    if (!opinion.entity) return null;
+
+    const response = await fetch(
+      `${backendBase}/api/v1/gis/buildings/${encodeURIComponent(opinion.entity)}`,
+      { headers }
+    );
+    const payload = await response.json();
+    if (response.status === 401) {
+      window.localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+      throw new Error('La sesión ha expirado.');
+    }
+
+    const building = payload?.data?.building?.[0] ?? payload?.data?.building;
+    if (!response.ok || payload?.success !== true || !building?.geo_wkt) {
+      return null;
+    }
+
+    const geometry = new WKT().readFeature(building.geo_wkt).getGeometry();
+    return getCenter(geometry.getExtent()).map((coordinate) =>
+      transformPlanMaestroCoordinates(coordinate)
+    );
   };
 
   const focusOpinion = async (opinion) => {
@@ -234,26 +279,26 @@ import { addGisLayers } from '../lib/gisLayers.js';
 
   try {
     const opinions = await loadOpinions();
-    const openOpinions = opinions.filter((opinion) =>
-      ['elaborado', 'revisado'].includes(String(opinion.state ?? '').trim().toLowerCase())
-    );
     const requestedOpinion = requestedOpinionId
       ? opinions.find((opinion) => String(opinion.id) === requestedOpinionId)
       : null;
 
-    const mappedOpinions = [...openOpinions, ...(requestedOpinion && !openOpinions.includes(requestedOpinion) ? [requestedOpinion] : [])];
-    mappedOpinions
-      .forEach((opinion) => {
-        const coordinates = validLocation(opinion.location);
-        if (!coordinates) return;
+    const locatedResults = await Promise.allSettled(opinions.map(async (opinion) => {
+      const coordinates = await getOpinionCoordinates(opinion);
+      if (!coordinates) return false;
 
-        opinionSource.addFeature(new Feature({
-          geometry: new Point(fromLonLat(coordinates)),
-          opinion,
-          entity: opinion.entity,
-          isRequested: String(opinion.id) === requestedOpinionId
-        }));
-      });
+      opinionSource.addFeature(new Feature({
+        geometry: new Point(coordinates),
+        opinion,
+        entity: opinion.entity,
+        state: opinion.state,
+        isRequested: String(opinion.id) === requestedOpinionId
+      }));
+      return true;
+    }));
+    const locatedCount = locatedResults.filter(
+      (result) => result.status === 'fulfilled' && result.value
+    ).length;
 
     if (requestedOpinion) {
       await focusOpinion(requestedOpinion);
@@ -264,8 +309,7 @@ import { addGisLayers } from '../lib/gisLayers.js';
       });
     }
 
-    const locatedOpenCount = openOpinions.filter((opinion) => validLocation(opinion.location)).length;
-    statusElement.textContent = `${locatedOpenCount} de ${openOpinions.length} dictamen(es) abierto(s) tienen ubicación.`;
+    statusElement.textContent = `${locatedCount} de ${opinions.length} dictamen(es) tienen ubicación en el mapa.`;
     void addGisLayers(
       map,
       document.getElementById('gis-layer-controls'),
@@ -364,6 +408,35 @@ import { addGisLayers } from '../lib/gisLayers.js';
     width: auto;
     margin: 0;
   }
+
+  .opinion-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 14px 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .opinion-legend li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .opinion-legend__marker {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #666;
+  }
+
+  .opinion-legend__marker.is-elaborado { background: #2563eb; }
+  .opinion-legend__marker.is-revisado { background: #d97706; }
+  .opinion-legend__marker.is-aprobado { background: #15803d; }
+  .opinion-legend__marker.is-denegado { background: #b42318; }
 
   .gis-layer-controls > strong {
     display: block;
